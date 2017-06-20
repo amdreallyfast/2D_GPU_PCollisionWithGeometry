@@ -1,0 +1,16 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    A convenience function whose name indicates its purpose.  Also useful so that I don't have 
+    to type the actual vector name three times.  This isn't quite as accurate as a real square 
+    root, but from what I've read, it is pretty accurate out to a few decimal places, so it's 
+    good enough for simulation work.
+Parameters:
+    v   The vec4 to be normalized.
+Returns:
+    A normalized copy of input v;
+Creator:    John Cox (9-25-2016)
+------------------------------------------------------------------------------------------------*/
+vec4 QuickNormalize(const vec4 v)
+{
+    return inversesqrt(dot(v, v)) * v;
+}

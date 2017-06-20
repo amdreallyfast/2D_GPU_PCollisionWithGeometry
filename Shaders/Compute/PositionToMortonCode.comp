@@ -1,0 +1,106 @@
+// REQUIRES ParticleRegionBoundaries.comp
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    This function "expands" bits of an unsigned integer input prior to interleaving.  It does 
+    some bit magic that I don't understand.
+
+    Copied from 
+    https://devblogs.nvidia.com/parallelforall/thinking-parallel-part-iii-tree-construction-gpu/
+Parameters: 
+    i   An unsigned integer within the range 0-1023 (2^10 - 1).
+Returns:    
+    A 30bit bit version of the input.
+Creator:    John Cox, 2/2017
+------------------------------------------------------------------------------------------------*/
+uint ExpandBits(uint i)
+{
+    uint expandedI = i;
+
+    // bit magic (I don't know what it is doing)
+    // Note: In binary:
+    // expandedI = (expandedI * 0b00000000000000010000000000000001) & 0b11111111000000000000000011111111
+    // expandedI = (expandedI * 0b00000000000000000000000100000001) & 0b00001111000000001111000000001111
+    // expandedI = (expandedI * 0b00000000000000000000000000010001) & 0b11000011000011000011000011000011
+    // expandedI = (expandedI * 0b00000000000000000000000000000101) & 0b01001001001001001001001001001001
+
+    expandedI = (expandedI * 0x00010001u) & 0xFF0000FFu;
+    expandedI = (expandedI * 0x00000101u) & 0x0F00F00Fu;
+    expandedI = (expandedI * 0x00000011u) & 0xC30C30C3u;
+    expandedI = (expandedI * 0x00000005u) & 0x49249249u;    
+
+    return expandedI;
+}
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    I want to sort over a Morton Code of the particles' positions.  A Morton Code is a clever 
+    interleaving ("expanding" as per my source material) of bits that allows for 
+    three-dimensional coordinates to be compared for proximity as if they were in a 
+    1-dimensional array.
+    
+    OpenGL 4.5 has the 64bit double but does not have a 64bit integer.  If the Morton Codes were 
+    simply for sorting, then I could get away with bit operations on the 64bit float, but after 
+    sorting I will eventually (maybe not in this demo, 
+    "2D_GPU_PCollisionWithZOrderCurveRadixSorting") need to compare a Morton Code against 
+    another.  A Morton Code's value is expected to be proportional to the size of each of the 
+    (X,Y,Z) coordinates that compose it.  That is, the code will have a larger value if the 
+    (X,Y,Z) values that went into it are all large, and it will be smaller if the (X,Y,Z) values 
+    are small.  The exponent and mantissa portion of a float/double make them such that 
+    increasing bit values are not guaranteed to give a higher value overall.  For that, only 
+    integers will work.  
+
+    Thus I am stuck with GLSL's 32bit unsigned integer.  Interleaving three values means that 
+    each coordinate must be 10bit unsigned integers, so each coordinate must be turned into an 
+    integer along the range 0-1024 (2^10 - 1).  I can't do 11bits because interleaving those 
+    would require 33bits total.  If I had a 64bit integer, then I could keep a lot of positional 
+    precision and use floor(64/3) = 21 bits per integer.  But that's not available, so I'm stuck 
+    with 10bits.  
+
+    Note: With a resolution of only 1024 for all particles, it is possible that two or more 
+    particles that are very close to each other will end up with the same Morton Code.  This is 
+    ok.  Two particles that are right on top of each other SHOULD have very close codes.  I'd 
+    like more precision in my codes, but this is acceptable.
+
+    A brief visual of the interleaving can be found here:
+    http://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/
+
+    Like ExpandBits(...), this code is also copied from 
+    https://devblogs.nvidia.com/parallelforall/thinking-parallel-part-iii-tree-construction-gpu/
+Parameters: 
+    A copy of the position vector (vec4).
+Returns:    
+    A 30bit unsigned int Morton Code.
+Creator:    John Cox, 2/2017
+------------------------------------------------------------------------------------------------*/
+uint PositionToMortonCode(vec4 pos)
+{
+    // make sure that the W won't interfere with the position normalization
+    // Note: In GLSL, all values are passed in by copy.  It is ok to reuse the argument.
+    // Also Note: I thought that re-using the argument would make stack operations faster when 
+    // calling the ExpandBits(...) function, but it is only 16 bytes per thread.  I haven't 
+    // noticed a measurable difference.  I'll re-use because it's already there.
+    pos.w = 0.0f;
+
+    // reduce to the range [0,1] on all axes
+    pos.x = (pos.x - PARTICLE_REGION_MIN_X) * PARTICLE_REGION_INVERSE_RANGE_X;
+    pos.x = (pos.x - PARTICLE_REGION_MIN_Y) * PARTICLE_REGION_INVERSE_RANGE_Y;
+    pos.x = (pos.x - PARTICLE_REGION_MIN_Z) * PARTICLE_REGION_INVERSE_RANGE_Z;
+
+    // create a 10bit integer for each coordinate
+    // Note: I don't know if this clamping is necessary, but it is in the source code.  The 
+    // multiplying of a 0.0-1.0 by 1024 is definitely necessary though.
+    uint clampX = uint(min(max(pos.x * 1024.0f, 0.0f), 1023.0f));
+    uint clampY = uint(min(max(pos.y * 1024.0f, 0.0f), 1023.0f));
+    uint clampZ = uint(min(max(pos.z * 1024.0f, 0.0f), 1023.0f));
+
+    // now expand to 30bit values apiece
+    unsigned int xx = ExpandBits(clampX);
+    unsigned int yy = ExpandBits(clampY);
+    unsigned int zz = ExpandBits(clampZ);
+
+    // and interleave to make the final Morton Code
+    return (xx * 4) + (yy * 2) + zz;
+}
+
+

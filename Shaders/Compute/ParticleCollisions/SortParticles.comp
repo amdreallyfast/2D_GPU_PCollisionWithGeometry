@@ -1,0 +1,52 @@
+// REQUIRES Version.comp
+// REQUIRES ComputeShaderWorkGroupSizes.comp
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES CrossShaderUniformLocations.comp
+// REQUIRES ParticleBuffer.comp
+// REQUIRES ParticleSortingDataBuffer.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    This is the end of the line for sorting.  By the time that this shader is called, the
+    ParticleSortingDataBuffer's last written portion (should be switched to the "read" portion by 
+    now) should contain sorted ParticleSortingData structures.  Make the ParticleBuffer have this 
+    same order.
+
+    Note: There is no "swap" in parallel sorting.  All particles were already copied to the 
+    second half of the ParticleBuffer in CopyParticlesToCopyBuffer.comp, so instead of "swap", 
+    all that is needed now is to figure out where each thread's particle should go and copy it 
+    back to the first half of the ParticleBuffer.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uMaxNumParticles) // or uMaxNumParticleSortingData
+    {
+        return;
+    }
+
+    // the Morton Codes are expected to be in the first half of the ParticleSortingDataBuffer,
+    // so the read offset should be 0, but I'm adding it here anyway just in case the sorting 
+    // loop is changed to run an odd number of times and therefore cause the sorted data to end 
+    // up in the buffer's second half 
+    uint sortedDataIndex = threadIndex + uParticleSortingDataBufferReadOffset;
+    uint sourceIndex = AllParticleSortingData[sortedDataIndex]._preSortedParticleIndex;
+
+    // the unsorted particles are in the second half of the buffer
+    sourceIndex += uMaxNumParticles;
+
+    // the ParticleSortingData structure is already sorted, so whatever index it is at now is the 
+    // same index where the original data should be 
+    AllParticles[threadIndex] = AllParticles[sourceIndex];
+    
+    
+    
+    AllParticles[threadIndex]._numNearbyParticles = int(AllParticleSortingData[sortedDataIndex]._sortingData);
+}

@@ -1,0 +1,20 @@
+// REQUIRES PolygonFace.comp
+
+/*-----------------------------------------------------------------------------------------------
+Description:
+    See BoundingBox.h for more detail.
+
+    Note: This is NOT to be confused with the BoundingBox structure of the same name in BvhNodeBuffer.comp.  That is a lightweight structure that is meant for use in the bounding volume hierarchy only and not for drawing.  It unfortunately shares the same name.
+
+    TODO: ??change to simply Box2D??
+Creator:    John Cox, 6/2017
+-----------------------------------------------------------------------------------------------*/
+struct BoundingBox
+{
+    PolygonFace _left;
+    PolygonFace _right;
+    PolygonFace _top;
+    PolygonFace _bottom;
+
+    // just using vec4's so everything is already aligned to 16bytes and no padding necessary
+};

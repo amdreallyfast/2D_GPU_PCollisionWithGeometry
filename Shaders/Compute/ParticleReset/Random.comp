@@ -1,0 +1,64 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    Generate a semi-random number on the range [0,+1] (I think; I don't know if it actually hits 
+    0 or +1).  Found online:
+    http://stackoverflow.com/questions/12964279/whats-the-origin-of-this-glsl-rand-one-liner
+
+    Like rand() on the CPU side, this is a chaotic hash function whose output is only as random 
+    as the input.  Calling it multiple times with the same input will always generate the same 
+    output.  But unlike rand(), this function does not have access to OS-level calls to the 
+    CPU's clock counter, nor is there access to any of the GPU's clock counters, so inputs must 
+    be provided by the user.
+
+    Note: This random hash has its limits.  When provided two sequential integers from the 
+    atomic counter, there is a little bit of banding in the bar emitters, but the point emitters 
+    look good enough, so I can live with this.  I don't need encryption-level randomness for a 
+    particle simulation.
+
+Parameters: 
+    randSeed    Self-explanatory
+Returns:
+    A semi-random float.
+Creator:    John Cox (9-25-2016)
+------------------------------------------------------------------------------------------------*/
+float RandomOnRange0To1(vec2 randSeed)
+{
+    // Modification to make it look nicer and to use the "mod" from here:
+    // Note: I did NOT use the precision qualifier highp like this author does.  The OpenGL 
+    // documentation says to not use precision qualifiers unless you want to be OpenGL ES 2.0 
+    // compatable, which this author is.  I just took the "mod" part of it.  
+    // His explanation: the existing hash function relies on some funky business with 
+    // implementation of sin(...).  I'll take his warning an mod(...) the value like he does.
+    // https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers
+    // http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
+    float a = 12.9898;
+    float b = 78.233;
+    float c = 43758.5453;
+    float dt = dot(randSeed.xy ,vec2(a,b));
+    float sn = mod(dt,3.14);
+    return fract(sin(sn) * c);
+}
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    A convenience function that generates a single number on the range [-1,+1] (again, I don't 
+    know if it actually hits -1 or +1 exactly).  It is used to generate random X and Y velocity 
+    vectors for newly-eminating particles.  
+Parameters:    
+    randSeed    Self-explanatory
+Returns:
+    A semi-random float on the range [-1,+1].
+Creator:    John Cox (9-25-2016)
+------------------------------------------------------------------------------------------------*/
+float RandomOnRangeNeg1ToPos1(vec2 randSeed)
+{
+    float randValue = RandomOnRange0To1(randSeed);
+    if (randValue < 0.5f)
+    {
+        return (-1.0f * randValue);
+    }
+    else 
+    {
+        return (+1.0f * randValue);
+    }
+}

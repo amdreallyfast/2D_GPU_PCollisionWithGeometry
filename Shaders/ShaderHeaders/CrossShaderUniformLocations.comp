@@ -1,0 +1,57 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    This file was created because there are some uniforms that need to be used in multiple 
+    shaders.  In previous projects, for example, ParticleBuffer was used by multiple shaders 
+    (ParticleReset.comp, ParticleUpdate.comp, ParticleCollisions.comp) and was always 
+    accompanied by the uniform uMaxNumParticles.  This was before the ShaderStorage class was 
+    modified to create composite shaders out of multiple files like it can now, so each compute 
+    controller that used ParticleBuffer had to look up the uniform binding location of 
+    uMaxNumParticles independently.
+
+    But now the ShaderStorage class CAN create composite shaders, so buffers are defined in 
+    their own .comp files and are accompanied by uniforms specifying their max size.  This demo 
+    of the GPU-based parallel sort has multiple shaders that use the info from one buffer to 
+    alter another buffer, and then the next shader in the process uses the altered buffer to 
+    alter another, and then the next shader uses that one, and it keeps going.  
+    
+    Rather than requiring repeat lookup of the same uniforms in different shaders, hard code 
+    the uniform binding locations to be constant and unique across whatever shaders they may 
+    end up being used in.  This will reduce coupling by removing the need for lookups of 
+    hard-coded uniform names.
+Creator:    John Cox, 3/2017
+------------------------------------------------------------------------------------------------*/
+
+// ParticleBuffer.comp
+#define UNIFORM_LOCATION_MAX_NUM_PARTICLES 0
+
+// ParticlePropertiesBuffer.comp
+#define UNIFORM_LOCATION_NUM_PARTICLE_PROPERTIES 1
+
+// ParticleSortingDataBuffer.comp
+#define UNIFORM_LOCATION_MAX_NUM_SORTING_DATA 2
+#define UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET 3
+#define UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_WRITE_OFFSET 4
+
+// PrefixScanBuffer.comp
+#define UNIFORM_LOCATION_ALL_PREFIX_SUMS_SIZE 5
+
+// GetBitForPrefixScans.comp
+#define UNIFORM_LOCATION_BIT_NUMBER 6
+
+// ParticleUpdate.comp; PositiontoMortonCode.comp
+#define UNIFORM_LOCATION_PARTICLE_REGION_ORIGIN_X 9
+#define UNIFORM_LOCATION_PARTICLE_REGION_ORIGIN_Y 10
+#define UNIFORM_LOCATION_PARTICLE_REGION_ORIGIN_Z 11
+#define UNIFORM_LOCATION_PARTICLE_REGION_RANGE_X 12
+#define UNIFORM_LOCATION_PARTICLE_REGION_RANGE_Y 13
+#define UNIFORM_LOCATION_PARTICLE_REGION_RANGE_Z 14
+
+// bounding volume hierarchy node buffer
+#define UNIFORM_LOCATION_BVH_NUMBER_LEAVES 15
+#define UNIFORM_LOCATION_BVH_NUMBER_INTERNAL_NODES 16
+#define UNIFORM_LOCATION_BVH_NODE_BUFFER_SIZE 17
+
+// particle collisions detection and viewing the results
+#define UNIFORM_LOCATION_PARTICLE_POTENTIAL_COLLISIONS_BUFFER_SIZE 18
+#define UNIFORM_LOCATION_PARTICLE_VELOCITY_VECTOR_GEOMETRY_BUFFER_SIZE 19
+#define UNIFORM_LOCATION_PARTICLE_BOUNDING_BOX_GEOMETRY_BUFFER_SIZE 19

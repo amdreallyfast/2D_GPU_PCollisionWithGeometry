@@ -1,0 +1,29 @@
+// REQUIRES Version.comp
+// REQUIRES ComputeShaderWorkGroupSizes.comp
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES CrossShaderUniformLocations.comp
+// REQUIRES ParticleBuffer.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Moves the particle into the "copy" position in preparation for the last step of the parallel 
+    sort.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uMaxNumParticles)
+    {
+        return;
+    }
+
+    // put the particle into the copy buffer so that the post-sorting shader SortParticles.comp 
+    // can immediately move the particles to their sorted position
+    AllParticles[uMaxNumParticles + threadIndex] = AllParticles[threadIndex];
+}

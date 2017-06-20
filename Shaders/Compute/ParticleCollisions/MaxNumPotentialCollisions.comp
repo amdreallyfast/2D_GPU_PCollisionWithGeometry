@@ -1,0 +1,7 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    This file was created so that the loop through the number of potential particle collisions 
+    could be deterministic and hopefully the GLSL compiler will unroll the loop.
+Creator:    John Cox, 6/2017
+------------------------------------------------------------------------------------------------*/
+#define MAX_NUM_POTENTIAL_COLLISIONS 8

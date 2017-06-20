@@ -1,0 +1,41 @@
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES CrossShaderUniformLocations
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Stores info about a single particle.  Must match the value type and order in Particle.h.
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+struct Particle
+{
+    vec4 _pos;
+    vec4 _vel;
+
+    int _particleTypeIndex;
+    int _numNearbyParticles;
+    int _isActive;
+
+    // vec4s are 16 bytes, +3x 4-byte items, so needs 1 byte padding on the CPU side
+};
+
+// whatever size the user wants
+layout(location = UNIFORM_LOCATION_MAX_NUM_PARTICLES) uniform uint uMaxNumParticles;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    See description in ParticleSsbo.h.
+
+    Note: Without the binding point specifier, which implicitly assumed std430, then the 
+    layout standard needs to be specified explicitly.  According to this website under heading 
+    "Layout std430, new and better std140", std430 is the ONLY layout specifier available for 
+    SSBOs.  I don't know what it does, but it is necessary.  
+    http://malideveloper.arm.com/resources/sample-code/introduction-compute-shaders-2/
+Creator:    John Cox, 9-25-2016
+------------------------------------------------------------------------------------------------*/
+layout (std430, binding = PARTICLE_BUFFER_BINDING) buffer ParticleBuffer
+{
+    Particle AllParticles[];
+};
+

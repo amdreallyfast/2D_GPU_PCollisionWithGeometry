@@ -1,0 +1,16 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    This is a set of constants that is useful for avoiding repeat definitions or hard-coded 
+    magic numbers in both ParallelSort.cpp and in PrefixScan.comp in order to make the 
+    buffer sizes and work group counts and max thread counts all line up.
+Creator:    John Cox, 3/2017
+------------------------------------------------------------------------------------------------*/
+
+// this is used for operating on particles in ParticleReset.comp, ParticleUpdate.comp, etc.
+#define WORK_GROUP_SIZE_X 512
+#define WORK_GROUP_SIZE_Y 1
+#define WORK_GROUP_SIZE_Z 1
+
+// Note: Each thread in the prefix scan algorithm works on 2 data entries. 
+#define PREFIX_SCAN_ITEMS_PER_WORK_GROUP (WORK_GROUP_SIZE_X * 2)
+

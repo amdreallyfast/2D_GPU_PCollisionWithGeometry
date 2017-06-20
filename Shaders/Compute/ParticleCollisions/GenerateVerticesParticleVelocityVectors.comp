@@ -1,0 +1,47 @@
+// REQUIRES Version.comp
+// REQUIRES ComputeShaderWorkGroupSizes.comp
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES CrossShaderUniformLocations.comp
+// REQUIRES ParticleVelocityVectorGeometryBuffer.comp
+// REQUIRES ParticleBuffer.comp
+// REQUIRES QuickNormalize.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Looks up each particle, creates a normalized vector out of its velocity, scales that down, 
+    and makes a line out of it.  Sticks it into the ParticleVelocityVectorGeometryBuffer.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 6/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uMaxNumParticles)
+    {
+        return;
+    }
+    else if (AllParticles[threadIndex]._isActive == 0)
+    {
+        MyVertex nullVertex;
+        AllParticleVelocityVectorVertices[(threadIndex * 2)] = nullVertex;
+        AllParticleVelocityVectorVertices[(threadIndex * 2) + 1] = nullVertex;
+        return;
+    }
+
+    Particle p = AllParticles[threadIndex];
+    MyVertex start;
+    MyVertex end;
+
+    start._pos = p._pos;
+    
+    vec4 normalizedVelocity = QuickNormalize(p._vel);
+    end._pos = p._pos + (normalizedVelocity * 0.05f);
+
+    AllParticleVelocityVectorVertices[(threadIndex * 2)] = start;
+    AllParticleVelocityVectorVertices[(threadIndex * 2) + 1] = end;
+}

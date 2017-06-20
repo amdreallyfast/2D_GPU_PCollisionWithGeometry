@@ -1,0 +1,15 @@
+// REQUIRES MyVertex.comp
+
+/*-----------------------------------------------------------------------------------------------
+Description:
+    This is a simple structure that describes the face of a 2D polygon.  Useful for making the 
+    code that uses the buffer and the vertices more readable.
+Creator:    John Cox (9-8-2016)
+-----------------------------------------------------------------------------------------------*/
+struct PolygonFace
+{
+    MyVertex _start;
+    MyVertex _end;
+
+    // just using vec4's so everything is already aligned to 16bytes and no padding necessary
+};

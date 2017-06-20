@@ -1,0 +1,35 @@
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES CrossShaderUniformLocations
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    See description in ParticleSortingData.h.
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+struct ParticleSortingData
+{
+    uint _sortingData;
+    int _preSortedParticleIndex;
+
+    // no GLSL-native structures, so no padding necessary on the CPU side
+};
+
+// expected to be the size of uMaxNumParticles
+layout(location = UNIFORM_LOCATION_MAX_NUM_SORTING_DATA) uniform uint uMaxNumParticleSortingData;
+
+// these are swapped on each loop of the parallel sort routine
+layout(location = UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET) uniform uint uParticleSortingDataBufferReadOffset;
+layout(location = UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_WRITE_OFFSET) uniform uint uParticleSortingDataBufferWriteOffset;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    See description in ParticleSortingDataSsbo.h.
+
+    Will be 2x the size of uMaxNumParticleSortingData (same as 2X the number of particles).
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+layout (std430, binding = PARTICLE_SORTING_DATA_BUFFER_BINDING) buffer ParticleSortingDataBuffer
+{
+    ParticleSortingData AllParticleSortingData[];
+};

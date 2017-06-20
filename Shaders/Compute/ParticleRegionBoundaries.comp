@@ -1,0 +1,34 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    This file was created because ParticleUpdate.comp and PositionToMortonCode.comp both need to 
+    know the particle region boundaries.  The former has needed this for a long time, but I 
+    discovered a couple days ago (4-29-2017) that my Morton Code setup was incorrect.  I was 
+    normalizing the particles' position vector instead of dividing it by the size of the 
+    particle region.  Whoops.
+
+    Now that two compute headers need it and since the region boundaries are a constant from 
+    program start, I decided to put them into a compute "header".
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+
+// starting to use a rectangular region instead of circular like in previous demos
+// Note: The inverse ranges are for use in PositionToMortonCode.comp to avoid division.
+#define PARTICLE_REGION_MIN_X (-0.9f)
+#define PARTICLE_REGION_MIN_Y (-0.9f)
+#define PARTICLE_REGION_MIN_Z (-0.9f)
+#define PARTICLE_REGION_RANGE_X (+1.8f)
+#define PARTICLE_REGION_RANGE_Y (+1.8f)
+#define PARTICLE_REGION_RANGE_Z (+1.8f)
+#define PARTICLE_REGION_INVERSE_RANGE_X (+0.555555556f)
+#define PARTICLE_REGION_INVERSE_RANGE_Y (+0.555555556f)
+#define PARTICLE_REGION_INVERSE_RANGE_Z (+0.555555556f)
+
+
+//// for use when testing my sample data, which was generated in a particle region with ranges [0,1] on both axes
+//#define PARTICLE_REGION_MIN_X (0.0f)
+//#define PARTICLE_REGION_MIN_Y (0.0f)
+//#define PARTICLE_REGION_MIN_Z (0.0f)
+//#define PARTICLE_REGION_RANGE_X (+1.0f)
+//#define PARTICLE_REGION_RANGE_Y (+1.0f)
+//#define PARTICLE_REGION_RANGE_Z (+1.0f)
+

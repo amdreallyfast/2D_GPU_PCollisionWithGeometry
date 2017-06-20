@@ -1,0 +1,95 @@
+// REQUIRES Version.comp
+// REQUIRES ComputeShaderWorkGroupSizes.comp
+// - PARALLEL_SORT_WORK_GROUP_SIZE
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES CrossShaderUniformLocations.comp
+// REQUIRES ParticleBuffer.comp
+// REQUIRES Random.comp
+// REQUIRES NewVelocityBetweenMinAndMax.comp
+// REQUIRES QuickNormalize.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+// Note: Binding must be declared in the shader: https://www.opengl.org/wiki/Atomic_Counter.
+layout (binding = ATOMIC_COUNTER_BUFFER_BINDING, offset = 0) uniform atomic_uint acResetParticleCounter;
+
+
+uniform float uMinParticleVelocity;
+uniform float uMaxParticleVelocity;
+uniform vec4 uPointEmitterCenter;
+
+// this value is used to prevent uMaxNumParticles particles from being emitted all at once
+// Note: This is particularly helpful when the particles are spread out on multiple emitters.
+uniform uint uMaxParticleEmitCount;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    The compute shader's startup function.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint index = gl_GlobalInvocationID.x;
+    if (index >= uMaxNumParticles)
+    {
+        return;
+    }
+    else if (AllParticles[index]._isActive != 0)
+    {
+        // still active, so don't reset
+        return;
+    }
+    else if (atomicCounterIncrement(acResetParticleCounter) >= uMaxParticleEmitCount)
+    {
+        // already hit the limit for how many particles can be emitted this frame
+        return;
+    }
+
+    // thread index is referring to an inactive particle and this emitter hasn't reached its 
+    // emit limit yet for this frame, so give the particle at this thread index a new position 
+    // and velocity
+    Particle pCopy = AllParticles[index];
+
+    // reset the particle to a cloud around the point emitter ("looks nice" feature)
+    // Note: 
+    // (1) normalizing the particle's new position so that it ends up on the rim of a circle 
+    //  with a radius of exactly 1 unit (don't have "in" or "cm" or whatever in window space, so 
+    //  just say "unit").  
+    // (2) I don't want the particle to be spawning only on a circle though that takes up all of 
+    //  window space (X and Y on the range [-1,+1]), so multiply this normalized location by a 
+    //  small fraction of 1 to put the new position on the rim of a smaller circle.  This circle 
+    //  shall be a region around the point emitter from which the particle shall eminate.  
+    // (3) Then do a linear blend between the new position on the rim of this circle and the 
+    //  particle emitter's center.  This shall be the particle's new spawn position.
+    
+    // Note: Use last position as the rand seed for X, then swizzle a bit for the Y.
+    float newPosX = RandomOnRangeNeg1ToPos1(pCopy._pos.xy);
+    float newPosY = RandomOnRangeNeg1ToPos1(pCopy._pos.yx);
+    vec4 cloudRingLimit = (0.1f * QuickNormalize(vec4(newPosX, newPosY, 0.0f, 0.0f)));
+    vec4 innerPosLimit = uPointEmitterCenter;
+    vec4 outerPosLimit = uPointEmitterCenter + cloudRingLimit;
+    float blendAlpha = RandomOnRange0To1(vec2(newPosX, newPosY));
+    pCopy._pos = mix(innerPosLimit, outerPosLimit, blendAlpha);
+
+    // velocity
+    // Note: Similar to position, use the last know velocity as the rand seed for X, then 
+    // swizzle for the Y.
+    float newVelX = RandomOnRangeNeg1ToPos1(pCopy._vel.xy);
+    float newVelY = RandomOnRangeNeg1ToPos1(pCopy._vel.yx);
+    vec4 randomVelocityVector = QuickNormalize(vec4(newVelX, newVelY, 0.0, 0.0));
+    vec4 minVel = uMinParticleVelocity * randomVelocityVector;
+    vec4 maxVel = uMaxParticleVelocity * randomVelocityVector;
+    blendAlpha = RandomOnRange0To1(vec2(newVelX, newVelY));
+    pCopy._vel = mix(minVel, maxVel, blendAlpha);
+    
+    // set to "active"
+    pCopy._isActive = 1;
+
+    // write particle back to global memory
+    AllParticles[index] = pCopy;
+}
+
+
