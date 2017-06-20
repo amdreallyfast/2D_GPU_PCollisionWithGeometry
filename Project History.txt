@@ -15,3 +15,4 @@
 (2017) render_particles_2D_GPU_CPU_hybrid_p_on_p_collisions
 (2-25-2017) 2D_GPU_PCollisionWithZOrderCurveRadixSortBVH
 (5-2-2017) 2D_GPU_PCollisionUsingBvh
+(6-19-2017) 2D_GPU_PCollisionWithGeometry
