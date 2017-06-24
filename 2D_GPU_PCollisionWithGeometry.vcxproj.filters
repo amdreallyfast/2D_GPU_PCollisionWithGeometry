@@ -74,6 +74,12 @@
     <ClCompile Include="Source\Buffers\SSBOs\ParticleBoundingBoxGeometrySsbo.cpp">
       <Filter>Source\Buffers\SSBOs</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\CollideableGeometrySsbo.cpp">
+      <Filter>Source\Buffers\SSBOs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Geometry\BlenderLoad.cpp">
+      <Filter>Source\Geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shaders\ShaderStorage.h">
@@ -172,8 +178,14 @@
     <ClInclude Include="Include\Buffers\SSBOs\ParticleBoundingBoxGeometrySsbo.h">
       <Filter>Include\Buffers\SSBOs</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\CollideableGeometrySsbo.h">
+      <Filter>Include\Buffers\SSBOs</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Geometry\BlenderLoad.h">
+      <Filter>Include\Geometry</Filter>
+    </ClInclude>
     <ClInclude Include="Include\Buffers\BoundingBox.h">
-      <Filter>Include\Buffers</Filter>
+      <Filter>Include\Geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -239,6 +251,9 @@
     </Filter>
     <Filter Include="Shaders\Compute\GeometryStuff">
       <UniqueIdentifier>{fe34ff65-a146-4aba-bfae-55ef765a8e50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Geometry">
+      <UniqueIdentifier>{7e07a09f-f6e3-4a8e-a489-6e259ec092d8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

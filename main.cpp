@@ -48,6 +48,11 @@
 #include "Include/Buffers/Particle.h"
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
 #include "Include/Buffers/SSBOs/ParticlePropertiesSsbo.h"
+
+// TODO: move to ParticleGeometryCollisions shader controller
+#include "Include/Buffers/SSBOs/CollideableGeometrySsbo.h"
+
+
 #include "Include/Buffers/PersistentAtomicCounterBuffer.h"
 #include "Include/ShaderControllers/ParticleReset.h"
 #include "Include/ShaderControllers/ParticleUpdate.h"
@@ -225,6 +230,11 @@ void Init()
 
     // for drawing non-particle things
     geometryRenderer = std::make_unique<ShaderControllers::RenderGeometry>();
+
+
+    CollideableGeometrySsbo theThing("Blender3DStuff/circle_square_grid.obj");
+
+
 
     // the timer will be used for framerate calculations
     gTimer.Start();
