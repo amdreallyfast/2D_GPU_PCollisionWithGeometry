@@ -87,14 +87,9 @@ struct RawObjectData
 {
     // if true, use _lineVertices, else use _quadVertices
     bool _isWireFrame;
-    std::vector<glm::vec4> _vertPositions;
-    //std::vector<glm::vec4> _vertTextureCoord;    // not supported (yet)
-    std::vector<glm::vec4> _vertNormals;
     std::vector<LineVertices> _lineVertices;
     std::vector<QuadVertices> _quadVertices;
 };
-
-using RawObjectDataCollection = std::map<std::string, RawObjectData>;
 
 /*-----------------------------------------------------------------------------------------------
 Description:
@@ -106,7 +101,10 @@ Returns:
     An ordered set of PolygonFace objects.
 Creator:    John Cox, 6/2017
 -----------------------------------------------------------------------------------------------*/
-static BlenderLoad::PolygonCollection ParseRawBlenderData(const RawObjectData &rawObjectData)
+static BlenderLoad::PolygonCollection ParseRawBlenderData(
+    const RawObjectData &rawObjectData, 
+    const std::vector<glm::vec4> &allVertexPositions,
+    const std::vector<glm::vec4> &allVertexNormals)
 {
     BlenderLoad::PolygonCollection newCollection;
 
@@ -122,8 +120,8 @@ static BlenderLoad::PolygonCollection ParseRawBlenderData(const RawObjectData &r
             //glm::vec4 p2 = rawObjectData._vertPositions[p2Index];
             
             // no normals right now (TODO: ??these??)
-            MyVertex v1(rawObjectData._vertPositions[p1Index], glm::vec4());
-            MyVertex v2(rawObjectData._vertPositions[p2Index], glm::vec4());
+            MyVertex v1(allVertexPositions[p1Index], glm::vec4());
+            MyVertex v2(allVertexPositions[p2Index], glm::vec4());
             newCollection.push_back(PolygonFace(v1, v2));
         }
     }
@@ -193,6 +191,15 @@ BlenderLoad::BlenderLoad(const std::string &filePath)
     std::string lineHeaderUseMaterial("usemtl ");
     std::string lineHeaderSmoothShading("s ");
 
+    // Note: Blender3D's .obj files store all vertices and normals sequentially 
+    // (vertex 1, vertex 2, vertex 3, etc.), regardless of the object that they are associated 
+    // with.  Lump all the vertices together and all the normals together, then pull out later 
+    // which vertices and normals belong to which object.
+    std::vector<glm::vec4> allVertexPositions;
+    //std::vector<glm::vec4> vertTextureCoord;    // not supported (yet)
+    std::vector<glm::vec4> allVertexNormals;
+
+    using RawObjectDataCollection = std::map<std::string, RawObjectData>;
     RawObjectDataCollection rawNumbersMap;
     std::string currentObjectName;
     while (std::getline(fileStream, line))
@@ -212,7 +219,7 @@ BlenderLoad::BlenderLoad(const std::string &filePath)
             std::string subStr = line.substr(lineHeaderVertexPosition.length());
             const char *readBuffer = subStr.c_str();
             sscanf(readBuffer, "%f %f %f", &x, &y, &z);
-            rawNumbersMap[currentObjectName]._vertPositions.push_back(glm::vec4(x, y, z, 1.0f));
+            allVertexPositions.push_back(glm::vec4(x, y, z, 1.0f));
         }
         else if (line.substr(0, lineHeaderVertexNormal.length()) == lineHeaderVertexNormal)
         {
@@ -222,7 +229,7 @@ BlenderLoad::BlenderLoad(const std::string &filePath)
             std::string subStr = line.substr(lineHeaderVertexPosition.length());
             const char *readBuffer = subStr.c_str();
             sscanf(readBuffer, "%f %f %f", &x, &y, &z);
-            rawNumbersMap[currentObjectName]._vertNormals.push_back(glm::vec4(x, y, z, 0.0f));
+            allVertexNormals.push_back(glm::vec4(x, y, z, 0.0f));
         }
         else if (line.substr(0, lineHeaderLine.length()) == lineHeaderLine)
         {
@@ -281,13 +288,12 @@ BlenderLoad::BlenderLoad(const std::string &filePath)
             }
 
             // -1 because Blender3D indexes start at 1, not 0
-            RawVertex v1(p1Index, n1Index);
-            RawVertex v2(p2Index, n2Index);
-            RawVertex v3(p3Index, n3Index);
-            RawVertex v4(p4Index, n4Index);
-
             rawNumbersMap[currentObjectName]._quadVertices.push_back(
-                QuadVertices(v1, v2, v3, v4));
+                QuadVertices(
+                    RawVertex(p1Index - 1, n1Index - 1),
+                    RawVertex(p2Index - 1, n2Index - 1),
+                    RawVertex(p3Index - 1, n3Index - 1),
+                    RawVertex(p4Index - 1, n4Index - 1)));
         }
         else if (line.substr(0, lineHeaderUseMaterial.length()) == lineHeaderUseMaterial)
         {
@@ -308,7 +314,7 @@ BlenderLoad::BlenderLoad(const std::string &filePath)
     for (RawObjectDataCollection::const_iterator itr = rawNumbersMap.begin(); 
         itr != rawNumbersMap.end(); itr++)
     {
-        _allGeometry[itr->first] = ParseRawBlenderData(itr->second);
+        _allGeometry[itr->first] = ParseRawBlenderData(itr->second, allVertexPositions, allVertexNormals);
     }
     printf("");
 }
