@@ -20,5 +20,9 @@ public:
     using SharedConstPtr = std::shared_ptr<const CollideableGeometrySsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
+    unsigned int NumPolygons() const;
+
+private:
+    unsigned int _numPolygons;
 };
 

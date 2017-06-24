@@ -80,6 +80,9 @@
     <ClCompile Include="Source\Geometry\BlenderLoad.cpp">
       <Filter>Source\Geometry</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ShaderControllers\ParticleGeometryCollisions.cpp">
+      <Filter>Source\ShaderControllers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shaders\ShaderStorage.h">
@@ -187,6 +190,9 @@
     <ClInclude Include="Include\Buffers\BoundingBox.h">
       <Filter>Include\Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ShaderControllers\ParticleGeometryCollisions.h">
+      <Filter>Include\ShaderControllers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -254,6 +260,12 @@
     </Filter>
     <Filter Include="Source\Geometry">
       <UniqueIdentifier>{7e07a09f-f6e3-4a8e-a489-6e259ec092d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\ParticleGeometryCollisions">
+      <UniqueIdentifier>{3f9889db-ce16-4898-b892-9361a1728e9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\ParticleGeometryCollisions\Buffers">
+      <UniqueIdentifier>{9ad32710-0043-44dc-beee-6f778ec6fd1e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -391,6 +403,9 @@
     </None>
     <None Include="Shaders\Compute\ParticleCollisions\GenerateVerticesParticleBoundingBoxes.comp">
       <Filter>Shaders\Compute\ParticleCollisions</Filter>
+    </None>
+    <None Include="Shaders\Compute\ParticleGeometryCollisions\Buffers\CollideableGeometryBuffer.comp">
+      <Filter>Shaders\Compute\ParticleGeometryCollisions\Buffers</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -29,6 +29,4 @@ public:
 
 private:
     GeometryByObject _allGeometry;
-
-    bool GeneratePolygonCollectionForObject(std::ifstream &fileStream, const std::string &objectName);
 };

@@ -168,6 +168,7 @@
     <ClCompile Include="Source\RenderFrameRate\FreeTypeEncapsulated.cpp" />
     <ClCompile Include="Source\RenderFrameRate\Stopwatch.cpp" />
     <ClCompile Include="Source\ShaderControllers\ParticleCollisions.cpp" />
+    <ClCompile Include="Source\ShaderControllers\ParticleGeometryCollisions.cpp" />
     <ClCompile Include="Source\ShaderControllers\ProfilingWaitToFinish.cpp" />
     <ClCompile Include="Source\ShaderControllers\RenderGeometry.cpp" />
     <ClCompile Include="Source\ShaderControllers\ParticleReset.cpp" />
@@ -204,6 +205,7 @@
     <ClInclude Include="Include\RenderFrameRate\FreeTypeEncapsulated.h" />
     <ClInclude Include="Include\RenderFrameRate\Stopwatch.h" />
     <ClInclude Include="Include\ShaderControllers\ParticleCollisions.h" />
+    <ClInclude Include="Include\ShaderControllers\ParticleGeometryCollisions.h" />
     <ClInclude Include="Include\ShaderControllers\ProfilingWaitToFinish.h" />
     <ClInclude Include="Include\ShaderControllers\RenderGeometry.h" />
     <ClInclude Include="Include\ShaderControllers\ParticleReset.h" />
@@ -240,6 +242,7 @@
     <None Include="Shaders\Compute\ParticleCollisions\ResolveCollisions.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\SortParticles.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\SortSortingDataWithPrefixSums.comp" />
+    <None Include="Shaders\Compute\ParticleGeometryCollisions\Buffers\CollideableGeometryBuffer.comp" />
     <None Include="Shaders\Compute\ParticleRegionBoundaries.comp" />
     <None Include="Shaders\Compute\ParticleReset\ParticleResetBarEmitter.comp" />
     <None Include="Shaders\Compute\ParticleReset\ParticleResetPointEmitter.comp" />

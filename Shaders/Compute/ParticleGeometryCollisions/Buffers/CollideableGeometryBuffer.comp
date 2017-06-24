@@ -1,0 +1,18 @@
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES CrossShaderUniformLocations
+// REQUIRES PolygonFace.comp
+
+
+layout(location = UNIFORM_LOCATION_COLLIDEABLE_GEOMETRY_BUFFER_SIZE) uniform uint uMaxPolygons;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    See description in CollideableGeometrySsbo.h.
+Creator:    John Cox, 6/2017
+------------------------------------------------------------------------------------------------*/
+layout (std430, binding = COLLIDEABLE_GEOMETRY_BUFFER_BINDING) buffer CollideableGeometryBuffer
+{
+    PolygonFace AllColideableGeometry[];
+};
+

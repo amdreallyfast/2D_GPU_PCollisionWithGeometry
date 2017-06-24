@@ -116,13 +116,18 @@ static BlenderLoad::PolygonCollection ParseRawBlenderData(
             unsigned int p1Index = rawObjectData._lineVertices[vertexIndex]._pos1Index;
             unsigned int p2Index = rawObjectData._lineVertices[vertexIndex]._pos2Index;
             
-            //glm::vec4 p1 = rawObjectData._vertPositions[p1Index];
-            //glm::vec4 p2 = rawObjectData._vertPositions[p2Index];
+            glm::vec4 p1 = allVertexPositions[p1Index];
+            glm::vec4 p2 = allVertexPositions[p2Index];
+
+            // create a 2D normal by rotating the start->end vector clockwise by 90deg
+            glm::vec4 p1ToP2 = p2 - p1;
+            glm::vec4 n(p1ToP2.y, -p1ToP2.x, 0.0f, 0.0f);
             
             // no normals right now (TODO: ??these??)
-            MyVertex v1(allVertexPositions[p1Index], glm::vec4());
-            MyVertex v2(allVertexPositions[p2Index], glm::vec4());
-            newCollection.push_back(PolygonFace(v1, v2));
+            newCollection.push_back(
+                PolygonFace(
+                    MyVertex(p1, n),
+                    MyVertex(p2, n)));
         }
     }
     else  // read "faces, not lines"
