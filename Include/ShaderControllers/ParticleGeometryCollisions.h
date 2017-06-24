@@ -8,6 +8,13 @@
 
 namespace ShaderControllers
 {
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        This compute controller is responsible for loading geometry from the provided Blender3D 
+        .obj file and setting up and calling the appropriate compute shaders to get particles to 
+        bounce off the geometry.
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
     class ParticleGeometryCollisions
     {
     public:
@@ -28,6 +35,11 @@ namespace ShaderControllers
 
         void ResolveCollisionsWithoutProfiling(unsigned int numWorkGroupsX) const;
         void ResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const;
+
+        // the "without profiling" and "with profiling" go through these same steps
+        
+        // TODO: split into "detect" and "resolve", with "detect" checking for bounding box overlaps and putting PolygonFace indexes into the ParticlePotentialCollisionsBuffer (move buffer out of the ParticleCollisions/Buffers/ folder and up to a folder that both particle collisions and particle-geometry collisions can access) and with "resolve" checking for boundary crossings and resolving per-particle
+        void DetectAndResolveCollisions(unsigned int numWorkGroupsX) const;
 
         // buffers for all that jazz
         CollideableGeometrySsbo _collideableGeometrySsbo;

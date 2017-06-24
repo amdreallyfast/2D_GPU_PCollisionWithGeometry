@@ -243,6 +243,7 @@
     <None Include="Shaders\Compute\ParticleCollisions\SortParticles.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\SortSortingDataWithPrefixSums.comp" />
     <None Include="Shaders\Compute\ParticleGeometryCollisions\Buffers\CollideableGeometryBuffer.comp" />
+    <None Include="Shaders\Compute\ParticleGeometryCollisions\ResolveCollisions.comp" />
     <None Include="Shaders\Compute\ParticleRegionBoundaries.comp" />
     <None Include="Shaders\Compute\ParticleReset\ParticleResetBarEmitter.comp" />
     <None Include="Shaders\Compute\ParticleReset\ParticleResetPointEmitter.comp" />

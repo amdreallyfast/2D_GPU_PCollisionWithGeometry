@@ -84,7 +84,7 @@ void CollideableGeometrySsbo::ConfigureConstantUniforms(unsigned int computeProg
 {
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    glUniform1ui(UNIFORM_LOCATION_COLLIDEABLE_GEOMETRY_BUFFER_SIZE, _numPolygons);
+    glUniform1ui(UNIFORM_LOCATION_MAX_COLLIDEABLE_POLYGONS, _numPolygons);
     glUseProgram(0);
 }
 

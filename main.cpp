@@ -48,17 +48,13 @@
 #include "Include/Buffers/Particle.h"
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
 #include "Include/Buffers/SSBOs/ParticlePropertiesSsbo.h"
-
-// TODO: move to ParticleGeometryCollisions shader controller
-#include "Include/Buffers/SSBOs/CollideableGeometrySsbo.h"
-
-
 #include "Include/Buffers/PersistentAtomicCounterBuffer.h"
 #include "Include/ShaderControllers/ParticleReset.h"
 #include "Include/ShaderControllers/ParticleUpdate.h"
 #include "Include/ShaderControllers/ParticleCollisions.h"
 #include "Include/ShaderControllers/RenderParticles.h"
 #include "Include/ShaderControllers/RenderGeometry.h"
+#include "Include/ShaderControllers/ParticleGeometryCollisions.h"
 
 // for the frame rate counter (and other profiling)
 #include "Include/ShaderControllers/ProfilingWaitToFinish.h"
@@ -75,6 +71,7 @@ std::shared_ptr<ShaderControllers::ParticleUpdate> particleUpdater = nullptr;
 std::shared_ptr<ShaderControllers::ParticleCollisions> particleCollisions = nullptr;
 std::shared_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 std::shared_ptr<ShaderControllers::RenderGeometry> geometryRenderer = nullptr;
+std::shared_ptr<ShaderControllers::ParticleGeometryCollisions> particleGeometryCollisions = nullptr;
 
 const unsigned int MAX_PARTICLE_COUNT = 5000;
 
@@ -213,28 +210,25 @@ void Init()
     // for resetting particles
     // Note: Put the bar emitters across from each and spraying particles toward each other and 
     // up so that the particles collide near the middle with a slight upward velocity.
-    particleResetter = std::make_unique<ShaderControllers::ParticleReset>(particleBuffer);
+    particleResetter = std::make_shared<ShaderControllers::ParticleReset>(particleBuffer);
     GenerateParticleEmitters();
 
     // for moving particles
-    particleUpdater = std::make_unique<ShaderControllers::ParticleUpdate>(particleBuffer);
+    particleUpdater = std::make_shared<ShaderControllers::ParticleUpdate>(particleBuffer);
 
     //// for sorting particles once they've been updated
-    //parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleBuffer);
+    //parallelSort = std::make_shared<ShaderControllers::ParallelSort>(particleBuffer);
 
     // for sorting, detecting collisions between, and resolving said collisions between particles
     particleCollisions = std::make_shared<ShaderControllers::ParticleCollisions>(particleBuffer, particlePropertiesBuffer);
 
     // for drawing particles
-    particleRenderer = std::make_unique<ShaderControllers::RenderParticles>();
+    particleRenderer = std::make_shared<ShaderControllers::RenderParticles>();
 
     // for drawing non-particle things
-    geometryRenderer = std::make_unique<ShaderControllers::RenderGeometry>();
+    geometryRenderer = std::make_shared<ShaderControllers::RenderGeometry>();
 
-
-    CollideableGeometrySsbo theThing("Blender3DStuff/circle_square_grid.obj");
-
-
+    particleGeometryCollisions = std::make_shared<ShaderControllers::ParticleGeometryCollisions>("Blender3DStuff/circle_square_grid.obj", particleBuffer);
 
     // the timer will be used for framerate calculations
     gTimer.Start();
@@ -307,6 +301,7 @@ void Display()
     particleRenderer->Render(particleBuffer);
     geometryRenderer->Render(particleCollisions->ParticleVelocityVectorSsbo());
     geometryRenderer->Render(particleCollisions->ParticleBoundingBoxSsbo());
+    geometryRenderer->Render(particleGeometryCollisions->GeometrySsbo());
 
     // draw the frame rate once per second in the lower left corner
     glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));
@@ -469,7 +464,7 @@ int main(int argc, char *argv[])
     glutInitContextProfile(GLUT_CORE_PROFILE);
 
     // enable this for automatic message reporting (see OpenGlErrorHandling.cpp)
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
     glutInitContextFlags(GLUT_DEBUG);
 #endif

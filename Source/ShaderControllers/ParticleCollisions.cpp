@@ -645,7 +645,7 @@ namespace ShaderControllers
     {
         ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
 
-        std::string shaderKey = "detect collisions";
+        std::string shaderKey = "detect particle-particle collisions";
         shaderStorageRef.NewCompositeShader(shaderKey);
         AssembleProgramHeader(shaderKey);
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleCollisions/Buffers/BvhNodeBuffer.comp");
@@ -670,7 +670,7 @@ namespace ShaderControllers
     {
         ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
 
-        std::string shaderKey = "resolve collisions";
+        std::string shaderKey = "resolve particle-particle collisions";
         shaderStorageRef.NewCompositeShader(shaderKey);
         AssembleProgramHeader(shaderKey);
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleCollisions/MaxNumPotentialCollisions.comp");
