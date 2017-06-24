@@ -162,8 +162,8 @@
     <ClCompile Include="Source\Buffers\SSBOs\VertexSsboBase.cpp" />
     <ClCompile Include="Source\Geometry\BlenderLoad.cpp" />
     <ClCompile Include="Source\OpenGlErrorHandling.cpp" />
-    <ClCompile Include="Source\Particles\ParticleEmitterBar.cpp" />
-    <ClCompile Include="Source\Particles\ParticleEmitterPoint.cpp" />
+    <ClCompile Include="Source\ParticleEmitters\ParticleEmitterBar.cpp" />
+    <ClCompile Include="Source\ParticleEmitters\ParticleEmitterPoint.cpp" />
     <ClCompile Include="Source\RenderFrameRate\FreeTypeAtlas.cpp" />
     <ClCompile Include="Source\RenderFrameRate\FreeTypeEncapsulated.cpp" />
     <ClCompile Include="Source\RenderFrameRate\Stopwatch.cpp" />
@@ -198,9 +198,9 @@
     <ClInclude Include="Include\Geometry\MyVertex.h" />
     <ClInclude Include="Include\Geometry\PolygonFace.h" />
     <ClInclude Include="Include\OpenGlErrorHandling.h" />
-    <ClInclude Include="Include\Particles\IParticleEmitter.h" />
-    <ClInclude Include="Include\Particles\ParticleEmitterBar.h" />
-    <ClInclude Include="Include\Particles\ParticleEmitterPoint.h" />
+    <ClInclude Include="Include\ParticleEmitters\IParticleEmitter.h" />
+    <ClInclude Include="Include\ParticleEmitters\ParticleEmitterBar.h" />
+    <ClInclude Include="Include\ParticleEmitters\ParticleEmitterPoint.h" />
     <ClInclude Include="Include\RenderFrameRate\FreeTypeAtlas.h" />
     <ClInclude Include="Include\RenderFrameRate\FreeTypeEncapsulated.h" />
     <ClInclude Include="Include\RenderFrameRate\Stopwatch.h" />

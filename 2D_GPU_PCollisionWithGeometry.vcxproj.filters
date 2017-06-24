@@ -26,12 +26,6 @@
     <ClCompile Include="Source\ShaderControllers\RenderParticles.cpp">
       <Filter>Source\ShaderControllers</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Particles\ParticleEmitterPoint.cpp">
-      <Filter>Source\Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Particles\ParticleEmitterBar.cpp">
-      <Filter>Source\Particles</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Buffers\SSBOs\ParticleSsbo.cpp">
       <Filter>Source\Buffers\SSBOs</Filter>
     </ClCompile>
@@ -83,6 +77,12 @@
     <ClCompile Include="Source\ShaderControllers\ParticleGeometryCollisions.cpp">
       <Filter>Source\ShaderControllers</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ParticleEmitters\ParticleEmitterBar.cpp">
+      <Filter>Source\ParticleEmitters</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ParticleEmitters\ParticleEmitterPoint.cpp">
+      <Filter>Source\ParticleEmitters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shaders\ShaderStorage.h">
@@ -108,15 +108,6 @@
     </ClInclude>
     <ClInclude Include="Include\ShaderControllers\RenderParticles.h">
       <Filter>Include\ShaderControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Particles\ParticleEmitterPoint.h">
-      <Filter>Include\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Particles\IParticleEmitter.h">
-      <Filter>Include\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Particles\ParticleEmitterBar.h">
-      <Filter>Include\Particles</Filter>
     </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\ParticleSsbo.h">
       <Filter>Include\Buffers\SSBOs</Filter>
@@ -193,6 +184,15 @@
     <ClInclude Include="Include\ShaderControllers\ParticleGeometryCollisions.h">
       <Filter>Include\ShaderControllers</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ParticleEmitters\IParticleEmitter.h">
+      <Filter>Include\ParticleEmitters</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParticleEmitters\ParticleEmitterBar.h">
+      <Filter>Include\ParticleEmitters</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParticleEmitters\ParticleEmitterPoint.h">
+      <Filter>Include\ParticleEmitters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -215,12 +215,6 @@
     </Filter>
     <Filter Include="Source\ShaderControllers">
       <UniqueIdentifier>{a73809c4-b73c-469b-9701-2aeed3a14341}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Include\Particles">
-      <UniqueIdentifier>{d357cb74-d829-434b-821c-4223fcc76f76}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Particles">
-      <UniqueIdentifier>{66bbd978-c998-4177-bcb5-0a213a4c3b54}</UniqueIdentifier>
     </Filter>
     <Filter Include="Include\Buffers">
       <UniqueIdentifier>{c2f70ea0-9cfc-4275-9332-efa4059d446f}</UniqueIdentifier>
@@ -266,6 +260,12 @@
     </Filter>
     <Filter Include="Shaders\Compute\ParticleGeometryCollisions\Buffers">
       <UniqueIdentifier>{9ad32710-0043-44dc-beee-6f778ec6fd1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ParticleEmitters">
+      <UniqueIdentifier>{66bbd978-c998-4177-bcb5-0a213a4c3b54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\ParticleEmitters">
+      <UniqueIdentifier>{d357cb74-d829-434b-821c-4223fcc76f76}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

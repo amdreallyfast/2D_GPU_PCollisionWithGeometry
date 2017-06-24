@@ -4,9 +4,9 @@
 #include <memory>
 
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Particles/IParticleEmitter.h"
-#include "Include/Particles/ParticleEmitterPoint.h"
-#include "Include/Particles/ParticleEmitterBar.h"
+#include "Include/ParticleEmitters/IParticleEmitter.h"
+#include "Include/ParticleEmitters/ParticleEmitterPoint.h"
+#include "Include/ParticleEmitters/ParticleEmitterBar.h"
 
 
 namespace ShaderControllers

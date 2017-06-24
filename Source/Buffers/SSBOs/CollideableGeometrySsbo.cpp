@@ -9,8 +9,8 @@
 #include "Include/Geometry/PolygonFace.h"
 #include <vector>
 
-// comment out to remove the face normals from the polygon buffer
-#define MAKE_LINES_OUT_OF_NORMALS
+//// comment out to remove the face normals from the polygon buffer
+//#define MAKE_LINES_OUT_OF_NORMALS
 
 
 /*------------------------------------------------------------------------------------------------
