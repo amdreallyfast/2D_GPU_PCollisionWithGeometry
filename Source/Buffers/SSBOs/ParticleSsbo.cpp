@@ -41,11 +41,11 @@ static void InitializeWithRandomData(std::vector<Particle> &initThese)
         // randomizing float values.  The 0-1 range isn't necessary, but the position and 
         // velocity values are floats, and dividing by RAND_MAX is an easy way to get a float.  
         // It just so happens to be along the range 0-1.
-        initThese[particleIndex]._pos.x = static_cast<float>(rand()) * inverseRandMax;
-        initThese[particleIndex]._pos.y = static_cast<float>(rand()) * inverseRandMax;
+        initThese[particleIndex]._currPos.x = static_cast<float>(rand()) * inverseRandMax;
+        initThese[particleIndex]._currPos.y = static_cast<float>(rand()) * inverseRandMax;
         
         // just outside the Z buffer (0 (far) to -1 (near)), so it won't draw
-        initThese[particleIndex]._pos.z = +0.1f;
+        initThese[particleIndex]._currPos.z = +0.1f;
 
         initThese[particleIndex]._vel.x = static_cast<float>(rand()) * inverseRandMax;
         initThese[particleIndex]._vel.y = static_cast<float>(rand()) * inverseRandMax;
@@ -170,9 +170,17 @@ void ParticleSsbo::ConfigureRender()
     unsigned int sizeOfItem = 0;
     unsigned int numItems = 0;
 
-    // position
+    // current position
     GLenum itemType = GL_FLOAT;
-    sizeOfItem = sizeof(Particle::_pos);
+    sizeOfItem = sizeof(Particle::_currPos);
+    numItems = sizeOfItem / sizeof(float);
+    glEnableVertexAttribArray(vertexArrayIndex);
+    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
+    bufferStartOffset += sizeOfItem;
+
+    // previous position
+    GLenum itemType = GL_FLOAT;
+    sizeOfItem = sizeof(Particle::_prevPos);
     numItems = sizeOfItem / sizeof(float);
     glEnableVertexAttribArray(vertexArrayIndex);
     glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);

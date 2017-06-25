@@ -37,10 +37,10 @@ void main()
     MyVertex start;
     MyVertex end;
 
-    start._pos = p._pos;
+    start._pos = p._currPos;
     
     vec4 normalizedVelocity = QuickNormalize(p._vel);
-    end._pos = p._pos + (normalizedVelocity * 0.05f);
+    end._pos = p._currPos + (normalizedVelocity * 0.05f);
 
     AllParticleVelocityVectorVertices[(threadIndex * 2)] = start;
     AllParticleVelocityVectorVertices[(threadIndex * 2) + 1] = end;

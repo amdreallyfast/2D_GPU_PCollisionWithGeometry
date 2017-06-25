@@ -40,10 +40,62 @@ layout (local_size_x = WORK_GROUP_SIZE_X) in;
 //    return horizontalIntersection && verticalIntersection;
 //}
 
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    I learned about the "perpendicular dot product" from here:
+    http://www.dreamincode.net/forums/topic/329073-intersection-point-of-two-vectors/
+
+    And here:
+    http://devmag.org.za/2009/08/12/vector-fundamentals/
+
+    Note: The "prependicular dot product" ONLY works in 2D.  It only considers X and Y and so 
+    would be useless in 3D (unless you have a problem reduced to 2D, in which case it is 
+    conceivably useful).
+Parameters: None
+Returns:    None
+Creator:    John Cox, 6/2017
+------------------------------------------------------------------------------------------------*/
+float PerpDot(vec2 a, vec2 b)
+{
+    return ((a.x * b.y) - (a.y * b.x));
+}
+
 /*------------------------------------------------------------------------------------------------
 Description:
     Each particle examines all the polygon faces in the CollideableGeometryBuffer and bounces 
     off them if necessary.
+
+    Note: I learned of this intersection check via this forum post:
+    http://www.dreamincode.net/forums/topic/329073-intersection-point-of-two-vectors/
+
+    Consider two line segments "a" and "b".  Each are defined by a position vector + travel 
+    vector.  Their intersection will occur at some fraction t (I could have chosen another 
+    letter) from 0-1 between their start point + the travel vector.  That is:
+    
+    Intersection vector = a.start + t*a
+    OR 
+    Intersection vector = b.start + s*a ("s" is a different fraction between 0-1)
+
+    Both will end up at the same point.
+
+    For line segment "a", this fraction t is defined as 
+    t = PerpendicularDot(c,b) / PerpendicularDot(a,b), where "c" is (b.start - a.start).  
+    
+    For line segment "b", this fraction s is defined as 
+    s = PerpendicularDot(c,a) / PerpendicularDot(b,a), where "c" is (a.start - b.start).  
+    
+    These are line segments, so even if the line defined by their travel vectors eventually 
+    intersect, the segments do not intersect if t < 0 or t > 1 (??else??).
+
+    This ONLY works in 2D.  I don't have a visual understanding of why this works, but I worked 
+    it out on paper and it does, so I'll use it.
+
+    Also Note: I learned the reflection from here:
+    http://www.3dkingdoms.com/weekly/weekly.php?a=2
+
+    This works in 2D and 3D.
+    
 Parameters: None
 Returns:    None
 Creator:    John Cox, 4/2017
@@ -60,6 +112,47 @@ void main()
         return;
     }
 
+    // in this function, "a" will be the particle travel vector and "b" will be the line along 
+    // the polygon face
+    Particle p = AllParticles[threadIndex];
+    vec4 a = p._currPos - p._prevPos;
+    for(uint polyCounter = 0; polyCounter < uMaxPolygons; polyCounter++)
+    {
+        PolygonFace polyFace = AllCollideableGeometry[polyCounter];
+        vec4 b = polyFace._end._pos - polyFace._start._pos;
+        vec4 c = polyFace._start._pos - p._prevPos;
 
+        float t = PerpDot(c.xy, b.xy) / PerpDot(a.xy, b.xy);
+
+        if (t <= 0.0f || t >= 1.0f)
+        {
+            // no intersection
+            continue;
+        }
+
+        // the particle crossed the line; bounce it
+        // Note: Work out this equation on paper and it will hopefully make visual sense.  It 
+        // did for me.
+        // Also Note: The line segment remaining after the point of intersection is traveling in 
+        // the same direction as the incident vector.  This algorithm to reflect a vector around 
+        // a normal applies the magnitude of the incident vector to the reflection vector, so by 
+        // using the line segment after the intersection as the incident line segment, the 
+        // reflection vector will adopt its magnitude.  This will make the particle's resulting 
+        // position only travel as far as necessary after the bounce.
+        vec4 PointOfIntersection = p._prevPos + (t * a);
+        vec4 IncidentVector = p._currPos - PointOfIntersection;
+
+        // both vertices normals are the same for any given PolygonFace, so either will work
+        vec4 n = polyFace._start._normal;
+        vec4 reflectionVector = IncidentVector - ((2 * dot(IncidentVector, n)) * n);
+
+        // update the particle positions will new values to reflect the bounce.
+        AllParticles[threadIndex]._prevPos = PointOfIntersection;
+        AllParticles[threadIndex]._currPos = PointOfIntersection + reflectionVector;
+
+        // it should only collide with 1 piece of geometry, so if the particle has already 
+        // bounced off something, then this thread is done
+        break;
+    }
 }
 

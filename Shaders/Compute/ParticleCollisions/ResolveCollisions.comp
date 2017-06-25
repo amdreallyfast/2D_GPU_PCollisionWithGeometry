@@ -66,7 +66,7 @@ void main()
 
         // Note: The W component should be 0 after the subtraction, but force it to 0 just in 
         // case so it doesn't mess up the square of the magnitude.
-        vec4 lineOfContact = vec4(p2._pos.xyz - p1._pos.xyz, 0.0f);
+        vec4 lineOfContact = vec4(p2._currPos.xyz - p1._currPos.xyz, 0.0f);
         float distSqr = dot(lineOfContact, lineOfContact);
         if (distSqr > minDistForCollisionSqr)
         {

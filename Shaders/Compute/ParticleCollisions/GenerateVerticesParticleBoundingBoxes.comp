@@ -36,7 +36,7 @@ void main()
 
     int particleType = AllParticles[threadIndex]._particleTypeIndex;
     float collisionRadius = AllParticleProperties[particleType]._collisionRadius;
-    vec4 pos = AllParticles[threadIndex]._pos;
+    vec4 pos = AllParticles[threadIndex]._currPos;
 
     float left = pos.x - collisionRadius;
     float right = pos.x + collisionRadius;

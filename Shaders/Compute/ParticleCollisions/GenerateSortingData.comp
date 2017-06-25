@@ -24,7 +24,7 @@ void main()
         return;
     }
 
-    uint mortonCode = PositionToMortonCode(AllParticles[threadIndex]._pos);
+    uint mortonCode = PositionToMortonCode(AllParticles[threadIndex]._currPos);
     if (AllParticles[threadIndex]._isActive == 0)
     {
         // override the code with a number that will cause it to be sorted to the back

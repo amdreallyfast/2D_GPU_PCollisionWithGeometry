@@ -35,9 +35,9 @@ void main()
         return;
     }
 
-    vec4 particlePosition = AllParticles[threadIndex]._pos;
+    vec4 currPosition = AllParticles[threadIndex]._currPos;
     vec4 particleVelocity = AllParticles[threadIndex]._vel;
-    vec4 newPos = particlePosition + (particleVelocity * uDeltaTimeSec);
+    vec4 newPos = currPosition + (particleVelocity * uDeltaTimeSec);
 
     // if it went out of bounds, turn it off and don't record the updated particle
     bool outOfBoundsX = newPos.x < PARTICLE_REGION_MIN_X || newPos.x > (PARTICLE_REGION_MIN_X + PARTICLE_REGION_RANGE_X);
@@ -52,7 +52,8 @@ void main()
     }
 
     // still active
-    AllParticles[threadIndex]._pos = newPos;
+    AllParticles[threadIndex]._prevPos = currPosition
+    AllParticles[threadIndex]._currPos = newPos;
 
     // Note: The "active particles" counter is useful for
     // (1) printing how many particles are active and 

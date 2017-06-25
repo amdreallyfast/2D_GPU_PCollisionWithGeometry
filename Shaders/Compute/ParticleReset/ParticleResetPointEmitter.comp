@@ -66,13 +66,13 @@ void main()
     //  particle emitter's center.  This shall be the particle's new spawn position.
     
     // Note: Use last position as the rand seed for X, then swizzle a bit for the Y.
-    float newPosX = RandomOnRangeNeg1ToPos1(pCopy._pos.xy);
-    float newPosY = RandomOnRangeNeg1ToPos1(pCopy._pos.yx);
+    float newPosX = RandomOnRangeNeg1ToPos1(pCopy._currPos.xy);
+    float newPosY = RandomOnRangeNeg1ToPos1(pCopy._currPos.yx);
     vec4 cloudRingLimit = (0.1f * QuickNormalize(vec4(newPosX, newPosY, 0.0f, 0.0f)));
     vec4 innerPosLimit = uPointEmitterCenter;
     vec4 outerPosLimit = uPointEmitterCenter + cloudRingLimit;
     float blendAlpha = RandomOnRange0To1(vec2(newPosX, newPosY));
-    pCopy._pos = mix(innerPosLimit, outerPosLimit, blendAlpha);
+    pCopy._currPos = mix(innerPosLimit, outerPosLimit, blendAlpha);
 
     // velocity
     // Note: Similar to position, use the last know velocity as the rand seed for X, then 

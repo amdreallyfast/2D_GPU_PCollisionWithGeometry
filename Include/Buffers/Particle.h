@@ -27,9 +27,8 @@ struct Particle
     {
     }
 
-    // TODO: do "previous position" too (for collision detection with geometry lines or planes)
-
-    glm::vec4 _pos;
+    glm::vec4 _currPos;
+    glm::vec4 _prevPos;
     glm::vec4 _vel;
 
     // index into the ParticlePropertiesBuffer

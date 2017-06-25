@@ -9,7 +9,8 @@ Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
 struct Particle
 {
-    vec4 _pos;
+    vec4 _currPos;
+    vec4 _prevPos;
     vec4 _vel;
 
     int _particleTypeIndex;
