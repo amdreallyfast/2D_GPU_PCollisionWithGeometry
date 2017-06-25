@@ -248,8 +248,8 @@ void UpdateAllTheThings()
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
 
-    particleResetter->ResetParticles(4);
-    particleUpdater->Update(deltaTimeSec);
+    //particleResetter->ResetParticles(4);
+    //particleUpdater->Update(deltaTimeSec);
     //particleCollisions->DetectAndResolve(false, false);
     particleGeometryCollisions->DetectAndResolve(false);
 

@@ -18,6 +18,15 @@ struct Particle
     int _isActive;
 
     // vec4s are 16 bytes, +3x 4-byte items, so needs 1 byte padding on the CPU side
+
+    vec4 _extraVec1;
+    vec4 _extraVec2;
+    vec4 _extraVec3;
+    vec4 _extraVec4;
+    vec4 _extraVec5;
+    vec4 _extraVec6;
+    vec4 _extraVec7;
+    vec4 _extraVec8;
 };
 
 // whatever size the user wants

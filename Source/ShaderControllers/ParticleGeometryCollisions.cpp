@@ -9,6 +9,7 @@
 // for profiling and checking results
 #include "Include/ShaderControllers/ProfilingWaitToFinish.h"
 #include "Include/Buffers/Particle.h"
+#include "Include/Geometry/PolygonFace.h"
 #include <algorithm>
 
 #include <chrono>
@@ -230,13 +231,26 @@ namespace ShaderControllers
         glDispatchCompute(numWorkGroupsX, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_SHADER_BIT);
 
-        unsigned int startingIndex = 0;
+
+        std::vector<PolygonFace> checkPolygons(_collideableGeometrySsbo.NumPolygons());
+        {
+            unsigned int startingIndex = 0;
+            unsigned int bufferSizeBytes = checkPolygons.size() * sizeof(PolygonFace);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideableGeometrySsbo.BufferId());
+            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+            memcpy(checkPolygons.data(), bufferPtr, bufferSizeBytes);
+            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        }
+
         std::vector<Particle> checkParticles(_particleSsbo->NumParticles());
-        unsigned int bufferSizeBytes = checkParticles.size() * sizeof(Particle);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSsbo->BufferId());
-        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
-        memcpy(checkParticles.data(), bufferPtr, bufferSizeBytes);
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        {
+            unsigned int startingIndex = 0;
+            unsigned int bufferSizeBytes = checkParticles.size() * sizeof(Particle);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSsbo->BufferId());
+            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+            memcpy(checkParticles.data(), bufferPtr, bufferSizeBytes);
+            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        }
 
         int maxVal = 0;
         for (size_t i = 0; i < checkParticles.size(); i++)
