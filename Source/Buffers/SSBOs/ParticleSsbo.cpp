@@ -164,6 +164,7 @@ void ParticleSsbo::ConfigureRender()
 
     // vertex attribute order is same as the structure members
 
+    GLenum itemType = 0;
     unsigned int vertexArrayIndex = 0;
     unsigned int bufferStartOffset = 0;
     unsigned int bytesPerStep = sizeof(Particle);
@@ -171,7 +172,7 @@ void ParticleSsbo::ConfigureRender()
     unsigned int numItems = 0;
 
     // current position
-    GLenum itemType = GL_FLOAT;
+    itemType = GL_FLOAT;
     sizeOfItem = sizeof(Particle::_currPos);
     numItems = sizeOfItem / sizeof(float);
     glEnableVertexAttribArray(vertexArrayIndex);
@@ -179,7 +180,7 @@ void ParticleSsbo::ConfigureRender()
     bufferStartOffset += sizeOfItem;
 
     // previous position
-    GLenum itemType = GL_FLOAT;
+    itemType = GL_FLOAT;
     sizeOfItem = sizeof(Particle::_prevPos);
     numItems = sizeOfItem / sizeof(float);
     glEnableVertexAttribArray(vertexArrayIndex);

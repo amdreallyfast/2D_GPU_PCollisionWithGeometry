@@ -146,7 +146,7 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/GeometryStuff/MyVertex.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/GeometryStuff/PolygonFace.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleGeometryCollisions/Buffers/CollideableGeometryBuffer.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleGeometryCollisions/ResolveCollisions.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleGeometryCollisions/ResolveParticleGeometryCollisions.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdResolveCollisions = shaderStorageRef.GetShaderProgram(shaderKey);

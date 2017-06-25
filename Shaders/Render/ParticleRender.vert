@@ -5,11 +5,12 @@
 // Also Note: The vec2s are provided as vec4s on the CPU side and specified as such in the 
 // vertex array attributes, but it is ok to only take them as a vec2, as I am doing for this 
 // 2D demo.
-layout (location = 0) in vec4 pos;  
-layout (location = 1) in vec4 vel;  
-layout (location = 2) in int particleTypeIndex;
-layout (location = 3) in int numNearbyParticles;
-layout (location = 4) in int isActive;
+layout (location = 0) in vec4 currPos;  
+layout (location = 1) in vec4 prevPos;  
+layout (location = 2) in vec4 vel;  
+layout (location = 3) in int particleTypeIndex;
+layout (location = 4) in int numNearbyParticles;
+layout (location = 5) in int isActive;
 
 
 // must have the same name as its corresponding "in" item in the frag shader
@@ -28,11 +29,11 @@ void main()
         // the Z buffer in this 2D demo is of depth 1, so putting the innactive particle out of 
         // range should make it disappear entirely
         particleColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);   // black
-        gl_Position = vec4(pos.xy, -1.1f, 1.0f);
+        gl_Position = vec4(currPos.xy, -1.1f, 1.0f);
 
 //        // for debugging
 //        particleColor = vec4(1.0f, 0.0f, 1.0f, 1.0f);
-//        gl_Position = vec4(pos.xy, -0.9f, 1.0f);
+//        gl_Position = vec4(currPos.xy, -0.9f, 1.0f);
     }
     else
     {
@@ -79,7 +80,7 @@ void main()
         // Note: The W position seems to be used as a scaling factor (I must have forgotten this 
         // from the graphical math; it's been awhile since I examined it in detail).  If I do any 
         // position normalization, I should make sure that gl_Position's W value is always 1.
-        gl_Position = vec4(pos.xy, -0.7f, 1.0f);    
+        gl_Position = vec4(currPos.xy, -0.7f, 1.0f);    
     }
 }
 

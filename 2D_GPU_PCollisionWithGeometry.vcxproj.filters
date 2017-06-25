@@ -332,13 +332,7 @@
     <None Include="Shaders\Compute\ParticleCollisions\MergeBoundingVolumes.comp">
       <Filter>Shaders\Compute\ParticleCollisions</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\ResolveCollisions.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
     <None Include="Shaders\Compute\ParticleCollisions\SortParticles.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\DetectCollisions.comp">
       <Filter>Shaders\Compute\ParticleCollisions</Filter>
     </None>
     <None Include="Shaders\Compute\ParticleCollisions\GenerateBinaryRadixTree.comp">
@@ -407,7 +401,13 @@
     <None Include="Shaders\Compute\ParticleGeometryCollisions\Buffers\CollideableGeometryBuffer.comp">
       <Filter>Shaders\Compute\ParticleGeometryCollisions\Buffers</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleGeometryCollisions\ResolveCollisions.comp">
+    <None Include="Shaders\Compute\ParticleCollisions\DetectParticleCollisions.comp">
+      <Filter>Shaders\Compute\ParticleCollisions</Filter>
+    </None>
+    <None Include="Shaders\Compute\ParticleCollisions\ResolveParticleCollisions.comp">
+      <Filter>Shaders\Compute\ParticleCollisions</Filter>
+    </None>
+    <None Include="Shaders\Compute\ParticleGeometryCollisions\ResolveParticleGeometryCollisions.comp">
       <Filter>Shaders\Compute\ParticleGeometryCollisions</Filter>
     </None>
   </ItemGroup>

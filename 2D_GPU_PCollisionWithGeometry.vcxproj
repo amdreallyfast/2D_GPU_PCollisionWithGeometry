@@ -227,7 +227,7 @@
     <None Include="Shaders\Compute\ParticleCollisions\Buffers\PrefixScanBuffer.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\ClearWorkGroupSums.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\CopyParticlesToCopyBuffer.comp" />
-    <None Include="Shaders\Compute\ParticleCollisions\DetectCollisions.comp" />
+    <None Include="Shaders\Compute\ParticleCollisions\DetectParticleCollisions.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\GenerateBinaryRadixTree.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\GenerateLeafNodeBoundingBoxes.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\GenerateSortingData.comp" />
@@ -239,11 +239,11 @@
     <None Include="Shaders\Compute\ParticleCollisions\MergeBoundingVolumes.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\PrefixScanOverAllData.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\PrefixScanOverWorkGroupSums.comp" />
-    <None Include="Shaders\Compute\ParticleCollisions\ResolveCollisions.comp" />
+    <None Include="Shaders\Compute\ParticleCollisions\ResolveParticleCollisions.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\SortParticles.comp" />
     <None Include="Shaders\Compute\ParticleCollisions\SortSortingDataWithPrefixSums.comp" />
     <None Include="Shaders\Compute\ParticleGeometryCollisions\Buffers\CollideableGeometryBuffer.comp" />
-    <None Include="Shaders\Compute\ParticleGeometryCollisions\ResolveCollisions.comp" />
+    <None Include="Shaders\Compute\ParticleGeometryCollisions\ResolveParticleGeometryCollisions.comp" />
     <None Include="Shaders\Compute\ParticleRegionBoundaries.comp" />
     <None Include="Shaders\Compute\ParticleReset\ParticleResetBarEmitter.comp" />
     <None Include="Shaders\Compute\ParticleReset\ParticleResetPointEmitter.comp" />

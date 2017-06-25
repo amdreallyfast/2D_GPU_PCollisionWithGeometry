@@ -35,7 +35,7 @@ void main()
     }
     
     // create the bounding box for the bounding volume hierarchy
-    vec4 pos = AllParticles[threadIndex]._pos;
+    vec4 pos = AllParticles[threadIndex]._currPos;
     int particleTypeIndex = AllParticles[threadIndex]._particleTypeIndex;
     float r = AllParticleProperties[particleTypeIndex]._collisionRadius;
 

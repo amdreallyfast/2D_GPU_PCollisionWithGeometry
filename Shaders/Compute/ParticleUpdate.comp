@@ -52,7 +52,7 @@ void main()
     }
 
     // still active
-    AllParticles[threadIndex]._prevPos = currPosition
+    AllParticles[threadIndex]._prevPos = currPosition;
     AllParticles[threadIndex]._currPos = newPos;
 
     // Note: The "active particles" counter is useful for
