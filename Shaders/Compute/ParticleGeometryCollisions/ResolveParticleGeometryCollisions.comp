@@ -7,7 +7,8 @@
 // REQUIRES CollideableGeometryBuffer.comp
 
 // Y and Z work group sizes default to 1
-layout (local_size_x = WORK_GROUP_SIZE_X) in;
+//layout (local_size_x = WORK_GROUP_SIZE_X) in;
+layout (local_size_x = 512) in;
 
 //// this is a thread-specific global so that it doesn't have to be copied into 
 //// BoundingBoxesOverlap(...) umpteen times as this shader runs
@@ -98,7 +99,7 @@ Description:
     
 Parameters: None
 Returns:    None
-Creator:    John Cox, 4/2017
+Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
 void main()
 {
@@ -111,7 +112,7 @@ void main()
     {
         return;
     }
-
+    
     // in this function, "a" will be the particle travel vector and "b" will be the line along 
     // the polygon face
     Particle p = AllParticles[threadIndex];
@@ -121,15 +122,21 @@ void main()
         PolygonFace polyFace = AllCollideableGeometry[polyCounter];
         vec4 b = polyFace._end._pos - polyFace._start._pos;
         vec4 c = polyFace._start._pos - p._prevPos;
-
+        
         float t = PerpDot(c.xy, b.xy) / PerpDot(a.xy, b.xy);
-
-        if (t <= 0.0f || t >= 1.0f)
+        
+        if (t <= 0.0f || t >= 1.0f || isinf(t) || isnan(t))
         {
             // no intersection
             continue;
         }
 
+        //AllParticles[threadIndex]._numNearbyParticles = 37;
+        //break;
+        
+        // both vertices normals are the same for any given PolygonFace, so either will work
+        vec4 n = polyFace._start._normal;
+        
         // the particle crossed the line; bounce it
         // Note: Work out this equation on paper and it will hopefully make visual sense.  It 
         // did for me.
@@ -139,16 +146,22 @@ void main()
         // using the line segment after the intersection as the incident line segment, the 
         // reflection vector will adopt its magnitude.  This will make the particle's resulting 
         // position only travel as far as necessary after the bounce.
-        vec4 PointOfIntersection = p._prevPos + (t * a);
-        vec4 IncidentVector = p._currPos - PointOfIntersection;
+        vec4 pointOfIntersection = p._prevPos + (t * a);
+        vec4 posIncidentVector = p._currPos - pointOfIntersection;
+        vec4 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
 
-        // both vertices normals are the same for any given PolygonFace, so either will work
-        vec4 n = polyFace._start._normal;
-        vec4 reflectionVector = IncidentVector - ((2 * dot(IncidentVector, n)) * n);
+        // reflect the velocity in the same way
+        // Note: The velocity vector is just a direction, so it doesn't need to be altered at 
+        // the point of intersection like position does.  Just reflect it as is.
+        vec4 reflectedVelVector = p._vel - ((2 * dot(p._vel, n)) * n);
 
         // update the particle positions will new values to reflect the bounce.
-        AllParticles[threadIndex]._prevPos = PointOfIntersection;
-        AllParticles[threadIndex]._currPos = PointOfIntersection + reflectionVector;
+        AllParticles[threadIndex]._prevPos = pointOfIntersection;
+        AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
+        //AllParticles[threadIndex]._vel = reflectedVelVector;
+        AllParticles[threadIndex]._vel = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+        //AllParticles[threadIndex]._numNearbyParticles = 37;
 
         // it should only collide with 1 piece of geometry, so if the particle has already 
         // bounced off something, then this thread is done

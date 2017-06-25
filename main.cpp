@@ -216,11 +216,8 @@ void Init()
     // for moving particles
     particleUpdater = std::make_shared<ShaderControllers::ParticleUpdate>(particleBuffer);
 
-    //// for sorting particles once they've been updated
-    //parallelSort = std::make_shared<ShaderControllers::ParallelSort>(particleBuffer);
-
-    // for sorting, detecting collisions between, and resolving said collisions between particles
-    particleCollisions = std::make_shared<ShaderControllers::ParticleCollisions>(particleBuffer, particlePropertiesBuffer);
+//    // for sorting, detecting collisions between, and resolving said collisions between particles
+//    particleCollisions = std::make_shared<ShaderControllers::ParticleCollisions>(particleBuffer, particlePropertiesBuffer);
 
     // for drawing particles
     particleRenderer = std::make_shared<ShaderControllers::RenderParticles>();
@@ -253,7 +250,8 @@ void UpdateAllTheThings()
 
     particleResetter->ResetParticles(4);
     particleUpdater->Update(deltaTimeSec);
-    particleCollisions->DetectAndResolve(false, false);
+    //particleCollisions->DetectAndResolve(false, false);
+    particleGeometryCollisions->DetectAndResolve(false);
 
 
     ShaderControllers::WaitOnQueuedSynchronization();
@@ -299,8 +297,8 @@ void Display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     particleRenderer->Render(particleBuffer);
-    geometryRenderer->Render(particleCollisions->ParticleVelocityVectorSsbo());
-    geometryRenderer->Render(particleCollisions->ParticleBoundingBoxSsbo());
+    //geometryRenderer->Render(particleCollisions->ParticleVelocityVectorSsbo());
+    //geometryRenderer->Render(particleCollisions->ParticleBoundingBoxSsbo());
     geometryRenderer->Render(particleGeometryCollisions->GeometrySsbo());
 
     // draw the frame rate once per second in the lower left corner

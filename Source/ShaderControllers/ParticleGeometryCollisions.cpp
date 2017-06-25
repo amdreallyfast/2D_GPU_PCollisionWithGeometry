@@ -8,12 +8,15 @@
 
 // for profiling and checking results
 #include "Include/ShaderControllers/ProfilingWaitToFinish.h"
+#include "Include/Buffers/Particle.h"
+#include <algorithm>
 
 #include <chrono>
 #include <fstream>
 #include <iostream>
 using std::cout;
 using std::endl;
+
 
 
 namespace ShaderControllers
@@ -32,8 +35,8 @@ namespace ShaderControllers
         const std::string &blenderObjFilePath, const ParticleSsbo::SharedConstPtr particleSsbo) :
         _numParticles(particleSsbo->NumParticles()),
         _programIdResolveCollisions(0),
-
-        _collideableGeometrySsbo(blenderObjFilePath)
+        _collideableGeometrySsbo(blenderObjFilePath),
+        _particleSsbo(particleSsbo)
     {
         AssembleProgramResolveCollisions();
 
@@ -225,7 +228,29 @@ namespace ShaderControllers
     {
         glUseProgram(_programIdResolveCollisions);
         glDispatchCompute(numWorkGroupsX, 1, 1);
-
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_SHADER_BIT);
+
+        unsigned int startingIndex = 0;
+        std::vector<Particle> checkParticles(_particleSsbo->NumParticles());
+        unsigned int bufferSizeBytes = checkParticles.size() * sizeof(Particle);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSsbo->BufferId());
+        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkParticles.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        int maxVal = 0;
+        for (size_t i = 0; i < checkParticles.size(); i++)
+        {
+            maxVal = std::max(maxVal, checkParticles[i]._numNearbyParticles);
+            if (checkParticles[i]._numNearbyParticles == 37)
+            {
+                printf("");
+            }
+            else if (checkParticles[i]._isActive == 37)
+            {
+                printf("");
+            }
+        }
+        printf("");
     }
 }

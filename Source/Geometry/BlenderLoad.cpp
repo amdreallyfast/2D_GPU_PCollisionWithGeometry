@@ -6,6 +6,7 @@ using std::endl;
 
 #include "Include/Geometry/BlenderLoad.h"
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
+#include "ThirdParty/glm/geometric.hpp"
 
 
 /*------------------------------------------------------------------------------------------------
@@ -121,7 +122,7 @@ static BlenderLoad::PolygonCollection ParseRawBlenderData(
 
             // create a 2D normal by rotating the start->end vector counterclockwise by 90deg
             glm::vec4 p1ToP2 = p2 - p1;
-            glm::vec4 n(-p1ToP2.y, p1ToP2.x, 0.0f, 0.0f);
+            glm::vec4 n = glm::normalize(glm::vec4(-p1ToP2.y, p1ToP2.x, 0.0f, 0.0f));
             
             // no normals right now (TODO: ??these??)
             newCollection.push_back(

@@ -10,6 +10,10 @@
 #include "ThirdParty/glm/gtc/type_ptr.hpp"
 
 
+//#include "Include/Buffers/Particle.h"
+//static ParticleSsbo::SharedConstPtr particleSsbo = nullptr;
+
+
 namespace ShaderControllers
 {
     /*--------------------------------------------------------------------------------------------
@@ -32,6 +36,8 @@ namespace ShaderControllers
         _computeProgramId(0),
         _unifLocDeltaTimeSec(-1)
     {
+        //particleSsbo = ssboToUpdate;
+
         _totalParticleCount = ssboToUpdate->NumVertices();
 
         // construct the compute shader
@@ -106,6 +112,23 @@ namespace ShaderControllers
 
         // cleanup
         glUseProgram(0);
+
+        //unsigned int startingIndex = 0;
+        //std::vector<Particle> checkUpdateParticles(particleSsbo->NumParticles());
+        //unsigned int bufferSizeBytes = checkUpdateParticles.size() * sizeof(Particle);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkUpdateParticles.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        //for (size_t i = 0; i < checkUpdateParticles.size(); i++)
+        //{
+        //    if (checkUpdateParticles[i]._isActive == 1)
+        //    {
+        //        printf("");
+        //    }
+        //}
+
 
         // now that all active particles have updated, check how many active particles exist 
         _activeParticleCount = PersistentAtomicCounterBuffer::GetInstance().GetCounterValue();

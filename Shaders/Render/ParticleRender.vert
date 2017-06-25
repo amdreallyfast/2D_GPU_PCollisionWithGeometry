@@ -31,7 +31,7 @@ void main()
         particleColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);   // black
         gl_Position = vec4(currPos.xy, -1.1f, 1.0f);
 
-//        // for debugging
+        // for debugging
 //        particleColor = vec4(1.0f, 0.0f, 1.0f, 1.0f);
 //        gl_Position = vec4(currPos.xy, -0.9f, 1.0f);
     }

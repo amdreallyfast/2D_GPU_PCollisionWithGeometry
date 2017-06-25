@@ -43,5 +43,8 @@ namespace ShaderControllers
 
         // buffers for all that jazz
         CollideableGeometrySsbo _collideableGeometrySsbo;
+
+        // for debugging
+        ParticleSsbo::SharedConstPtr _particleSsbo;
     };
 }

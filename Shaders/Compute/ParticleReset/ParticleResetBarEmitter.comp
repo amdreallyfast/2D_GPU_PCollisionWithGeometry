@@ -54,21 +54,21 @@ void main()
     // emit limit yet for this frame, so give the particle at this thread index a new position 
     // and velocity
     Particle pCopy = AllParticles[index];
-
+    
     // position
     float blendAlpha = RandomOnRange0To1(pCopy._currPos.xy);
     pCopy._currPos = mix(uBarEmitterP1, uBarEmitterP2, blendAlpha);
-
+    
     // velocity
     vec4 velocityDir = QuickNormalize(uBarEmitterEmitDir);
     vec4 minVel = uMinParticleVelocity * velocityDir;
     vec4 maxVel = uMaxParticleVelocity * velocityDir;
     blendAlpha = RandomOnRange0To1(pCopy._vel.xy);
     pCopy._vel = mix(minVel, maxVel, blendAlpha);
-
+    
     // set to "active"
     pCopy._isActive = 1;
-
+    
     // write particle back to global memory
     AllParticles[index] = pCopy;
 }

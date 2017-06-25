@@ -10,6 +10,10 @@
 #include "ThirdParty/glm/gtc/type_ptr.hpp"
 
 
+//#include "Include/Buffers/Particle.h"
+//static ParticleSsbo::SharedConstPtr particleSsbo = nullptr;
+
+
 namespace ShaderControllers
 {
     /*----------------------------------------------------------------------------------------
@@ -40,6 +44,8 @@ namespace ShaderControllers
         _unifLocBarMinParticleVelocity(-1),
         _unifLocBarMaxParticleVelocity(-1)
     {
+        //particleSsbo = ssboToReset;
+
         _totalParticleCount = ssboToReset->NumVertices();
 
         // construct the compute shader
@@ -213,6 +219,22 @@ namespace ShaderControllers
             glDispatchCompute(numWorkGroupsX, numWorkGroupsY, numWorkGroupsZ);
             glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
         }
+
+        //unsigned int startingIndex = 0;
+        //std::vector<Particle> checkResetParticles(particleSsbo->NumParticles());
+        //unsigned int bufferSizeBytes = checkResetParticles.size() * sizeof(Particle);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkResetParticles.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        //for (size_t i = 0; i < checkResetParticles.size(); i++)
+        //{
+        //    if (checkResetParticles[i]._isActive == 1)
+        //    {
+        //        printf("");
+        //    }
+        //}
 
         // cleanup
         glUseProgram(0);

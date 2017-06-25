@@ -44,6 +44,9 @@ void main()
     bool outOfBoundsY = newPos.y < PARTICLE_REGION_MIN_Y || newPos.y > (PARTICLE_REGION_MIN_Y + PARTICLE_REGION_RANGE_Y);
     bool outOfBoundsZ = newPos.z < PARTICLE_REGION_MIN_Z || newPos.z > (PARTICLE_REGION_MIN_Z + PARTICLE_REGION_RANGE_Z);
 
+    AllParticles[threadIndex]._prevPos = currPosition;
+    AllParticles[threadIndex]._currPos = newPos;
+
     if (outOfBoundsX || outOfBoundsY || outOfBoundsZ)
     {
         // just went out of bounds
@@ -52,9 +55,6 @@ void main()
     }
 
     // still active
-    AllParticles[threadIndex]._prevPos = currPosition;
-    AllParticles[threadIndex]._currPos = newPos;
-
     // Note: The "active particles" counter is useful for
     // (1) printing how many particles are active and 
     // (2) reducing workload for other compute shaders so that they only have to work on the 
