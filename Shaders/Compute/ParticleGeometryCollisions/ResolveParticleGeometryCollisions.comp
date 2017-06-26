@@ -108,117 +108,80 @@ void main()
     {
         return;
     }
-    //else if (AllParticles[threadIndex]._isActive == 0)
-    //{
-    //    return;
-    //}
+    else if (AllParticles[threadIndex]._isActive == 0)
+    {
+        return;
+    }
     
-//    PolygonFace polyFace = AllCollideableGeometry[0];
-//    AllParticles[threadIndex]._extraVec1 = polyFace._start._pos;
-//    AllParticles[threadIndex]._extraVec2 = polyFace._start._normal;
-//    AllParticles[threadIndex]._extraVec3 = polyFace._end._pos;
-//    AllParticles[threadIndex]._extraVec4 = polyFace._end._normal;
-//
-//    polyFace = AllCollideableGeometry[1];
-//    AllParticles[threadIndex]._extraVec5 = polyFace._start._pos;
-//    AllParticles[threadIndex]._extraVec6 = polyFace._start._normal;
-//    AllParticles[threadIndex]._extraVec7 = polyFace._end._pos;
-//    AllParticles[threadIndex]._extraVec8 = polyFace._end._normal;
+    // in this function, "a" will be the particle travel vector and "b" will be the line along 
+    // the polygon face
+    Particle p = AllParticles[threadIndex];
+    vec2 a = (p._currPos - p._prevPos).xy;
+    for(uint polyCounter = 0; polyCounter < uMaxPolygons; polyCounter++)
+    {
+        PolygonFace polyFace = AllCollideableGeometry[polyCounter];
+        vec2 b = (polyFace._end._pos - polyFace._start._pos).xy;
+        vec2 c = (polyFace._start._pos - p._prevPos).xy;
+        //vec2 c = (p._prevPos - polyFace._start._pos).xy;
+        
+        float s = PerpDot(a, c) / PerpDot(a, b);
+        float t = PerpDot(b, c) / PerpDot(a, b);
+        if (t < 0.0f || t > 1.0f || isinf(t) || isnan(t) ||
+            s < 0.0f || s > 1.0f || isinf(s) || isnan(s))
+        {
+            // no intersection
+            // Note: No intersection can happen a few ways:
+            // - inf -> parallel
+            // - t < 0 or t > 0 -> no intersection
+            // - nan -> ??can this happen??
+            continue;
+        }
 
-    MyVertex v = AllCollideableGeometry[0];
-    AllParticles[threadIndex]._extraVec1 = v._pos;
-    AllParticles[threadIndex]._extraVec2 = v._normal;
-
-    v = AllCollideableGeometry[1];
-    AllParticles[threadIndex]._extraVec3 = v._pos;
-    AllParticles[threadIndex]._extraVec4 = v._normal;
-
-    v = AllCollideableGeometry[2];
-    AllParticles[threadIndex]._extraVec5 = v._pos;
-    AllParticles[threadIndex]._extraVec6 = v._normal;
-
-    v = AllCollideableGeometry[3];
-    AllParticles[threadIndex]._extraVec7 = v._pos;
-    AllParticles[threadIndex]._extraVec8 = v._normal;
-
-    AllParticles[threadIndex]._numNearbyParticles = 37;
-
-
-    //// in this function, "a" will be the particle travel vector and "b" will be the line along 
-    //// the polygon face
-    //Particle p = AllParticles[threadIndex];
-    //vec2 a = (p._currPos - p._prevPos).xy;
-    //for(uint polyCounter = 0; polyCounter < uMaxPolygons; polyCounter++)
-    //{
-    //    PolygonFace polyFace = AllCollideableGeometry[polyCounter];
-    //    vec2 b = (polyFace._end._pos - polyFace._start._pos).xy;
-    //    vec2 c = (polyFace._start._pos - p._prevPos).xy;
-    //    
-    //    float t = PerpDot(c, b) / PerpDot(a, b);
-    //    if (t <= 0.0f || t >= 1.0f || isinf(t) || isnan(t))
-    //    {
-    //        // no intersection
-    //        // Note: No intersection can happen a few ways:
-    //        // - inf -> parallel
-    //        // - t < 0 or t > 0 -> no intersection
-    //        // - nan -> ??can this happen??
-    //        continue;
-    //    }
-    //
-    //    //AllParticles[threadIndex]._numNearbyParticles = 37;
-    //    //break;
-    //    
-    //    // both vertices normals are the same for any given PolygonFace, so either will work
-    //    vec2 n = polyFace._start._normal.xy;
-    //    
-    //    // the particle crossed the line; bounce it
-    //    // Note: Work out this equation on paper and it will hopefully make visual sense.  It 
-    //    // did for me.
-    //    // Also Note: The line segment remaining after the point of intersection is traveling in 
-    //    // the same direction as the incident vector.  This algorithm to reflect a vector around 
-    //    // a normal applies the magnitude of the incident vector to the reflection vector, so by 
-    //    // using the line segment after the intersection as the incident line segment, the 
-    //    // reflection vector will adopt its magnitude.  This will make the particle's resulting 
-    //    // position only travel as far as necessary after the bounce.
-    //    vec2 pointOfIntersection = p._prevPos.xy + (t * a);
-    //    vec2 posIncidentVector = p._currPos.xy - pointOfIntersection;
-    //    vec2 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
-    //
-    //    // reflect the velocity in the same way
-    //    // Note: The velocity vector is just a direction, so it doesn't need to be altered at 
-    //    // the point of intersection like position does.  Just reflect it as is.
-    //    vec2 reflectedVelVector = p._vel.xy - ((2 * dot(p._vel.xy, n)) * n);
-    //
-    //    // update the particle positions will new values to reflect the bounce.
-    //    //AllParticles[threadIndex]._prevPos = pointOfIntersection;
-    //    //AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
-    //    //AllParticles[threadIndex]._vel = reflectedVelVector;
-    //
-    //    //AllParticles[threadIndex]._extraVec1 = p._prevPos;
-    //    //AllParticles[threadIndex]._extraVec2 = vec4(a.x, a.y, 0.0f, 0.0f);
-    //    //AllParticles[threadIndex]._extraVec3 = polyFace._start._pos;
-    //    //AllParticles[threadIndex]._extraVec4 = vec4(b.x, b.y, 0.0f, 0.0f);
-    //    //AllParticles[threadIndex]._extraVec5 = p._prevPos;
-    //    //AllParticles[threadIndex]._extraVec6 = vec4(c.x, c.y, 0.0f, 0.0f);
-    //    //AllParticles[threadIndex]._extraVec7 = AllCollideableGeometry[polyCounter]._start._pos;
-    //    //AllParticles[threadIndex]._extraVec8 = AllCollideableGeometry[polyCounter]._end._pos;
-    //    //AllParticles[threadIndex]._isActive = int(polyCounter);
-    //    
-    //    AllParticles[threadIndex]._extraVec1 = AllCollideableGeometry[0]._start._pos;
-    //    AllParticles[threadIndex]._extraVec2 = AllCollideableGeometry[0]._start._normal;
-    //    AllParticles[threadIndex]._extraVec3 = AllCollideableGeometry[0]._end._pos;
-    //    AllParticles[threadIndex]._extraVec4 = AllCollideableGeometry[0]._end._normal;
-    //    AllParticles[threadIndex]._extraVec5 = AllCollideableGeometry[1]._start._pos;
-    //    AllParticles[threadIndex]._extraVec6 = AllCollideableGeometry[1]._start._normal;
-    //    AllParticles[threadIndex]._extraVec7 = AllCollideableGeometry[1]._end._pos;
-    //    AllParticles[threadIndex]._extraVec8 = AllCollideableGeometry[1]._end._normal;
-    //    AllParticles[threadIndex]._isActive = int(polyCounter);
-    //
-    //    AllParticles[threadIndex]._numNearbyParticles = 37;
-    //
-    //    // it should only collide with 1 piece of geometry, so if the particle has already 
-    //    // bounced off something, then this thread is done
-    //    break;
-    //}
+        AllParticles[threadIndex]._vel = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        //AllParticles[threadIndex]._numNearbyParticles = 37;
+        break;
+        
+        // both vertices normals are the same for any given PolygonFace, so either will work
+        vec2 n = polyFace._start._normal.xy;
+        
+        // the particle crossed the line; bounce it
+        // Note: Work out this equation on paper and it will hopefully make visual sense.  It 
+        // did for me.
+        // Also Note: The line segment remaining after the point of intersection is traveling in 
+        // the same direction as the incident vector.  This algorithm to reflect a vector around 
+        // a normal applies the magnitude of the incident vector to the reflection vector, so by 
+        // using the line segment after the intersection as the incident line segment, the 
+        // reflection vector will adopt its magnitude.  This will make the particle's resulting 
+        // position only travel as far as necessary after the bounce.
+        vec2 pointOfIntersection = p._prevPos.xy + (t * a);
+        vec2 posIncidentVector = p._currPos.xy - pointOfIntersection;
+        vec2 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
+    
+        // reflect the velocity in the same way
+        // Note: The velocity vector is just a direction, so it doesn't need to be altered at 
+        // the point of intersection like position does.  Just reflect it as is.
+        vec2 reflectedVelVector = p._vel.xy - ((2 * dot(p._vel.xy, n)) * n);
+    
+        // update the particle positions will new values to reflect the bounce.
+        //AllParticles[threadIndex]._prevPos = pointOfIntersection;
+        //AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
+        //AllParticles[threadIndex]._vel = reflectedVelVector;
+    
+        AllParticles[threadIndex]._extraVec1 = p._prevPos;
+        AllParticles[threadIndex]._extraVec2 = p._currPos;
+        AllParticles[threadIndex]._extraVec3 = vec4(a.x, a.y, 0.0f, 0.0f);
+        AllParticles[threadIndex]._extraVec4 = polyFace._start._pos;
+        AllParticles[threadIndex]._extraVec5 = polyFace._end._pos;
+        AllParticles[threadIndex]._extraVec6 = vec4(b.x, b.y, 0.0f, 0.0f);
+        AllParticles[threadIndex]._extraVec7 = vec4(c.x, c.y, 0.0f, 0.0f);
+        AllParticles[threadIndex]._extraVec8 = vec4(PerpDot(a, c), PerpDot(b, c), PerpDot(a,b), t);
+        AllParticles[threadIndex]._isActive = int(polyCounter);
+        
+        AllParticles[threadIndex]._numNearbyParticles = 37;
+    
+        // it should only collide with 1 piece of geometry, so if the particle has already 
+        // bounced off something, then this thread is done
+        break;
+    }
 }
 

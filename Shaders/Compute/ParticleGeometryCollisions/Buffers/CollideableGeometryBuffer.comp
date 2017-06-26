@@ -12,7 +12,6 @@ Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
 layout (std430, binding = COLLIDEABLE_GEOMETRY_BUFFER_BINDING) buffer CollideableGeometryBuffer
 {
-    //PolygonFace AllCollideableGeometry[];
-    MyVertex AllCollideableGeometry[];
+    PolygonFace AllCollideableGeometry[];
 };
 

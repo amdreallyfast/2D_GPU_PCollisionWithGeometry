@@ -49,8 +49,8 @@ void VertexSsboBase::ConfigureRender()
     sizeOfItem = sizeof(MyVertex::_position);
     numItems = sizeOfItem / sizeof(float);
     vertexArrayIndex = vertexArrayCounter++;
-    glEnableVertexAttribArray(vertexArrayCounter);
-    glVertexAttribPointer(vertexArrayCounter, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
+    glEnableVertexAttribArray(vertexArrayIndex);
+    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
     bufferStartOffset += sizeOfItem;
 
     // normal
@@ -58,8 +58,8 @@ void VertexSsboBase::ConfigureRender()
     sizeOfItem = sizeof(MyVertex::_normal);
     numItems = sizeOfItem / sizeof(float);
     vertexArrayIndex = vertexArrayCounter++;
-    glEnableVertexAttribArray(vertexArrayCounter);
-    glVertexAttribPointer(vertexArrayCounter, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
+    glEnableVertexAttribArray(vertexArrayIndex);
+    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
     bufferStartOffset += sizeOfItem;
 
     // cleanup
