@@ -38,15 +38,13 @@ void main()
     vec4 currPosition = AllParticles[threadIndex]._currPos;
     vec4 particleVelocity = AllParticles[threadIndex]._vel;
     vec4 newPos = currPosition + (particleVelocity * uDeltaTimeSec);
+    AllParticles[threadIndex]._prevPos = currPosition;
+    AllParticles[threadIndex]._currPos = newPos;
 
     // if it went out of bounds, turn it off and don't record the updated particle
     bool outOfBoundsX = newPos.x < PARTICLE_REGION_MIN_X || newPos.x > (PARTICLE_REGION_MIN_X + PARTICLE_REGION_RANGE_X);
     bool outOfBoundsY = newPos.y < PARTICLE_REGION_MIN_Y || newPos.y > (PARTICLE_REGION_MIN_Y + PARTICLE_REGION_RANGE_Y);
     bool outOfBoundsZ = newPos.z < PARTICLE_REGION_MIN_Z || newPos.z > (PARTICLE_REGION_MIN_Z + PARTICLE_REGION_RANGE_Z);
-
-    AllParticles[threadIndex]._prevPos = currPosition;
-    AllParticles[threadIndex]._currPos = newPos;
-
     if (outOfBoundsX || outOfBoundsY || outOfBoundsZ)
     {
         // just went out of bounds

@@ -42,6 +42,15 @@ layout (local_size_x = 512) in;
 //}
 
 
+struct BoundingBox
+{
+    float _left;
+    float _right;
+    float _top;
+    float _bottom;
+};
+
+
 /*------------------------------------------------------------------------------------------------
 Description:
     I learned about the "perpendicular dot product" from here:
@@ -57,7 +66,7 @@ Parameters: None
 Returns:    None
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-float PerpDot(vec2 a, vec2 b)
+float PerpDot(vec4 a, vec4 b)
 {
     return ((a.x * b.y) - (a.y * b.x));
 }
@@ -113,22 +122,62 @@ void main()
         return;
     }
     
-    // in this function, "a" will be the particle travel vector and "b" will be the line along 
-    // the polygon face
     Particle p = AllParticles[threadIndex];
-    vec2 a = (p._currPos - p._prevPos).xy;
+    BoundingBox pBB;
+    pBB._left = min(p._currPos.x, p._prevPos.x);
+    pBB._right = max(p._currPos.x, p._prevPos.x);
+    pBB._bottom = min(p._currPos.y, p._prevPos.y);
+    pBB._top = max(p._currPos.y, p._prevPos.y);
+
     for(uint polyCounter = 0; polyCounter < uMaxPolygons; polyCounter++)
     {
         PolygonFace polyFace = AllCollideableGeometry[polyCounter];
-        vec2 b = (polyFace._end._pos - polyFace._start._pos).xy;
-        vec2 c = (polyFace._start._pos - p._prevPos).xy;
-        //vec2 c = (p._prevPos - polyFace._start._pos).xy;
+        BoundingBox polyBB;
+        polyBB._left = min(polyFace._end._pos.x, polyFace._start._pos.x);
+        polyBB._right = max(polyFace._end._pos.x, polyFace._start._pos.x);
+        polyBB._bottom = min(polyFace._end._pos.y, polyFace._start._pos.y);
+        polyBB._top = max(polyFace._end._pos.y, polyFace._start._pos.y);
+
+
+//        // first check if the particle is traveling near the polygon
+//        BoundingBox overlapBox;
+//        overlapBox._left = max(pBB._left, polyBB._left);
+//        overlapBox._right = min(pBB._right, polyBB._right);
+//        overlapBox._bottom = max(pBB._bottom, polyBB._bottom);
+//        overlapBox._top = min(pBB._top, polyBB._top);
+//        if (overlapBox._left > overlapBox._right ||
+//            overlapBox._bottom > overlapBox._top)
+//        {
+//            // not near each other
+//            continue;
+//        }
         
+//        // must be occupying the same space; check if the particle crossed the geometry
+//        // Note: This is a crude check that only works for lines and that is not appropriate for line segments, but it is a decent first check.
+//        vec4 lineToCurrParticle = p._currPos - polyFace._start._pos;
+//        vec4 lineToPrevParticle = p._prevPos - polyFace._start._pos;
+//        if (sign(dot(lineToCurrParticle, polyFace._start._normal)) ==
+//            sign(dot(lineToPrevParticle, polyFace._start._normal)))
+//        {
+//            // prev and curr particle pos both hanging out on the same side of the geometry
+//            continue;
+//        }
+        
+        // crossed the line; figure out where
+        // in this function, "a" will be the particle travel vector and "b" will be the line 
+        // along the polygon face
+        vec4 a = (p._currPos - p._prevPos);
+        vec4 b = (polyFace._end._pos - polyFace._start._pos);
+        vec4 c = (p._prevPos - polyFace._start._pos);   // source forum post is wrong; it isn't b.start - a.start, but rather the other way around
         float s = PerpDot(a, c) / PerpDot(a, b);
         float t = PerpDot(b, c) / PerpDot(a, b);
-        if (t < 0.0f || t > 1.0f || isinf(t) || isnan(t) ||
-            s < 0.0f || s > 1.0f || isinf(s) || isnan(s))
+
+        bool sIsBad = s < 0.0f || s > 1.0f || isinf(s) || isnan(s);
+        bool tIsBad = t < 0.0f || t > 1.0f || isinf(t) || isnan(t);
+        if (sIsBad || tIsBad)
         {
+            //??how? the particle's travel vector runs through this geometry's space and it crossed the line, so how could both the bad??
+
             // no intersection
             // Note: No intersection can happen a few ways:
             // - inf -> parallel
@@ -137,13 +186,22 @@ void main()
             continue;
         }
 
+//            AllParticles[threadIndex]._numNearbyParticles = 37;
+//
+//            AllParticles[threadIndex]._extraVec1 = p._prevPos;
+//            AllParticles[threadIndex]._extraVec2 = p._currPos;
+//            AllParticles[threadIndex]._extraVec3 = vec4(a.x, a.y, 0.0f, 0.0f);
+//            AllParticles[threadIndex]._extraVec4 = polyFace._start._pos;
+//            AllParticles[threadIndex]._extraVec5 = polyFace._end._pos;
+//            AllParticles[threadIndex]._extraVec6 = vec4(b.x, b.y, 0.0f, 0.0f);
+//            AllParticles[threadIndex]._extraVec7 = vec4(c.x, c.y, 0.0f, 0.0f);
+//            AllParticles[threadIndex]._extraVec8 = vec4(PerpDot(a, c), PerpDot(b, c), PerpDot(a,b), t);
+
+
         AllParticles[threadIndex]._vel = vec4(0.0f, 0.0f, 0.0f, 0.0f);
         //AllParticles[threadIndex]._numNearbyParticles = 37;
         break;
-        
-        // both vertices normals are the same for any given PolygonFace, so either will work
-        vec2 n = polyFace._start._normal.xy;
-        
+                
         // the particle crossed the line; bounce it
         // Note: Work out this equation on paper and it will hopefully make visual sense.  It 
         // did for me.
@@ -153,31 +211,34 @@ void main()
         // using the line segment after the intersection as the incident line segment, the 
         // reflection vector will adopt its magnitude.  This will make the particle's resulting 
         // position only travel as far as necessary after the bounce.
-        vec2 pointOfIntersection = p._prevPos.xy + (t * a);
-        vec2 posIncidentVector = p._currPos.xy - pointOfIntersection;
-        vec2 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
+        vec4 pointOfIntersection = p._prevPos + (t * a);
+        vec4 posIncidentVector = p._currPos - pointOfIntersection;
+
+        // both vertices normals are the same for any given PolygonFace, so either will work
+        vec4 n = polyFace._start._normal;
+        vec4 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
     
         // reflect the velocity in the same way
         // Note: The velocity vector is just a direction, so it doesn't need to be altered at 
         // the point of intersection like position does.  Just reflect it as is.
-        vec2 reflectedVelVector = p._vel.xy - ((2 * dot(p._vel.xy, n)) * n);
+        vec4 reflectedVelVector = p._vel - ((2 * dot(p._vel, n)) * n);
     
         // update the particle positions will new values to reflect the bounce.
-        //AllParticles[threadIndex]._prevPos = pointOfIntersection;
-        //AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
-        //AllParticles[threadIndex]._vel = reflectedVelVector;
-    
-        AllParticles[threadIndex]._extraVec1 = p._prevPos;
-        AllParticles[threadIndex]._extraVec2 = p._currPos;
-        AllParticles[threadIndex]._extraVec3 = vec4(a.x, a.y, 0.0f, 0.0f);
-        AllParticles[threadIndex]._extraVec4 = polyFace._start._pos;
-        AllParticles[threadIndex]._extraVec5 = polyFace._end._pos;
-        AllParticles[threadIndex]._extraVec6 = vec4(b.x, b.y, 0.0f, 0.0f);
-        AllParticles[threadIndex]._extraVec7 = vec4(c.x, c.y, 0.0f, 0.0f);
-        AllParticles[threadIndex]._extraVec8 = vec4(PerpDot(a, c), PerpDot(b, c), PerpDot(a,b), t);
-        AllParticles[threadIndex]._isActive = int(polyCounter);
-        
-        AllParticles[threadIndex]._numNearbyParticles = 37;
+        AllParticles[threadIndex]._prevPos = pointOfIntersection;
+        AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
+        AllParticles[threadIndex]._vel = reflectedVelVector;
+//    
+//        AllParticles[threadIndex]._extraVec1 = p._prevPos;
+//        AllParticles[threadIndex]._extraVec2 = p._currPos;
+//        AllParticles[threadIndex]._extraVec3 = vec4(a.x, a.y, 0.0f, 0.0f);
+//        AllParticles[threadIndex]._extraVec4 = polyFace._start._pos;
+//        AllParticles[threadIndex]._extraVec5 = polyFace._end._pos;
+//        AllParticles[threadIndex]._extraVec6 = vec4(b.x, b.y, 0.0f, 0.0f);
+//        AllParticles[threadIndex]._extraVec7 = vec4(c.x, c.y, 0.0f, 0.0f);
+//        AllParticles[threadIndex]._extraVec8 = vec4(PerpDot(a, c), PerpDot(b, c), PerpDot(a,b), t);
+//        AllParticles[threadIndex]._isActive = int(polyCounter);
+//        
+//        AllParticles[threadIndex]._numNearbyParticles = 37;
     
         // it should only collide with 1 piece of geometry, so if the particle has already 
         // bounced off something, then this thread is done
