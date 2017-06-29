@@ -42,14 +42,4 @@ struct Particle
 
     // any necessary padding out to 16 bytes to match the GPU's version
     int _padding[1];
-
-    glm::vec4 _extraVec1;
-    glm::vec4 _extraVec2;
-    glm::vec4 _extraVec3;
-    glm::vec4 _extraVec4;
-    glm::vec4 _extraVec5;
-    glm::vec4 _extraVec6;
-    glm::vec4 _extraVec7;
-    glm::vec4 _extraVec8;
-
 };

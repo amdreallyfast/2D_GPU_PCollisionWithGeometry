@@ -90,13 +90,16 @@ Description:
     Both will end up at the same point.
 
     For line segment "a", this fraction t is defined as 
-    t = PerpendicularDot(c,b) / PerpendicularDot(a,b), where "c" is (b.start - a.start).  
+    t = PerpendicularDot(b,c) / PerpendicularDot(a,b)  
     
     For line segment "b", this fraction s is defined as 
-    s = PerpendicularDot(c,a) / PerpendicularDot(b,a), where "c" is (a.start - b.start).  
+    s = PerpendicularDot(a,c) / PerpendicularDot(a,b)
     
-    These are line segments, so even if the line defined by their travel vectors eventually 
-    intersect, the segments do not intersect if t < 0 or t > 1 (??else??).
+    Where "c" is (a.start - b.start).  
+    Note: The source forum post is wrong.  It isn't b.start - a.start, but rather the other way 
+    around.
+    Also Note: This applies to line segments only, so even if the lines defined by their travel 
+    vectors eventually intersect, the segments do not intersect if t < 0 or t > 1.
 
     This ONLY works in 2D.  I don't have a visual understanding of why this works, but I worked 
     it out on paper and it does, so I'll use it.
@@ -138,37 +141,12 @@ void main()
         polyBB._bottom = min(polyFace._end._pos.y, polyFace._start._pos.y);
         polyBB._top = max(polyFace._end._pos.y, polyFace._start._pos.y);
 
-
-//        // first check if the particle is traveling near the polygon
-//        BoundingBox overlapBox;
-//        overlapBox._left = max(pBB._left, polyBB._left);
-//        overlapBox._right = min(pBB._right, polyBB._right);
-//        overlapBox._bottom = max(pBB._bottom, polyBB._bottom);
-//        overlapBox._top = min(pBB._top, polyBB._top);
-//        if (overlapBox._left > overlapBox._right ||
-//            overlapBox._bottom > overlapBox._top)
-//        {
-//            // not near each other
-//            continue;
-//        }
-        
-//        // must be occupying the same space; check if the particle crossed the geometry
-//        // Note: This is a crude check that only works for lines and that is not appropriate for line segments, but it is a decent first check.
-//        vec4 lineToCurrParticle = p._currPos - polyFace._start._pos;
-//        vec4 lineToPrevParticle = p._prevPos - polyFace._start._pos;
-//        if (sign(dot(lineToCurrParticle, polyFace._start._normal)) ==
-//            sign(dot(lineToPrevParticle, polyFace._start._normal)))
-//        {
-//            // prev and curr particle pos both hanging out on the same side of the geometry
-//            continue;
-//        }
-        
         // crossed the line; figure out where
         // in this function, "a" will be the particle travel vector and "b" will be the line 
         // along the polygon face
         vec4 a = (p._currPos - p._prevPos);
         vec4 b = (polyFace._end._pos - polyFace._start._pos);
-        vec4 c = (p._prevPos - polyFace._start._pos);   // source forum post is wrong; it isn't b.start - a.start, but rather the other way around
+        vec4 c = (p._prevPos - polyFace._start._pos);   
         float s = PerpDot(a, c) / PerpDot(a, b);
         float t = PerpDot(b, c) / PerpDot(a, b);
 
@@ -176,8 +154,6 @@ void main()
         bool tIsBad = t < 0.0f || t > 1.0f || isinf(t) || isnan(t);
         if (sIsBad || tIsBad)
         {
-            //??how? the particle's travel vector runs through this geometry's space and it crossed the line, so how could both the bad??
-
             // no intersection
             // Note: No intersection can happen a few ways:
             // - inf -> parallel
@@ -186,22 +162,6 @@ void main()
             continue;
         }
 
-//            AllParticles[threadIndex]._numNearbyParticles = 37;
-//
-//            AllParticles[threadIndex]._extraVec1 = p._prevPos;
-//            AllParticles[threadIndex]._extraVec2 = p._currPos;
-//            AllParticles[threadIndex]._extraVec3 = vec4(a.x, a.y, 0.0f, 0.0f);
-//            AllParticles[threadIndex]._extraVec4 = polyFace._start._pos;
-//            AllParticles[threadIndex]._extraVec5 = polyFace._end._pos;
-//            AllParticles[threadIndex]._extraVec6 = vec4(b.x, b.y, 0.0f, 0.0f);
-//            AllParticles[threadIndex]._extraVec7 = vec4(c.x, c.y, 0.0f, 0.0f);
-//            AllParticles[threadIndex]._extraVec8 = vec4(PerpDot(a, c), PerpDot(b, c), PerpDot(a,b), t);
-
-
-        AllParticles[threadIndex]._vel = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-        //AllParticles[threadIndex]._numNearbyParticles = 37;
-        break;
-                
         // the particle crossed the line; bounce it
         // Note: Work out this equation on paper and it will hopefully make visual sense.  It 
         // did for me.
@@ -227,18 +187,6 @@ void main()
         AllParticles[threadIndex]._prevPos = pointOfIntersection;
         AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
         AllParticles[threadIndex]._vel = reflectedVelVector;
-//    
-//        AllParticles[threadIndex]._extraVec1 = p._prevPos;
-//        AllParticles[threadIndex]._extraVec2 = p._currPos;
-//        AllParticles[threadIndex]._extraVec3 = vec4(a.x, a.y, 0.0f, 0.0f);
-//        AllParticles[threadIndex]._extraVec4 = polyFace._start._pos;
-//        AllParticles[threadIndex]._extraVec5 = polyFace._end._pos;
-//        AllParticles[threadIndex]._extraVec6 = vec4(b.x, b.y, 0.0f, 0.0f);
-//        AllParticles[threadIndex]._extraVec7 = vec4(c.x, c.y, 0.0f, 0.0f);
-//        AllParticles[threadIndex]._extraVec8 = vec4(PerpDot(a, c), PerpDot(b, c), PerpDot(a,b), t);
-//        AllParticles[threadIndex]._isActive = int(polyCounter);
-//        
-//        AllParticles[threadIndex]._numNearbyParticles = 37;
     
         // it should only collide with 1 piece of geometry, so if the particle has already 
         // bounced off something, then this thread is done
