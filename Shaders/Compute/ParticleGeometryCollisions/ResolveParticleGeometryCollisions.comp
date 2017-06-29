@@ -10,46 +10,6 @@
 //layout (local_size_x = WORK_GROUP_SIZE_X) in;
 layout (local_size_x = 512) in;
 
-//// this is a thread-specific global so that it doesn't have to be copied into 
-//// BoundingBoxesOverlap(...) umpteen times as this shader runs
-//BoundingBox thisParticleBoundingBox;
-//
-//
-///*------------------------------------------------------------------------------------------------
-//Description:
-//    Determines if two bounding boxes overlap.  Shocking description, I know.
-//
-//    Note: This is only a potential collision.  Bounding boxes are just boxes, but particles have 
-//    a collision radius (circle), so it is possible to have an overlap of two boxes that doesn't 
-//    result in the two particles' collision circles overlapping.
-//Parameters: 
-//    otherNodeBoundBox   A copy of the bounding box of the node to compare 
-//                        thisThreadNodeBoundingBox against.
-//Returns:    
-//    True if they bounding boxes overlap, otherwise false.
-//Creator:    John Cox, 6/2017
-//------------------------------------------------------------------------------------------------*/
-//bool BoundingBoxesOverlap(BoundingBox otherNodeBoundingBox)
-//{
-//    float overlapBoxLeft = max(thisThreadNodeBoundingBox._left, otherNodeBoundingBox._left);
-//    float overlapBoxRight = min(thisThreadNodeBoundingBox._right, otherNodeBoundingBox._right);
-//    float overlapBoxBottom = max(thisThreadNodeBoundingBox._bottom, otherNodeBoundingBox._bottom);
-//    float overlapBoxTop = min(thisThreadNodeBoundingBox._top, otherNodeBoundingBox._top);
-//
-//    bool horizontalIntersection = (overlapBoxRight - overlapBoxLeft) > 0.0f;
-//    bool verticalIntersection = (overlapBoxTop - overlapBoxBottom) > 0.0f;
-//    return horizontalIntersection && verticalIntersection;
-//}
-
-
-struct BoundingBox
-{
-    float _left;
-    float _right;
-    float _top;
-    float _bottom;
-};
-
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -76,39 +36,40 @@ Description:
     Each particle examines all the polygon faces in the CollideableGeometryBuffer and bounces 
     off them if necessary.
 
-    Note: I learned of this intersection check via this forum post:
-    http://www.dreamincode.net/forums/topic/329073-intersection-point-of-two-vectors/
-
     Consider two line segments "a" and "b".  Each are defined by a position vector + travel 
     vector.  Their intersection will occur at some fraction t (I could have chosen another 
     letter) from 0-1 between their start point + the travel vector.  That is:
     
-    Intersection vector = a.start + t*a
-    OR 
-    Intersection vector = b.start + s*a ("s" is a different fraction between 0-1)
+    Intersection point on a = a.start + t*a
+    Intersection point on b = b.start + s*a ("s" is a different fraction between 0-1)
 
-    Both will end up at the same point.
-
-    For line segment "a", this fraction t is defined as 
-    t = PerpendicularDot(b,c) / PerpendicularDot(a,b)  
+    Fraction t is defined as t = PerpendicularDot(b,c) / PerpendicularDot(a,b)  
+    Fraction s is defined as s = PerpendicularDot(a,c) / PerpendicularDot(a,b)
     
-    For line segment "b", this fraction s is defined as 
-    s = PerpendicularDot(a,c) / PerpendicularDot(a,b)
+    Where "c" is (a.start - b.start).  See PerpDot() at top of file for detail.
     
-    Where "c" is (a.start - b.start).  
-    Note: The source forum post is wrong.  It isn't b.start - a.start, but rather the other way 
-    around.
-    Also Note: This applies to line segments only, so even if the lines defined by their travel 
-    vectors eventually intersect, the segments do not intersect if t < 0 or t > 1.
+    This applies to line segments only, so even if the lines defined by their travel 
+    vectors eventually intersect, the segments do not intersect if t or s is <0 or >1.
 
-    This ONLY works in 2D.  I don't have a visual understanding of why this works, but I worked 
-    it out on paper and it does, so I'll use it.
+    I don't have a visual understanding of why this works, but after working it out by hand and 
+    debugging wrong variations of it, I am confident that it works.
 
-    Also Note: I learned the reflection from here:
+    Note: I learned of the intersection check via this forum post:
+    http://www.dreamincode.net/forums/topic/329073-intersection-point-of-two-vectors/
+
+    And via this stackoverflow response by Gavin:
+    https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect/565282#565282
+
+    And I learned of the reflection around a vector from here:
     http://www.3dkingdoms.com/weekly/weekly.php?a=2
 
-    This works in 2D and 3D.
-    
+    The stackoverflow response is correct, but it works with loads of individual floats and not 
+    vectors.  The dreamincode.net forum is more condensed and uses vectors, but is wrong (so I 
+    learned from the stackoverflow response) in that it only checks against t, not s.
+
+    Also Note: This particle-geometry detection only works in 2D.  PerpendicularDot(...) is a 2D-
+    only function.  The reflection around a vector though will work in 2D and 3D.
+
 Parameters: None
 Returns:    None
 Creator:    John Cox, 6/2017
@@ -126,24 +87,14 @@ void main()
     }
     
     Particle p = AllParticles[threadIndex];
-    BoundingBox pBB;
-    pBB._left = min(p._currPos.x, p._prevPos.x);
-    pBB._right = max(p._currPos.x, p._prevPos.x);
-    pBB._bottom = min(p._currPos.y, p._prevPos.y);
-    pBB._top = max(p._currPos.y, p._prevPos.y);
 
     for(uint polyCounter = 0; polyCounter < uMaxPolygons; polyCounter++)
     {
         PolygonFace polyFace = AllCollideableGeometry[polyCounter];
-        BoundingBox polyBB;
-        polyBB._left = min(polyFace._end._pos.x, polyFace._start._pos.x);
-        polyBB._right = max(polyFace._end._pos.x, polyFace._start._pos.x);
-        polyBB._bottom = min(polyFace._end._pos.y, polyFace._start._pos.y);
-        polyBB._top = max(polyFace._end._pos.y, polyFace._start._pos.y);
 
-        // crossed the line; figure out where
-        // in this function, "a" will be the particle travel vector and "b" will be the line 
-        // along the polygon face
+        // figure out where it crossed the line
+        // Note: In this function, "a" will be the particle travel vector and "b" will be the 
+        // line along the polygon face.
         vec4 a = (p._currPos - p._prevPos);
         vec4 b = (polyFace._end._pos - polyFace._start._pos);
         vec4 c = (p._prevPos - polyFace._start._pos);   
@@ -174,16 +125,14 @@ void main()
         vec4 pointOfIntersection = p._prevPos + (t * a);
         vec4 posIncidentVector = p._currPos - pointOfIntersection;
 
-        // both vertices normals are the same for any given PolygonFace, so either will work
+        // reflect the position and velocity around the surface normal
+        // Note: Both vertices normals are the same for any given PolygonFace, so either vertices' normal will work
+        // Also Note: The velocity vector is just a direction, so it doesn't need to be altered 
+        // at the point of intersection like position does.  Just reflect it as is.
         vec4 n = polyFace._start._normal;
         vec4 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
-    
-        // reflect the velocity in the same way
-        // Note: The velocity vector is just a direction, so it doesn't need to be altered at 
-        // the point of intersection like position does.  Just reflect it as is.
         vec4 reflectedVelVector = p._vel - ((2 * dot(p._vel, n)) * n);
     
-        // update the particle positions will new values to reflect the bounce.
         AllParticles[threadIndex]._prevPos = pointOfIntersection;
         AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
         AllParticles[threadIndex]._vel = reflectedVelVector;
