@@ -131,20 +131,20 @@ void GenerateParticleEmitters()
     // two thick bars emitting at each other
 
     // bar on the left and emitting right
-    glm::vec2 bar1P1(-0.8f, -0.3f);
-    glm::vec2 bar1P2(-0.8f, +0.3f);
+    glm::vec2 bar1P1(-0.8f, -0.8f);
+    glm::vec2 bar1P2(-0.8f, +0.8f);
     glm::vec2 emitDir1(+1.0f, +0.0f);
     ParticleEmitterBar::SHARED_PTR barEmitter1 = std::make_shared<ParticleEmitterBar>(bar1P1, bar1P2, emitDir1, particleMinVel, particleMaxVel);
     barEmitter1->SetTransform(windowSpaceTransform);
     particleResetter->AddEmitter(barEmitter1);
 
-    // bar on the right and emitting left
-    glm::vec2 bar2P1 = glm::vec2(+0.8f, -0.3f);
-    glm::vec2 bar2P2 = glm::vec2(+0.8f, +0.3f);
-    glm::vec2 emitDir2 = glm::vec2(-1.0f, +0.0f);
-    ParticleEmitterBar::SHARED_PTR barEmitter2 = std::make_shared<ParticleEmitterBar>(bar2P1, bar2P2, emitDir2, particleMinVel, particleMaxVel);
-    barEmitter2->SetTransform(windowSpaceTransform);
-    particleResetter->AddEmitter(barEmitter2);
+    //// bar on the right and emitting left
+    //glm::vec2 bar2P1 = glm::vec2(+0.8f, -0.3f);
+    //glm::vec2 bar2P2 = glm::vec2(+0.8f, +0.3f);
+    //glm::vec2 emitDir2 = glm::vec2(-1.0f, +0.0f);
+    //ParticleEmitterBar::SHARED_PTR barEmitter2 = std::make_shared<ParticleEmitterBar>(bar2P1, bar2P2, emitDir2, particleMinVel, particleMaxVel);
+    //barEmitter2->SetTransform(windowSpaceTransform);
+    //particleResetter->AddEmitter(barEmitter2);
 }
 
 
@@ -225,7 +225,7 @@ void Init()
     // for drawing non-particle things
     geometryRenderer = std::make_shared<ShaderControllers::RenderGeometry>();
 
-    particleGeometryCollisions = std::make_shared<ShaderControllers::ParticleGeometryCollisions>("Blender3DStuff/circle_square_grid.obj", particleBuffer);
+    particleGeometryCollisions = std::make_shared<ShaderControllers::ParticleGeometryCollisions>("Blender3DStuff/airfoil.obj", particleBuffer);
 
     // the timer will be used for framerate calculations
     gTimer.Start();
@@ -248,7 +248,7 @@ void UpdateAllTheThings()
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
 
-    particleResetter->ResetParticles(4);
+    particleResetter->ResetParticles(10);
     particleUpdater->Update(deltaTimeSec);
     particleCollisions->DetectAndResolve(false, false);
     particleGeometryCollisions->DetectAndResolve(false);

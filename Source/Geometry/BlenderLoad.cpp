@@ -143,15 +143,20 @@ static BlenderLoad::PolygonCollection ParseRawBlenderData(
 Description:
     Loads a set of vertices from a .obj file.  
     
-    Note: Blender3D has the option, when exporting the scene, to use +Y as "up" or +Z as "up".  
-    The .obj file itself says nothing about the matter.  This loading function will assume that 
-    +Z is set as up since that is the way that OpenGL does it in 3D.
+    Note: Blender3D has the option, when exporting the scene, to specify which axis is 
+    "forward" and which is "up" (it uses the right-hand rule to implicitly figure out the third 
+    axis).  This program will assume that:
+    (1) +Y is forward
+    (2) +Z is up
+    Because in 2D land, Y is top to bottom (3D equivalent is forward to back).
 
     Also Note: The .obj file does not specify any transform, so all the vertices and normals in 
     a .obj file are "as is".  Since this demo operates in window space (X and Y on the range 
     [-1,+1]) and on the depth range 0 to -1, the objects in the file must be constrained within 
     those bounds.
-    
+
+    If they aren't then the polygon will need to be scaled by some other function OR the blend 
+    .obj file will need to be changed to force all vertices to be within [-1,+1] on X ad Y.
 Parameters: 
     filePath    The path to the .obj file
 Returns:    None
