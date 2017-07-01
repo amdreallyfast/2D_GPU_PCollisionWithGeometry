@@ -26,10 +26,8 @@ Parameters: None
 Returns:    None
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-float PerpDot(vec4 a, vec4 b)
-{
-    return ((a.x * b.y) - (a.y * b.x));
-}
+#define PerpDot(a,b) ((a.x * b.y) - (a.y * b.x))
+
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -133,7 +131,7 @@ void main()
         vec4 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
         vec4 reflectedVelVector = p._vel - ((2 * dot(p._vel, n)) * n);
     
-        AllParticles[threadIndex]._prevPos = pointOfIntersection;
+        AllParticles[threadIndex]._prevPos = pointOfIntersection + (n * 0.005f);    //??bump it out from the surface a bit? will this stop particles from sneaking through the geometry??
         AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
         AllParticles[threadIndex]._vel = reflectedVelVector;
     
