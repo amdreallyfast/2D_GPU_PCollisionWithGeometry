@@ -1,0 +1,55 @@
+// REQUIRES |Shaders/ShaderHeaders/Version.comp
+// REQUIRES |Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
+// REQUIRES |Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticleSortingDataBuffer.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    This shader was introduced to try to minimize the depth of the binary radix tree.  The tree 
+    construction algorithm is such that the tree has depth spikes where there are clumps of 
+    duplicate data.  I have been having a little trouble with getting tree construction to 
+    operate properly over just the number of active particles, and I want to remove the 
+    dependency of tree construction on the number of active particles, and I want to make 
+    tree construction performance a function of the total number of particles and thus behave 
+    consistently for a given maximum particle count.
+
+    Problem: All the sorting data for inactive particles were set to a large and constant value 
+    that is greater than the maximum Morton Code (see GenerateSortingData.comp).  That is a lot 
+    of duplicate entries, which will cause a spike in tree depth and thus in construction time 
+    for the inactive nodes in the tree.
+
+    Solution: Modify the value with the index of the data.  
+    
+    Note: The shader that generated the sorting data took into account the need for this 
+    modification and so left enough overhead to allow the sorted data's index to be added to 
+    the value itself without rolling the 32bit uint over to 0.  
+    
+    Note: The actual value is not important when generating the tree.  It WAS when sorting the 
+    particles so that particles that were near each other in space usually ended up near each 
+    other in the sorted data, which will help minimize data divergence during tree construction 
+    (internal nodes will cover leaves that are near each other in the array) and during tree 
+    traversal for collision detection (particles near each other will navigate similar parts of 
+    the tree), but the actual value is NOT important once the data is sorted.  The only thing 
+    that is important when constructing the tree is that the data is sorted.
+
+    Alo Note: This CANNOT be performed in GenerateSortingData.comp.  Things aren't sorted yet at 
+    that time, and this guarantee of uniqueness only works when everything is already sorted.
+
+Parameters: None
+Returns:    None
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uMaxNumParticleSortingData)
+    {
+        return;
+    }
+
+    AllParticleSortingData[threadIndex]._sortingData += threadIndex;
+}

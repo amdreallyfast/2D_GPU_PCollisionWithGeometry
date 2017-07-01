@@ -1,0 +1,23 @@
+// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
+// REQUIRES |Shaders/Compute/Geometry/MyVertex.comp
+
+
+// should be the number of particles * 2 (two vertices per line)
+layout(location = UNIFORM_LOCATION_PARTICLE_VELOCITY_VECTOR_GEOMETRY_BUFFER_SIZE) uniform uint uParticleVelocityVectorGeometryBufferSize;
+
+/*-----------------------------------------------------------------------------------------------
+Description:
+    The SSBO that will contain all the vertices necessary to draw the velocity vector for each 
+    particle.
+
+    Note: Using MyVertex instead of PolygonFace because this is really supposed to be a line.  
+    I don't have need of a Line structure outside of this buffer and I'd rather not shove in a 
+    PolygonFace where no geometry face is intended, so I'll just go with 2x MyVertex objects per 
+    particle.
+Creator:    John Cox, 6/2017
+-----------------------------------------------------------------------------------------------*/
+layout (std430, binding = PARTICLE_VELOCITY_VECTOR_GEOMETRY_BUFFER_BINDING) buffer ParticleVelocityVectorGeometryBuffer
+{
+    MyVertex AllParticleVelocityVectorVertices[];
+};

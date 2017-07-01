@@ -228,14 +228,8 @@
     <Filter Include="Source\Buffers\SSBOs">
       <UniqueIdentifier>{97485e9a-3d07-412a-b71e-506f09045e38}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\Compute">
-      <UniqueIdentifier>{91cb0158-7a5f-47fa-8c85-3963db9683ca}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders\Render">
       <UniqueIdentifier>{c7075e50-600e-45af-ae6e-4c333fc6c343}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Compute\ParticleReset">
-      <UniqueIdentifier>{1c380013-9130-4db2-8030-ece09faf495c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Include\Geometry">
       <UniqueIdentifier>{c5ee11ad-17e0-47b0-82bf-68fb8161553f}</UniqueIdentifier>
@@ -243,29 +237,53 @@
     <Filter Include="Shaders\ShaderHeaders">
       <UniqueIdentifier>{facd62e8-a3a4-4307-85fc-a451c756424a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\Compute\ParticleCollisions">
-      <UniqueIdentifier>{689443e3-5256-4e1c-9ab4-0d81dcd6253c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Compute\ParticleCollisions\Buffers">
-      <UniqueIdentifier>{62ed8b57-f22b-4b39-bf4b-08a6c3fbe938}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Compute\GeometryStuff">
-      <UniqueIdentifier>{fe34ff65-a146-4aba-bfae-55ef765a8e50}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Geometry">
       <UniqueIdentifier>{7e07a09f-f6e3-4a8e-a489-6e259ec092d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Compute\ParticleGeometryCollisions">
-      <UniqueIdentifier>{3f9889db-ce16-4898-b892-9361a1728e9a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Compute\ParticleGeometryCollisions\Buffers">
-      <UniqueIdentifier>{9ad32710-0043-44dc-beee-6f778ec6fd1e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\ParticleEmitters">
       <UniqueIdentifier>{66bbd978-c998-4177-bcb5-0a213a4c3b54}</UniqueIdentifier>
     </Filter>
     <Filter Include="Include\ParticleEmitters">
       <UniqueIdentifier>{d357cb74-d829-434b-821c-4223fcc76f76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute">
+      <UniqueIdentifier>{8fcaccb1-05ac-45d7-abe7-baeb82ea5c8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\ParticleVisualization">
+      <UniqueIdentifier>{5c2a5d3a-5d30-480f-a86c-901cebd43df3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\ParticleReset">
+      <UniqueIdentifier>{9963dc41-b77c-43af-bd5d-a130f2d22ac5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\GeometryStuff">
+      <UniqueIdentifier>{b1910677-1f49-43f6-aed3-cfef812daa5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\Collisions">
+      <UniqueIdentifier>{eabc0c48-f6b9-4394-8d2d-5e61a8c115f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\Collisions\ParticleCollisions">
+      <UniqueIdentifier>{077b4bae-9441-4c80-90ad-3a07780dcdca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers">
+      <UniqueIdentifier>{0369cb35-c450-4a87-8b40-06d8ad332400}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh">
+      <UniqueIdentifier>{80849473-23fb-437b-a063-4bb6faf0a93b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort">
+      <UniqueIdentifier>{0192449d-206c-4a87-8e3c-b6140d78dd25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\Collisions\ParticleGeometryCollisions">
+      <UniqueIdentifier>{60ca3b91-aaef-48d3-8767-5ff3764fc96d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers">
+      <UniqueIdentifier>{af067214-2d12-46e3-ba2a-a2eeb23dd34b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh">
+      <UniqueIdentifier>{7e469bc1-8c54-460c-81bd-12d78deffdfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort">
+      <UniqueIdentifier>{33a34002-7e3c-4060-8479-d940dbdd5975}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -287,27 +305,6 @@
     <None Include="Shaders\Render\ParticleRender.vert">
       <Filter>Shaders\Render</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleBuffer.comp">
-      <Filter>Shaders\Compute</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleRegionBoundaries.comp">
-      <Filter>Shaders\Compute</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleUpdate.comp">
-      <Filter>Shaders\Compute</Filter>
-    </None>
-    <None Include="Shaders\Compute\PositionToMortonCode.comp">
-      <Filter>Shaders\Compute</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleReset\ParticleResetBarEmitter.comp">
-      <Filter>Shaders\Compute\ParticleReset</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleReset\ParticleResetPointEmitter.comp">
-      <Filter>Shaders\Compute\ParticleReset</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleReset\Random.comp">
-      <Filter>Shaders\Compute\ParticleReset</Filter>
-    </None>
     <None Include="Shaders\ShaderHeaders\ComputeShaderWorkGroupSizes.comp">
       <Filter>Shaders\ShaderHeaders</Filter>
     </None>
@@ -320,71 +317,38 @@
     <None Include="Shaders\ShaderHeaders\Version.comp">
       <Filter>Shaders\ShaderHeaders</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\Buffers\BvhNodeBuffer.comp">
-      <Filter>Shaders\Compute\ParticleCollisions\Buffers</Filter>
+    <None Include="Shaders\Compute\ParticleBuffer.comp">
+      <Filter>Shaders\Compute</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\Buffers\PrefixScanBuffer.comp">
-      <Filter>Shaders\Compute\ParticleCollisions\Buffers</Filter>
+    <None Include="Shaders\Compute\ParticlePropertiesBuffer.comp">
+      <Filter>Shaders\Compute</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\Buffers\ParticlePotentialCollisionsBuffer.comp">
-      <Filter>Shaders\Compute\ParticleCollisions\Buffers</Filter>
+    <None Include="Shaders\Compute\ParticleRegionBoundaries.comp">
+      <Filter>Shaders\Compute</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\MergeBoundingVolumes.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\SortParticles.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\GenerateBinaryRadixTree.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\GetBitForPrefixScan.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\ClearWorkGroupSums.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\CopyParticlesToCopyBuffer.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\Buffers\ParticleSortingDataBuffer.comp">
-      <Filter>Shaders\Compute\ParticleCollisions\Buffers</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\GenerateSortingData.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\GuaranteeSortingDataUniqueness.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\SortSortingDataWithPrefixSums.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\PrefixScanOverWorkGroupSums.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\PrefixScanOverAllData.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\GenerateLeafNodeBoundingBoxes.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\Buffers\ParticlePropertiesBuffer.comp">
-      <Filter>Shaders\Compute\ParticleCollisions\Buffers</Filter>
-    </None>
-    <None Include="Shaders\Compute\ParticleCollisions\MaxNumPotentialCollisions.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
+    <None Include="Shaders\Compute\ParticleUpdate.comp">
+      <Filter>Shaders\Compute</Filter>
     </None>
     <None Include="Shaders\Compute\QuickNormalize.comp">
       <Filter>Shaders\Compute</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\Buffers\ParticleVelocityVectorGeometryBuffer.comp">
-      <Filter>Shaders\Compute\ParticleCollisions\Buffers</Filter>
+    <None Include="Shaders\Compute\ParticleVisualization\GenerateVerticesParticleVelocityVectors.comp">
+      <Filter>Shaders\Compute\ParticleVisualization</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\GenerateVerticesParticleVelocityVectors.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
+    <None Include="Shaders\Compute\ParticleVisualization\ParticleVelocityVectorGeometryBuffer.comp">
+      <Filter>Shaders\Compute\ParticleVisualization</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\Buffers\ParticleBoundingBoxGeometryBuffer.comp">
-      <Filter>Shaders\Compute\ParticleCollisions\Buffers</Filter>
+    <None Include="Shaders\Compute\ParticleReset\ParticleResetBarEmitter.comp">
+      <Filter>Shaders\Compute\ParticleReset</Filter>
+    </None>
+    <None Include="Shaders\Compute\ParticleReset\ParticleResetPointEmitter.comp">
+      <Filter>Shaders\Compute\ParticleReset</Filter>
+    </None>
+    <None Include="Shaders\Compute\ParticleReset\Random.comp">
+      <Filter>Shaders\Compute\ParticleReset</Filter>
+    </None>
+    <None Include="Shaders\Compute\GeometryStuff\BoundingBox.comp">
+      <Filter>Shaders\Compute\GeometryStuff</Filter>
     </None>
     <None Include="Shaders\Compute\GeometryStuff\MyVertex.comp">
       <Filter>Shaders\Compute\GeometryStuff</Filter>
@@ -392,28 +356,136 @@
     <None Include="Shaders\Compute\GeometryStuff\PolygonFace.comp">
       <Filter>Shaders\Compute\GeometryStuff</Filter>
     </None>
-    <None Include="Shaders\Compute\GeometryStuff\BoundingBox.comp">
-      <Filter>Shaders\Compute\GeometryStuff</Filter>
+    <None Include="Shaders\Compute\Collisions\CollideableGeometryBuffer.comp">
+      <Filter>Shaders\Compute\Collisions</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\GenerateVerticesParticleBoundingBoxes.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
+    <None Include="Shaders\Compute\Collisions\MaxNumPotentialCollisions.comp">
+      <Filter>Shaders\Compute\Collisions</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleGeometryCollisions\Buffers\CollideableGeometryBuffer.comp">
-      <Filter>Shaders\Compute\ParticleGeometryCollisions\Buffers</Filter>
+    <None Include="Shaders\Compute\Collisions\ParticlePotentialCollisionsBuffer.comp">
+      <Filter>Shaders\Compute\Collisions</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\DetectParticleCollisions.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
+    <None Include="Shaders\Compute\Collisions\PositionToMortonCode.comp">
+      <Filter>Shaders\Compute\Collisions</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleCollisions\ResolveParticleCollisions.comp">
-      <Filter>Shaders\Compute\ParticleCollisions</Filter>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\DetectCollisions.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions</Filter>
     </None>
-    <None Include="Shaders\Compute\ParticleGeometryCollisions\ResolveParticleGeometryCollisions.comp">
-      <Filter>Shaders\Compute\ParticleGeometryCollisions</Filter>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ResolveCollisions.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\ParticleBvhNodeBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\ParticlePrefixScanBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\ParticleSortingDataBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\GenerateBinaryRadixTree.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\GenerateLeafNodeBoundingBoxes.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\GenerateVerticesParticleBoundingBoxes.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\GuaranteeSortingDataUniqueness.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\MergeBoundingVolumes.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\ClearWorkGroupSums.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\CopyParticlesToCopyBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\GenerateSortingData.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\GetBitForPrefixScan.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanOverAllData.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanOverWorkGroupSums.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\SortParticles.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\SortSortingDataWithPrefixSums.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\DetectCollisions.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\ResolveCollisions.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\BoundingBoxGeometryBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\GeometryBvhNodeBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\GeometryPrefixScanBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\GeometrySortingDataBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\BoundingBoxGeometryBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh\GenerateBinaryRadixTree.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh\GenerateLeafNodeBoundingBoxes.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh\GuaranteeSortingDataUniqueness.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh\MergeBoundingVolumes.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\ClearWorkGroupSums.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\CopyGeometryToCopyBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\GenerateSortingData.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\GetBitForPrefixScan.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\ParallelPrefixScanPrefixScan.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortGeometry.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortSortingDataWithPrefixSums.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\Compute\ParticleReset\ReadMe.txt">
       <Filter>Shaders\Compute\ParticleReset</Filter>
+    </Text>
+    <Text Include="Shaders\Compute\Collisions\ParticleCollisions\ReadMe.txt">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions</Filter>
+    </Text>
+    <Text Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\ReadMe.txt">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions</Filter>
     </Text>
   </ItemGroup>
 </Project>

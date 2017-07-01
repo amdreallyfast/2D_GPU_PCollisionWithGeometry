@@ -1,0 +1,49 @@
+// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
+// REQUIRES |Shaders/Compute/GeometryStuff/BoundingBox.comp
+
+/*------------------------------------------------------------------------------------------------
+Description:   
+    Stores info about a single node in the BVH.  Can be either an internal node or a leaf node.  
+    If internal, then its children are either leaf nodes or other internal nodes.  If a leaf 
+    node, then it will have _data to analyze.
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+struct BvhNode
+{
+    BoundingBox _boundingBox;
+    int _isLeaf;
+    int _isNull;
+    int _parentIndex;
+    int _threadEntranceCounter;
+    int _leftChildIndex;
+    int _rightChildIndex;
+
+    // no padding needed as long as there are no vec* or mat* variables declared (yes, vec2's 
+    // included)
+    // Note: If there are, like the Particle structure in ParticleBuffer.comp, then the CPU-side 
+    // must be padded out to 16byte alignment.
+};
+
+
+// see description of BvhNodeBuffer for detail
+layout(location = UNIFORM_LOCATION_BVH_NUMBER_LEAVES) uniform uint uBvhNumberLeaves;
+layout(location = UNIFORM_LOCATION_BVH_NUMBER_INTERNAL_NODES) uniform uint uBvhNumberInternalNodes;
+layout(location = UNIFORM_LOCATION_BVH_NODE_BUFFER_SIZE) uniform uint uBvhNodeBufferSize;
+
+/*-----------------------------------------------------------------------------------------------
+Description:
+    The SSBO that will contain all nodes necessary for the internal nodes and the leaf nodes of 
+    the BVH.
+
+    The number of internal nodes shall be #particles - 1;
+    The number of leaf nodes shall be #particles.
+Creator:    John Cox, 5/2017
+-----------------------------------------------------------------------------------------------*/
+layout (std430, binding = BVH_NODE_BUFFER_BINDING) buffer BvhNodeBuffer
+{
+    // leaf nodes first, then internal nodes 
+    BvhNode AllBvhNodes[];
+};
+
+

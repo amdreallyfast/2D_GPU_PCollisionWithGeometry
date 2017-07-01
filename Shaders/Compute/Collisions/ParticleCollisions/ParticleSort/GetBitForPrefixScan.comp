@@ -1,0 +1,59 @@
+// REQUIRES |Shaders/ShaderHeaders/Version.comp
+// REQUIRES |Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
+// REQUIRES |Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticleSortingDataBuffer.comp
+// REQUIRES |Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticlePrefixScanBuffer.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+// also used in SortMortonCodes.comp (different uniform of course because different shader)
+layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Grabs a bit from the "read" buffer of the ParticleSortingDataBuffer and puts it into the 
+    PrefixScanBuffer::PrefixSumsPerWorkGroup array.  This is part of the Radix Sort algorithm.
+
+    Note: The prefix sum array size is a multiple of PREFIX_SCAN_ITEMS_PER_WORK_GROUP.  Unless 
+    the number of particles is also a multiple of this value, then the prefix sum array will be 
+    larger than the particle array.  Fill out these extra entries with 0s so that they won't 
+    screw up the total per-work-group sum.  This will only be an issue in the last work group.  
+    The last will likely have more threads than particles, but all other work groups will be 
+    busy with particle data.
+
+    Also Note: This extracts the bit value, NOT the positional bit value.
+    
+    Ex: What is the value of the 3rd bit in 0b101011?
+    The bit value at bit 3 is 0b101011 & 0b001000 = 0b001000 = 8.
+    The positional bit value at bit 3 is (0b101011 >> 3) & 0b000001 = 0b000101 & 0b000001 = 1;
+    Two very different values.  Radix Sort sorts by bit values, not by positional bit values, 
+    so use the second approach.
+
+    Also Also Note: The "& 1" is very important.  GLSL lives in 32bit land, so a 1 will have 31 
+    0s to left of the first bit (bit 0), and the bitwise "&" will strip off any additional 1s in 
+    the value, leaving just the bit value of the desired bit.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uMaxNumParticleSortingData)
+    {
+        PrefixSumsPerWorkGroup[threadIndex] = 0;
+        return;
+    }
+    
+    // the Morton Code buffer shifts values from one side to the other on each loop, so the 
+    // read offset will either be 0 or half the size of the buffer
+    uint readIndex = threadIndex + uParticleSortingDataBufferReadOffset;
+    uint bitVal = (AllParticleSortingData[readIndex]._sortingData >> uBitNumber) & 1;
+    
+    // Note: Thread count should be exactly the size of the 
+    // PrefixScanBuffer::PrefixSumsPerWorkGroup array, so no index bound checks are required for 
+    // the "write" index.
+    PrefixSumsPerWorkGroup[threadIndex] = bitVal;
+}

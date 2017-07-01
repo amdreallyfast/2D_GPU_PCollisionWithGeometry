@@ -1,4 +1,4 @@
-// REQUIRES MyVertex.comp
+// REQUIRES |Shaders/Compute/GeometryStuff/MyVertex.comp
 
 /*-----------------------------------------------------------------------------------------------
 Description:

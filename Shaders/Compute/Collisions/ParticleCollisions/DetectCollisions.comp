@@ -1,0 +1,171 @@
+// REQUIRES |Shaders/ShaderHeaders/Version.comp
+// REQUIRES |Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
+// REQUIRES |Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticleBvhNodeBuffer.comp
+// REQUIRES |Shaders/Compute/Collisions/ParticlePotentialCollisionsBuffer.comp
+// REQUIRES |Shaders/Compute/ParticleBuffer.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+
+// this is a thread-specific global so that it doesn't have to be copied into 
+// BoundingBoxesOverlap(...) umpteen times as this shader runs
+BoundingBox thisThreadNodeBoundingBox;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Determines if two bounding boxes overlap.  Shocking description, I know.
+
+    Note: This is only a potential collision.  Bounding boxes are just boxes, but particles have 
+    a collision radius (circle), so it is possible to have an overlap of two boxes that doesn't 
+    result in the two particles' collision circles overlapping.
+Parameters: 
+    otherNodeBoundBox   A copy of the bounding box of the node to compare 
+                        thisThreadNodeBoundingBox against.
+Returns:    
+    True if they bounding boxes overlap, otherwise false.
+Creator:    John Cox, 6/2017
+------------------------------------------------------------------------------------------------*/
+bool BoundingBoxesOverlap(BoundingBox otherNodeBoundingBox)
+{
+    float overlapBoxLeft = max(thisThreadNodeBoundingBox._left, otherNodeBoundingBox._left);
+    float overlapBoxRight = min(thisThreadNodeBoundingBox._right, otherNodeBoundingBox._right);
+    float overlapBoxBottom = max(thisThreadNodeBoundingBox._bottom, otherNodeBoundingBox._bottom);
+    float overlapBoxTop = min(thisThreadNodeBoundingBox._top, otherNodeBoundingBox._top);
+
+    bool horizontalIntersection = (overlapBoxRight - overlapBoxLeft) > 0.0f;
+    bool verticalIntersection = (overlapBoxTop - overlapBoxBottom) > 0.0f;
+    return horizontalIntersection && verticalIntersection;
+}
+
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Navigates the Bounding Volume Hierarchy (BVH) and finds overlapping collision boxes.  When 
+    there are thousands of particles on-screen at a time, there may be many bounding box 
+    overlaps for any one particle.  These are dumped into the ParticlePotentialCollisionsBuffer.
+
+    Influence for the tree traversal comes from here, specifically the section entitled
+    "Minimizing Divergence":
+    https://devblogs.nvidia.com/parallelforall/thinking-parallel-part-ii-tree-traversal-gpu/
+
+    For elastic collisions between two different masses (ignoring rotation because these 
+    particles are points), use the calculations from this article (I followed them on paper too 
+    and it seems legit)
+    http://www.gamasutra.com/view/feature/3015/pool_hall_lessons_fast_accurate_.php?page=3
+
+    Note: For an elastic collision between two particles of equal mass, the velocities of the 
+    two will be exchanged.  I could use this simplified idea for this demo, but I want to 
+    eventually have the option of different masses of particles, so I will use the general 
+    case elastic collision calculations (bottom of page at link).
+    http://hyperphysics.phy-astr.gsu.edu/hbase/colsta.html
+
+Parameters: None
+Returns:    None
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    // Note: Alternate max thread count uParticlePotentialCollisionsBufferSize.  Both are the 
+    // equivalent of the number of particles.
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uBvhNumberLeaves)
+    {
+        return;
+    }
+    else if (AllBvhNodes[threadIndex]._isNull == 1)
+    {
+        // this is a node for an inactive particle
+        return;
+    }
+
+    // set the global
+    thisThreadNodeBoundingBox = AllBvhNodes[threadIndex]._boundingBox;
+
+    // work with a local copy (fast memory), then write that to the 
+    // ParticlePotentialCollisionsBuffer when finished
+    int numPotentialCollisions = 0;
+    int particleIndexes[MAX_NUM_POTENTIAL_COLLISIONS] = int[MAX_NUM_POTENTIAL_COLLISIONS](-1);
+
+    // because indices in the BVH nodes are all signed integers
+    int thisLeafNodeIndex = int(threadIndex);
+
+    // iterative traversal of the tree requires keeping track of the depth yourself
+    int topOfStackIndex = 0;
+    const int MAX_STACK_SIZE = 64;
+    int nodeStack[MAX_STACK_SIZE];
+    nodeStack[topOfStackIndex++] = -1;  // "top of stack"
+
+    // start at root internal node and dive through the internal nodes in the tree to find leaf 
+    // nodes that intersect with the bounding box for this thread's particle
+    // Note: By definition of the BVH's construction, all bounding boxes are contained within 
+    // the root node's bounding box, so don't bother checking for overlap with the root.
+    int currentNodeIndex = int(uBvhNumberLeaves);
+    do
+    {
+        // check for overlap with node on the left
+        // Note: Even inactive particles have valid bounding boxes.  Ignore other results if 
+        // the node is for an inactive particle.
+        int leftChildIndex = AllBvhNodes[currentNodeIndex]._leftChildIndex;
+        BvhNode leftChild = AllBvhNodes[leftChildIndex];
+        bool leftIsNotNull = (leftChild._isNull == 0);
+        bool leftOverlap = BoundingBoxesOverlap(leftChild._boundingBox);
+        bool leftChildIsNotSelf = (leftChildIndex != thisLeafNodeIndex);
+        bool leftChildIsLeaf = (leftChild._isLeaf == 1);
+        if (leftIsNotNull && leftOverlap && leftChildIsNotSelf && leftChildIsLeaf)
+        {
+            // if there are too many collisions, run over the last entry
+            numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
+            particleIndexes[numPotentialCollisions++] = leftChildIndex;
+        }
+
+        // repeat for the right branch
+        int rightChildIndex = AllBvhNodes[currentNodeIndex]._rightChildIndex;
+        BvhNode rightChild = AllBvhNodes[rightChildIndex];
+        bool rightIsNotNull = (rightChild._isNull == 0);
+        bool rightOverlap = BoundingBoxesOverlap(rightChild._boundingBox);
+        bool rightChildIsNotSelf = (rightChildIndex != thisLeafNodeIndex);
+        bool rightChildIsLeaf = (rightChild._isLeaf == 1);
+        if (rightIsNotNull && rightOverlap && rightChildIsNotSelf && rightChildIsLeaf)
+        {
+            // if there are too many collisions, run over the last entry
+            numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
+            particleIndexes[numPotentialCollisions++] = rightChildIndex;
+        }
+
+        // next node
+        bool traverseLeft = (leftIsNotNull && leftOverlap && !leftChildIsLeaf);
+        bool traverseRight = (rightIsNotNull && rightOverlap && !rightChildIsLeaf);
+        if (!traverseLeft && !traverseRight)
+        {
+            // both children children must be leaves, non-overlapping, or both, so pop the top 
+            // of the stack
+            currentNodeIndex = nodeStack[--topOfStackIndex];
+        }
+        else 
+        {
+            // at least one of the nodes is not a leaf (internal node) and there is an overlap 
+            // with its bounding box
+            currentNodeIndex = traverseLeft ? leftChildIndex : rightChildIndex;
+            if (traverseLeft && traverseRight)
+            {
+                // neither is a leaf and there is an overlap with both; already traversing left, 
+                // so push the right index
+                nodeStack[topOfStackIndex++] = rightChildIndex;
+            }
+        }
+    } while (currentNodeIndex != -1 && topOfStackIndex < MAX_STACK_SIZE);
+
+    // copy the local version to global memory
+    // Note: GLSL is nice to treat arrays as objects.  It makes copying easier.
+    AllParticlePotentialCollisions[threadIndex]._numPotentialCollisions = numPotentialCollisions;
+    AllParticlePotentialCollisions[threadIndex]._particleIndexes = particleIndexes;
+
+    // for color
+    AllParticles[threadIndex]._numNearbyParticles = numPotentialCollisions;
+}
+

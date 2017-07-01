@@ -14,6 +14,10 @@ Description:
     atomic counter, there is a little bit of banding in the bar emitters, but the point emitters 
     look good enough, so I can live with this.  I don't need encryption-level randomness for a 
     particle simulation.
+    
+    Recommendation: Initialize all particle position and velocity vectors with rand() prior to 
+    initializing the ParticleBuffer.  Feed these random values into this hash function to 
+    generate a pretty darn good set of random values.
 
 Parameters: 
     randSeed    Self-explanatory

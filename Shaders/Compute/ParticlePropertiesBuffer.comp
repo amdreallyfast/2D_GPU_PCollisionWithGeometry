@@ -1,0 +1,32 @@
+// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    See description in ParticleProperties.h.
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+struct ParticleProperties
+{
+    float _mass;
+    float _collisionRadius;
+};
+
+
+layout(location = UNIFORM_LOCATION_NUM_PARTICLE_PROPERTIES) uniform uint uNumParticleProperties;
+
+/*-----------------------------------------------------------------------------------------------
+Description:
+    Contains 1 ParticleProperties object for each particle type.
+
+    See ParticlePropertiesSsbo for details.
+Creator:    John Cox, 5/2017
+-----------------------------------------------------------------------------------------------*/
+layout (std430, binding = PARTICLE_PROPERTIES_BUFFER_BINDING) buffer ParticlePropertiesBuffer
+{
+    ParticleProperties AllParticleProperties[];
+};
+
+
+

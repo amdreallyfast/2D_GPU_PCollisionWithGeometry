@@ -1,0 +1,118 @@
+// REQUIRES |Shaders/ShaderHeaders/Version.comp
+// REQUIRES |Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
+// REQUIRES |Shaders/Compute/Collisions/ParticlePotentialCollisionsBuffer.comp
+// REQUIRES |Shaders/Compute/ParticlePropertiesBuffer.comp
+// REQUIRES |Shaders/Compute/ParticleBuffer.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    For elastic collisions between two different masses (ignoring rotation because these 
+    particles are points), use the calculations from this article (I followed them on paper too 
+    and it seems legit)
+    http://www.gamasutra.com/view/feature/3015/pool_hall_lessons_fast_accurate_.php?page=3
+
+    Note: For an elastic collision between two particles of equal mass, the velocities of the 
+    two will be exchanged.  I could use this simplified idea for this demo, but I want to 
+    eventually have the option of different masses of particles, so I will use the general 
+    case elastic collision calculations (bottom of page at link).
+    http://hyperphysics.phy-astr.gsu.edu/hbase/colsta.html
+
+Parameters: None
+Returns:    None
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uMaxNumParticles)
+    {
+        return;
+    }
+    else if (AllParticles[threadIndex]._isActive == 0)
+    {
+        return;
+    }
+
+    Particle p1 = AllParticles[threadIndex];
+    ParticleProperties p1Properties = AllParticleProperties[p1._particleTypeIndex];
+
+    vec4 p1NetDeltaVelocity = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+    // make a local copy for easier access
+    ParticlePotentialCollisions collisionCandidates = AllParticlePotentialCollisions[threadIndex];
+
+    int actualCollisionCount = 0;
+
+    // go through all the collision candidates, and if necessary calculate collision results
+    for (int particleIndexCounter = 0; 
+        particleIndexCounter < collisionCandidates._numPotentialCollisions; 
+        particleIndexCounter++)
+    {
+        int p2Index = collisionCandidates._particleIndexes[particleIndexCounter];
+        Particle p2 = AllParticles[p2Index];
+        ParticleProperties p2Properties = AllParticleProperties[p2._particleTypeIndex];
+
+        // check for actual collision
+        // Note: The bounding boxes overlapped, but particles have circular collision regions.
+        float r1 = p1Properties._collisionRadius;
+        float r2 = p2Properties._collisionRadius;
+        float minDistForCollisionSqr = (r1 + r2) * (r1 + r2);
+
+        // Note: The W component should be 0 after the subtraction, but force it to 0 just in 
+        // case so it doesn't mess up the square of the magnitude.
+        vec4 lineOfContact = vec4(p2._currPos.xyz - p1._currPos.xyz, 0.0f);
+        float distSqr = dot(lineOfContact, lineOfContact);
+        if (distSqr > minDistForCollisionSqr)
+        {
+            // close, but no cigar
+            continue;
+        }
+        actualCollisionCount++;
+
+        // TODO: ??how to fix particles that end up with exactly the same floating-point pos? this happens when particles begin to collide??
+        // TODO: 
+        //  - particle backoff BEFORE the line-of-contact calculation
+        //  - use the "line that particle bounds must cross in order to contact", which both particles will cross at the same time
+        //  - will require "vec4 _posPrev"
+        //  - will require larger bounding boxes that encompass where the particles were and where they currently are
+        if (distSqr == 0)
+        {
+            continue;
+        }
+        
+        // Note: Momentum will only be exchanged along the line of contact.  Dot products will 
+        // be taken to find the magnitudes of each particles' velocity along the line of 
+        // contact, so normalize this line of contact.
+        // Also Note: The velocities along the line of contact are called "a1" and "a2", 
+        // respectively, in the Gamasutra article.  Because overly simplified variable names are 
+        // apparently par for the course in otherwise helpful articles :(.
+        vec4 normalizedLineOfContact = lineOfContact * inversesqrt(distSqr);
+        float p1VelOnLineOfContact = dot(p1._vel, normalizedLineOfContact);
+        float p2VelOnLineOfContact = dot(p2._vel, normalizedLineOfContact);
+
+        // Note: 2x because that is how the derivation worked out.  More details in the 
+        // Gamasutra article.
+        // Also Note: This is where the Gamasutra article's pseudocode falls apart in the 
+        // department of properly descriptive variable names.  It calls "P" the delta magnitude 
+        // of the momentum, but in solving for "optimized P" it comes up with a result that has 
+        // units of vel/mass, which is not momentum.  I don't know what else to call this, so I 
+        // will call it "fraction".
+        float deltaVelocity = (2.0f * (p2VelOnLineOfContact - p1VelOnLineOfContact));
+        float totalMass = p1Properties._mass + p2Properties._mass;
+        float fraction = deltaVelocity / totalMass;
+        
+        p1NetDeltaVelocity += fraction * p2Properties._mass * normalizedLineOfContact;
+
+        // only do 1 collision right now
+        break;
+    }
+
+    AllParticles[threadIndex]._vel += p1NetDeltaVelocity;
+    AllParticles[threadIndex]._numNearbyParticles = collisionCandidates._numPotentialCollisions;
+}

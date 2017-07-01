@@ -1,4 +1,4 @@
-// REQUIRES PolygonFace.comp
+// REQUIRES |Shaders/Compute/GeometryStuff/PolygonFace.comp
 
 /*-----------------------------------------------------------------------------------------------
 Description:
