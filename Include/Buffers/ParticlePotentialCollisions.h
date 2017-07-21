@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Shaders/Compute/ParticleCollisions/MaxNumPotentialCollisions.comp"
+#include "Shaders/Compute/Collisions/MaxNumPotentialCollisions.comp"
 
 
 /*------------------------------------------------------------------------------------------------

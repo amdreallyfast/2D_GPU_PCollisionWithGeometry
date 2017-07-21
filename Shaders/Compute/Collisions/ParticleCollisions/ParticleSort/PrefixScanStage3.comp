@@ -1,0 +1,60 @@
+// REQUIRES Version.comp
+// REQUIRES ParallelSortConstants.comp
+// REQUIRES UniformLocations.comp
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES PrefixScanBuffer.comp
+
+
+layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
+layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
+shared uint[ITEMS_PER_WORK_GROUP] fastTempArr;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    This is stage 3 of the prefix scan: Bottom of tree-like-traversal (finish going down).
+Parameters: None
+Returns:    None
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    // if the work group count is correct in the shader dispatch, then these shouldn't be out of 
+    // bounds of the PrefixScanBuffer or the fastTempArray
+    uint doubleThreadIndex = gl_GlobalInvocationID.x * 2;
+    uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
+    fastTempArr[doubleLocalIndex] = AllPrefixSums[doubleThreadIndex];
+    fastTempArr[doubleLocalIndex + 1] = AllPrefixSums[doubleThreadIndex + 1];
+
+    // reproduce the end of the "up the tree" loop for a starting position
+    uint indexMultiplierDueToDepth = 1;
+    for (uint dataPairs = ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
+    {
+        indexMultiplierDueToDepth <<= 1;    // multiply by 2
+    }
+    indexMultiplierDueToDepth >>= 1;
+
+    // keep going down
+    uint localIndex = gl_LocalInvocationID.x;
+    for (uint dataPairs = 1; dataPairs < ITEMS_PER_WORK_GROUP; dataPairs *= 2)
+    {
+        barrier();
+        if (localIndex < dataPairs)
+        {
+            uint lesserIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
+            uint greaterIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
+
+            // the algorithm calls for a swap and sum
+            uint temp = fastTempArr[lesserIndex];
+            fastTempArr[lesserIndex] = fastTempArr[greaterIndex];
+            fastTempArr[greaterIndex] += temp;
+        }
+
+        indexMultiplierDueToDepth >>= 1;    // /= 2
+    }
+
+    // wait for the last write
+    barrier();
+    AllPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    AllPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+}

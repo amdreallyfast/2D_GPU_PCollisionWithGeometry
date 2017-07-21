@@ -23,12 +23,12 @@ public:
 
     ~ShaderStorage();
     void NewShader(const std::string &programKey);
-    void NewCompositeShader(const std::string &programKey);
+    //void NewCompositeShader(const std::string &programKey);
     void DeleteShader(const std::string &programKey);
 
     void AddAndCompileShaderFile(const std::string &programKey, const std::string &filePath, const GLenum shaderType);
-    void AddPartialShaderFile(const std::string &programKey, const std::string &filePath);
-    void CompileCompositeShader(const std::string &programKey, const GLenum shaderType);
+    //void AddPartialShaderFile(const std::string &programKey, const std::string &filePath);
+    //void CompileCompositeShader(const std::string &programKey, const GLenum shaderType);
     
     GLuint LinkShader(const std::string &programKey);
     GLuint GetShaderProgram(const std::string &programKey) const;
@@ -54,13 +54,13 @@ private:
     typedef std::map<std::string, std::vector<GLuint>> _BINARY_MAP;
     _BINARY_MAP _shaderBinaries;
 
-    // used to piece together shader files before compiling
-    // Note: This item allows me to keep a bunch of separate files for individual structures 
-    // instead of repeating them, and it allows me to use C-style header blocks with #define 
-    // declarations that both the shader and C++ can read, which means that I can declare buffer 
-    // and uniform binding locations with constants instead of having to look them up at program 
-    // start.
-    //typedef std::map<std::string, std::map<GLuint, std::string>> _COMPOSITE_SHADER_MAP;
-    typedef std::map<std::string, std::string> _COMPOSITE_SHADER_MAP;
-    _COMPOSITE_SHADER_MAP _partialShaderContents;
+    //// used to piece together shader files before compiling
+    //// Note: This item allows me to keep a bunch of separate files for individual structures 
+    //// instead of repeating them, and it allows me to use C-style header blocks with #define 
+    //// declarations that both the shader and C++ can read, which means that I can declare buffer 
+    //// and uniform binding locations with constants instead of having to look them up at program 
+    //// start.
+    ////typedef std::map<std::string, std::map<GLuint, std::string>> _COMPOSITE_SHADER_MAP;
+    //typedef std::map<std::string, std::string> _COMPOSITE_SHADER_MAP;
+    //_COMPOSITE_SHADER_MAP _partialShaderContents;
 };

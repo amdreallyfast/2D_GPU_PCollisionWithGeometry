@@ -216,16 +216,16 @@ void Init()
     // for moving particles
     particleUpdater = std::make_shared<ShaderControllers::ParticleUpdate>(particleBuffer);
 
-    // for sorting, detecting collisions between, and resolving said collisions between particles
-    particleCollisions = std::make_shared<ShaderControllers::ParticleCollisions>(particleBuffer, particlePropertiesBuffer);
+    //// for sorting, detecting collisions between, and resolving said collisions between particles
+    //particleCollisions = std::make_shared<ShaderControllers::ParticleCollisions>(particleBuffer, particlePropertiesBuffer);
 
     // for drawing particles
     particleRenderer = std::make_shared<ShaderControllers::RenderParticles>();
 
-    // for drawing non-particle things
-    geometryRenderer = std::make_shared<ShaderControllers::RenderGeometry>();
+    //// for drawing non-particle things
+    //geometryRenderer = std::make_shared<ShaderControllers::RenderGeometry>();
 
-    particleGeometryCollisions = std::make_shared<ShaderControllers::ParticleGeometryCollisions>("Blender3DStuff/airfoil.obj", particleBuffer);
+    //particleGeometryCollisions = std::make_shared<ShaderControllers::ParticleGeometryCollisions>("Blender3DStuff/airfoil.obj", particleBuffer);
 
     // the timer will be used for framerate calculations
     gTimer.Start();

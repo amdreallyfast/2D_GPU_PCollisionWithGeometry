@@ -1,5 +1,5 @@
-// REQUIRES SsboBufferBindings.comp
-// REQUIRES CrossShaderUniformLocations
+// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
 
 
 /*------------------------------------------------------------------------------------------------

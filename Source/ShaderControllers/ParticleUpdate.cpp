@@ -44,15 +44,8 @@ namespace ShaderControllers
         ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
 
         std::string shaderKey = "particle update";
-        shaderStorageRef.NewCompositeShader(shaderKey);
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/Version.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/SsboBufferBindings.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleBuffer.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleRegionBoundaries.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleUpdate.comp");
-        shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, "Shaders/Compute/ParticleUpdate.comp", GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _computeProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
         ssboToUpdate->ConfigureConstantUniforms(_computeProgramId);

@@ -54,16 +54,8 @@ namespace ShaderControllers
 
         // first make the particle reset shader for point emitters
         shaderKey = "particle reset point emitter";
-        shaderStorageRef.NewCompositeShader(shaderKey);
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/Version.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/SsboBufferBindings.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleBuffer.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/QuickNormalize.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleReset/Random.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleReset/ParticleResetPointEmitter.comp");
-        shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, "Shaders/Compute/ParticleReset/ParticleResetPointEmitter.comp", GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _computeProgramIdPointEmitters = shaderStorageRef.GetShaderProgram(shaderKey);
         ssboToReset->ConfigureConstantUniforms(_computeProgramIdPointEmitters);
@@ -76,16 +68,8 @@ namespace ShaderControllers
 
         // now for the bar emitters
         shaderKey = "particle reset bar emitter";
-        shaderStorageRef.NewCompositeShader(shaderKey);
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/Version.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/SsboBufferBindings.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleBuffer.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/QuickNormalize.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleReset/Random.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleReset/ParticleResetBarEmitter.comp");
-        shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, "Shaders/Compute/ParticleReset/ParticleResetBarEmitter.comp", GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _computeProgramIdBarEmitters = shaderStorageRef.GetShaderProgram(shaderKey);
         ssboToReset->ConfigureConstantUniforms(_computeProgramIdBarEmitters);

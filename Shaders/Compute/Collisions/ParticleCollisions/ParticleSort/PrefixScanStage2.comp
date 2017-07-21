@@ -1,0 +1,92 @@
+// REQUIRES Version.comp
+// REQUIRES ParallelSortConstants.comp
+// REQUIRES UniformLocations.comp
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES PrefixScanBuffer.comp
+
+
+layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
+layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
+shared uint[ITEMS_PER_WORK_GROUP] fastTempArr;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    This is stage 1 of the prefix scan: Middle of tree-like-traversal (finsh going up; start 
+    going down).
+Parameters: None
+Returns:    None
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    // reproduce the end of the "up the tree" loop for a starting position
+    // Note: This index multiplier may cause threads to try to access indices beyond the size of 
+    // the data set.
+    uint indexMultiplierDueToDepth = 1;
+    for (uint dataPairs = ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
+    {
+        indexMultiplierDueToDepth <<= 1;
+    }
+
+    // if no work group sum from stage 1 exists for the "source index", put in a 0 to avoid 
+    // messing up the sum
+    uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
+    uint lesserSourceIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
+    bool lesserSourceIndexValidRange = lesserSourceIndex < uPrefixSumsMaxEntries;
+    fastTempArr[doubleLocalIndex] = lesserSourceIndexValidRange ? AllPrefixSums[lesserSourceIndex] : 0;
+
+    uint greaterSourceIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
+    bool greaterSourceIndexValidRange = greaterSourceIndex < uPrefixSumsMaxEntries;
+    fastTempArr[doubleLocalIndex + 1] = greaterSourceIndexValidRange ? AllPrefixSums[greaterSourceIndex] : 0;
+
+    // keep going up
+    uint localIndex = gl_LocalInvocationID.x;
+    indexMultiplierDueToDepth = 1;
+    for (uint dataPairs = ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
+    {
+        barrier();
+        if (localIndex < dataPairs)
+        {
+            uint lesserIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
+            uint greaterIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
+
+            fastTempArr[greaterIndex] += fastTempArr[lesserIndex];
+        }
+        indexMultiplierDueToDepth <<= 1;    // multiply by 2
+    }
+
+    if (doubleLocalIndex == 0)
+    {
+        totalNumberOfOnes = fastTempArr[ITEMS_PER_WORK_GROUP - 1];
+        fastTempArr[ITEMS_PER_WORK_GROUP - 1] = 0;
+    }
+    indexMultiplierDueToDepth >>= 1;
+
+    // going down
+    for (uint dataPairs = 1; dataPairs < ITEMS_PER_WORK_GROUP; dataPairs *= 2)
+    {
+        barrier();
+        if (localIndex < dataPairs)
+        {
+            uint lesserIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
+            uint greaterIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
+
+            // the algorithm calls for a swap and sum
+            uint temp = fastTempArr[lesserIndex];
+            fastTempArr[lesserIndex] = fastTempArr[greaterIndex];
+            fastTempArr[greaterIndex] += temp;
+        }
+        indexMultiplierDueToDepth >>= 1;    // /= 2
+    }
+    barrier();
+
+    if (lesserSourceIndexValidRange)
+    {
+        AllPrefixSums[lesserSourceIndex] = fastTempArr[doubleLocalIndex];
+    }
+    if (greaterSourceIndexValidRange)
+    {
+        AllPrefixSums[greaterSourceIndex] = fastTempArr[doubleLocalIndex + 1];
+    }
+}

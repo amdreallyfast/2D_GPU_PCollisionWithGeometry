@@ -1,0 +1,93 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    This is a parallel prefix sums algorithm that uses shared memory, a binary tree, and no 
+    atomic counters to build up a prefix sum within a work group.  This is advantageous because 
+    it uses fast shared memory instead of having many threads get in line to use atomic 
+    counters, of which there are a limited number, on global memory.
+
+    Thanks to developer.nvidia.com, GPU Gems 3, Chapter 39. Parallel Prefix Sum (Scan) with CUDA
+    for the algorithm (despite the code golfing variable names and lack of comments, at least 
+    they had pictures that I could eventually work out).
+    http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html
+
+    In this algorithm, each thread works on 2 items ("data pairs"), and these pairs are summed 
+    together in a binary-tree-like traversal of the array until there is a total sum at the 
+    top (last index in the array, but if the summation pattern is drawn, it looks like a tree, 
+    which has a "root" or "top"; either term works).  
+    
+    There is no prefix sum in each entry in the array at this point, but all the values that 
+    summed to it are present.  Then the total sum is replaced with a 0 and swap-and-sum is 
+    performed on the way back down the same binary-tree-like traversal.  I don't have an 
+    intuitive explanation, but it works, and if drawn out, it kind of makes sense visually.
+    
+    Thread synchronization is vital to this algorithm.  Threads must synchronize so that the 
+    sums of each threads' data pairs will be visible to other threads.  This means that this 
+    algorithm is only useful for a thread group small enough to synchronize threads.  As 
+    powerful as GPUs are, they are unable to synchronize all threads across the entire shader 
+    dispatch (if they could, then this prefix sum would be much easier).  
+    
+    On my laptop running a GTX 560M, OpenGL reports that it can have a maximum work group size 
+    of ~65,000 threads.  Each thread sums 2 items, so max data size is ~130,000.  That's not 
+    bad, but I want to be able to run this prefix scan over 200,000 items, or even 1,000,000.  
+    
+    Solution: Split the prefix sum into three stages:
+    - Bottom of tree-like-traversal (going up)
+    - Middle of tree-like-traversal (finsh going up; start going down)
+    - Bottom of tree-like-traversal (finish going down)
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+
+// REQUIRES Version.comp
+// REQUIRES ParallelSortConstants.comp
+// REQUIRES UniformLocations.comp
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES IntermediateSortBuffers.comp
+// REQUIRES PrefixScanBuffer.comp
+
+
+layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
+layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
+shared uint[ITEMS_PER_WORK_GROUP] fastTempArr;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    This is stage 1 of the prefix scan: Bottom of tree-like traversal (going up).
+Parameters: None
+Returns:    None
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    // each half of the IntermediateDataBuffer is the same size as the AllPrefixSums buffer, 
+    // which is carefully sized so that every thread in the prefix scan work groups will be 
+    // within the buffer's boundaries, so no range checking is required here
+    uint doubleThreadIndex = gl_GlobalInvocationID.x * 2;
+    uint bitReadIndex = uIntermediateBufferReadOffset + doubleThreadIndex;
+    uint bitVal1 = (IntermediateDataBuffer[bitReadIndex]._data >> uBitNumber) & 1;
+    uint bitVal2 = (IntermediateDataBuffer[bitReadIndex + 1]._data >> uBitNumber) & 1;
+    
+    uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
+    fastTempArr[doubleLocalIndex] = bitVal1;
+    fastTempArr[doubleLocalIndex + 1] = bitVal2;
+    barrier();
+
+    // going up
+    uint indexMultiplierDueToDepth = 1;
+    uint localIndex = gl_LocalInvocationID.x;
+    for (uint dataPairs = ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
+    {
+        barrier();
+        if (localIndex < dataPairs)
+        {
+            uint lesserIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
+            uint greaterIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
+
+            fastTempArr[greaterIndex] += fastTempArr[lesserIndex];
+        }
+        indexMultiplierDueToDepth <<= 1;    // *=2
+    }
+
+    AllPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    AllPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+}

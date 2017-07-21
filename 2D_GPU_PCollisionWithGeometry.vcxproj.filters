@@ -142,9 +142,6 @@
     <ClInclude Include="Include\Buffers\Particle.h">
       <Filter>Include\Buffers</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ShaderControllers\ParticleCollisions.h">
-      <Filter>Include\ShaderControllers</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Buffers\ParticleProperties.h">
       <Filter>Include\Buffers</Filter>
     </ClInclude>
@@ -192,6 +189,9 @@
     </ClInclude>
     <ClInclude Include="Include\ParticleEmitters\ParticleEmitterPoint.h">
       <Filter>Include\ParticleEmitters</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ShaderControllers\ParticleCollisions.h">
+      <Filter>Include\ShaderControllers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

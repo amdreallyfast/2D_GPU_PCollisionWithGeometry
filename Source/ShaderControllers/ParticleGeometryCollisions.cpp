@@ -123,11 +123,11 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParticleGeometryCollisions::AssembleProgramHeader(const std::string &shaderKey) const
     {
-        ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/Version.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/SsboBufferBindings.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp");
+        //ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/Version.comp");
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp");
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/SsboBufferBindings.comp");
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp");
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -141,19 +141,19 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParticleGeometryCollisions::AssembleProgramResolveCollisions()
     {
-        ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+        //ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
 
-        std::string shaderKey = "resolve particle-geometry collisions";
-        shaderStorageRef.NewCompositeShader(shaderKey);
-        AssembleProgramHeader(shaderKey);
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleBuffer.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/GeometryStuff/MyVertex.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/GeometryStuff/PolygonFace.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleGeometryCollisions/Buffers/CollideableGeometryBuffer.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleGeometryCollisions/ResolveParticleGeometryCollisions.comp");
-        shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
-        shaderStorageRef.LinkShader(shaderKey);
-        _programIdResolveCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
+        //std::string shaderKey = "resolve particle-geometry collisions";
+        //shaderStorageRef.NewCompositeShader(shaderKey);
+        //AssembleProgramHeader(shaderKey);
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleBuffer.comp");
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/GeometryStuff/MyVertex.comp");
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/GeometryStuff/PolygonFace.comp");
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleGeometryCollisions/Buffers/CollideableGeometryBuffer.comp");
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleGeometryCollisions/ResolveParticleGeometryCollisions.comp");
+        //shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
+        //shaderStorageRef.LinkShader(shaderKey);
+        //_programIdResolveCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
     }
 
     /*--------------------------------------------------------------------------------------------
