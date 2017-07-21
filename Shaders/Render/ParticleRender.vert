@@ -1,5 +1,5 @@
-// REQUIRES |Shaders/ShaderHeaders
-// REQUIRES |Shaders/Compute/Collisions/MaxNumPotentialCollisions.comp
+// REQUIRES Shaders/ShaderHeaders/Version.comp
+// REQUIRES Shaders/Compute/Collisions/MaxNumPotentialCollisions.comp
 
 // Note: The vec2's are in window space (both X and Y on the range [-1,+1])
 // Also Note: The vec2s are provided as vec4s on the CPU side and specified as such in the 

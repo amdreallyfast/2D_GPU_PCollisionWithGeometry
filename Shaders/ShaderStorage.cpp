@@ -34,13 +34,14 @@ Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
 void RecursivelyAddFileDependencies(std::ifstream &newFileStream, std::string *putDataHere)
 {
-    // "// REQUIRES |Some/File/Path.comp" should be at the top of the file
+    // "// REQUIRES Some/File/Path.comp" should be at the top of the file
     std::string s;
-    std::getline(newFileStream, s, '|');
-    while (!newFileStream.eof())
+    std::string req("// REQUIRES ");
+    std::getline(newFileStream, s);
+    while (s.find(req) != std::string::npos)
     {
-        // get the rest of the line
-        std::getline(newFileStream, s);
+        // has dependency
+        s = s.substr(req.length());
         std::ifstream dependencyFileStream(s);
         if (!dependencyFileStream.is_open())
         {
@@ -54,11 +55,16 @@ void RecursivelyAddFileDependencies(std::ifstream &newFileStream, std::string *p
         }
 
         // next dependency
-        std::getline(newFileStream, s, '|');
+        std::getline(newFileStream, s);
     }
 
-    // the rest of the file was read looking for the delimiter, so done reading 
+    // no more dependencies
+    // Note: Dump in the line that just failed the string::find(...) check, then dump in rest of 
+    // the file.
     *putDataHere += s;
+    std::stringstream shaderData;
+    shaderData << newFileStream.rdbuf();
+    *putDataHere += shaderData.str();
 }
 
 /*------------------------------------------------------------------------------------------------

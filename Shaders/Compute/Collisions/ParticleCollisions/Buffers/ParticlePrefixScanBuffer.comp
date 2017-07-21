@@ -1,5 +1,5 @@
-// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
-// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 
 
 // Note: The ParallelSort compute controller should be carefully controlling the number of work 

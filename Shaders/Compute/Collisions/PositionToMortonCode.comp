@@ -1,4 +1,4 @@
-// REQUIRES |Shaders/Compute/ParticleRegionBoundaries.comp
+// REQUIRES Shaders/Compute/ParticleRegionBoundaries.comp
 
 /*------------------------------------------------------------------------------------------------
 Description:

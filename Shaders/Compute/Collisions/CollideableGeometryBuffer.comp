@@ -1,6 +1,6 @@
-// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
-// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
-// REQUIRES |Shaders/Compute/GeometryStuff/PolygonFace.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/GeometryStuff/PolygonFace.comp
 
 layout(location = UNIFORM_LOCATION_MAX_COLLIDEABLE_POLYGONS) uniform uint uMaxPolygons;
 

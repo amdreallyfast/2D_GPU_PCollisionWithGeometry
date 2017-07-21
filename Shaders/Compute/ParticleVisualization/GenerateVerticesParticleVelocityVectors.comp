@@ -1,10 +1,10 @@
-// REQUIRES |Shaders/ShaderHeaders/Version.comp
-// REQUIRES |Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
-// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
-// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
-// REQUIRES |Shaders/Compute/ParticleVisualization/ParticleVelocityVectorGeometryBuffer.comp.
-// REQUIRES |Shaders/Compute/ParticleBuffer.comp
-// REQUIRES |Shaders/Compute/QuickNormalize.comp
+// REQUIRES Shaders/ShaderHeaders/Version.comp
+// REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/ParticleVisualization/ParticleVelocityVectorGeometryBuffer.comp
+// REQUIRES Shaders/Compute/ParticleBuffer.comp
+// REQUIRES Shaders/Compute/QuickNormalize.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = WORK_GROUP_SIZE_X) in;

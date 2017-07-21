@@ -1,6 +1,6 @@
-// REQUIRES |Shaders/ShaderHeaders/SsboBufferBindings.comp
-// REQUIRES |Shaders/ShaderHeaders/CrossShaderUniformLocations
-// REQUIRES |Shaders/Compute/GeometryStuff/BoundingBox.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/GeometryStuff/BoundingBox.comp
 
 
 layout(location = UNIFORM_LOCATION_PARTICLE_BOUNDING_BOX_GEOMETRY_BUFFER_SIZE) uniform uint uParticleBoundingBoxGeometryBufferSize;

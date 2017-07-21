@@ -250,8 +250,8 @@ void UpdateAllTheThings()
 
     particleResetter->ResetParticles(10);
     particleUpdater->Update(deltaTimeSec);
-    particleCollisions->DetectAndResolve(false, false);
-    particleGeometryCollisions->DetectAndResolve(false);
+    //particleCollisions->DetectAndResolve(false, false);
+    //particleGeometryCollisions->DetectAndResolve(false);
 
 
     ShaderControllers::WaitOnQueuedSynchronization();
@@ -299,7 +299,7 @@ void Display()
     particleRenderer->Render(particleBuffer);
     //geometryRenderer->Render(particleCollisions->ParticleVelocityVectorSsbo());
     //geometryRenderer->Render(particleCollisions->ParticleBoundingBoxSsbo());
-    geometryRenderer->Render(particleGeometryCollisions->GeometrySsbo());
+    //geometryRenderer->Render(particleGeometryCollisions->GeometrySsbo());
 
     // draw the frame rate once per second in the lower left corner
     glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
     glutInitContextProfile(GLUT_CORE_PROFILE);
 
     // enable this for automatic message reporting (see OpenGlErrorHandling.cpp)
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
     glutInitContextFlags(GLUT_DEBUG);
 #endif
