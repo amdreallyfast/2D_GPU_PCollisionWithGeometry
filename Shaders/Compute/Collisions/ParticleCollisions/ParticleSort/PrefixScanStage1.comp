@@ -55,6 +55,17 @@ shared uint[DATA_SIZE] fastTempArr;
 /*------------------------------------------------------------------------------------------------
 Description:
     This is stage 1 of the prefix scan: Bottom of tree-like traversal (going up).
+
+    Note: The out-of-bounds checks should only fail on the last work group.  This algorithm 
+    relies on each thread handling two items, so this algorithm will always try to work with 
+    an even number of items.  If there are an odd number of items (unusual, but conceivable), 
+    then the last item in the buffer will be associated with a thread, but that thread needs to 
+    work on two items and it only has one.  
+    
+    This thread needs to work on that one item, so it shouldn't be dismissed by an out-of-bounds 
+    check.  The easiest way forward here is to just have all threads in the work group 
+    participate in the algorithm (that is, don't return from a thread if it is out of bounds), 
+    and those that are out-of-bounds will sum 0s.
 Parameters: None
 Returns:    None
 Creator:    John Cox, 7/2017
@@ -64,23 +75,19 @@ void main()
     uint doubleThreadIndex = gl_GlobalInvocationID.x * 2;
     uint bitReadIndex = uParticleSortingDataBufferReadOffset + doubleThreadIndex;
 
-    // these checks should only fail on the last work group
-    // Note: This algorithm relies on each thread handling two items, so this algorithm will 
-    // always try to work with an even number of items.  If there are an odd number of items 
-    // (unusual, but conceivable), then the last thread will pull one bit from the data that 
-    // needs the prefix scan and the second bit must be 0 (won't mess with the sum).  That last 
-    // thread needs to work on that one item, so it shouldn't be dismissed by an out-of-bounds 
-    // check.  The easiest way forward here is to just have all threads in the work group 
-    // participate in the algorithm (that is, don't return from a thread if it is out of 
-    // bounds), and those that are out-of-bounds will sum 0s.
+    // only check the thread index
+    // Note: The sorting data buffer is double sized ("read" half and "write" half), but the 
+    // "size" uniform only says how big each half is (as if it weren't double sized), so 
+    // out-of-bounds checks will always fail when the "read offset" is the second half unless 
+    // that offset is left out of check.
     uint bitVal1 = 0;
-    if (bitReadIndex < uMaxNumParticleSortingData)
+    if (doubleThreadIndex < uMaxNumParticleSortingData)
     {
         bitVal1 = (AllParticleSortingData[bitReadIndex]._sortingData >> uBitNumber) & 1;
     }
 
     uint bitVal2 = 0;
-    if ((bitReadIndex + 1) < uMaxNumParticleSortingData)
+    if ((doubleThreadIndex + 1) < uMaxNumParticleSortingData)
     {
         bitVal2 = (AllParticleSortingData[bitReadIndex + 1]._sortingData >> uBitNumber) & 1;
     }
