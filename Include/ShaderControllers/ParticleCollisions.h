@@ -66,8 +66,8 @@ namespace ShaderControllers
         void GenerateBvhWithoutProfiling(unsigned int numWorkGroupsX) const;
         void GenerateBvhWithProfiling(unsigned int numWorkGroupsX) const;
 
-        //void DetectAndResolveCollisionsWithoutProfiling(unsigned int numWorkGroupsX) const;
-        //void DetectAndResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const;
+        void DetectAndResolveCollisionsWithoutProfiling(unsigned int numWorkGroupsX) const;
+        void DetectAndResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const;
 
         // the "without profiling" and "with profiling" go through these same steps
         void PrepareToSortParticles(unsigned int numWorkGroupsX) const;
@@ -78,8 +78,8 @@ namespace ShaderControllers
         void PrepareForBinaryTree(unsigned int numWorkGroupsX) const;
         void GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const;
         void MergeNodesIntoBvh(unsigned int numWorkGroupsX) const;
-        //void DetectCollisions(unsigned int numWorkGroupsX) const;
-        //void ResolveCollisions(unsigned int numWorkGroupsX) const;
+        void DetectCollisions(unsigned int numWorkGroupsX) const;
+        void ResolveCollisions(unsigned int numWorkGroupsX) const;
 
         //// for drawing pretty things
         //void GenerateGeometry(unsigned int numWorkGroupsX) const;

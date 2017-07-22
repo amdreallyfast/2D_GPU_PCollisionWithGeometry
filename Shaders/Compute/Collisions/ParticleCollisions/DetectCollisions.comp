@@ -3,7 +3,7 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticleBvhNodeBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticlePotentialCollisionsBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleCollisions/Buffers/PotentialParticleCollisionsBuffer.comp
 // REQUIRES Shaders/Compute/ParticleBuffer.comp
 
 // Y and Z work group sizes default to 1
@@ -47,7 +47,7 @@ bool BoundingBoxesOverlap(BoundingBox otherNodeBoundingBox)
 Description:
     Navigates the Bounding Volume Hierarchy (BVH) and finds overlapping collision boxes.  When 
     there are thousands of particles on-screen at a time, there may be many bounding box 
-    overlaps for any one particle.  These are dumped into the ParticlePotentialCollisionsBuffer.
+    overlaps for any one particle.  These are dumped into the PotentialParticleCollisionsBuffer.
 
     Influence for the tree traversal comes from here, specifically the section entitled
     "Minimizing Divergence":
@@ -70,7 +70,7 @@ Creator:    John Cox, 4/2017
 ------------------------------------------------------------------------------------------------*/
 void main()
 {
-    // Note: Alternate max thread count uParticlePotentialCollisionsBufferSize.  Both are the 
+    // Note: Alternate max thread count uPotentialParticleCollisionsBufferSize.  Both are the 
     // equivalent of the number of particles.
     uint threadIndex = gl_GlobalInvocationID.x;
     if (threadIndex >= uBvhNumberLeaves)
@@ -87,7 +87,7 @@ void main()
     thisThreadNodeBoundingBox = AllBvhNodes[threadIndex]._boundingBox;
 
     // work with a local copy (fast memory), then write that to the 
-    // ParticlePotentialCollisionsBuffer when finished
+    // PotentialParticleCollisionsBuffer when finished
     int numPotentialCollisions = 0;
     int particleIndexes[MAX_NUM_POTENTIAL_COLLISIONS] = int[MAX_NUM_POTENTIAL_COLLISIONS](-1);
 
@@ -113,10 +113,10 @@ void main()
         int leftChildIndex = AllBvhNodes[currentNodeIndex]._leftChildIndex;
         BvhNode leftChild = AllBvhNodes[leftChildIndex];
         bool leftIsNotNull = (leftChild._isNull == 0);
-        bool leftOverlap = BoundingBoxesOverlap(leftChild._boundingBox);
         bool leftChildIsNotSelf = (leftChildIndex != thisLeafNodeIndex);
         bool leftChildIsLeaf = (leftChild._isLeaf == 1);
-        if (leftIsNotNull && leftOverlap && leftChildIsNotSelf && leftChildIsLeaf)
+        bool leftOverlap = BoundingBoxesOverlap(leftChild._boundingBox);
+        if (leftIsNotNull && leftChildIsNotSelf && leftChildIsLeaf && leftOverlap)
         {
             // if there are too many collisions, run over the last entry
             numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
@@ -127,10 +127,10 @@ void main()
         int rightChildIndex = AllBvhNodes[currentNodeIndex]._rightChildIndex;
         BvhNode rightChild = AllBvhNodes[rightChildIndex];
         bool rightIsNotNull = (rightChild._isNull == 0);
-        bool rightOverlap = BoundingBoxesOverlap(rightChild._boundingBox);
         bool rightChildIsNotSelf = (rightChildIndex != thisLeafNodeIndex);
         bool rightChildIsLeaf = (rightChild._isLeaf == 1);
-        if (rightIsNotNull && rightOverlap && rightChildIsNotSelf && rightChildIsLeaf)
+        bool rightOverlap = BoundingBoxesOverlap(rightChild._boundingBox);
+        if (rightIsNotNull && rightChildIsNotSelf && rightChildIsLeaf && rightOverlap )
         {
             // if there are too many collisions, run over the last entry
             numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;

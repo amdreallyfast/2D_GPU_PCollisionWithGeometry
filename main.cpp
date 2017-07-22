@@ -250,7 +250,10 @@ void UpdateAllTheThings()
 
     particleResetter->ResetParticles(10);
     particleUpdater->Update(deltaTimeSec);
-    particleCollisions->DetectAndResolve(false, false);
+
+    bool withProfiling = false;
+    bool generateGeometry = false;
+    particleCollisions->DetectAndResolve(withProfiling, generateGeometry);
     //particleGeometryCollisions->DetectAndResolve(false);
 
 
@@ -462,7 +465,7 @@ int main(int argc, char *argv[])
     glutInitContextProfile(GLUT_CORE_PROFILE);
 
     // enable this for automatic message reporting (see OpenGlErrorHandling.cpp)
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
     glutInitContextFlags(GLUT_DEBUG);
 #endif

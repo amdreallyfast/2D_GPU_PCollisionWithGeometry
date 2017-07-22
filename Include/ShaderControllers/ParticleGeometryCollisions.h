@@ -38,7 +38,7 @@ namespace ShaderControllers
 
         // the "without profiling" and "with profiling" go through these same steps
         
-        // TODO: split into "detect" and "resolve", with "detect" checking for bounding box overlaps and putting PolygonFace indexes into the ParticlePotentialCollisionsBuffer (move buffer out of the ParticleCollisions/Buffers/ folder and up to a folder that both particle collisions and particle-geometry collisions can access) and with "resolve" checking for boundary crossings and resolving per-particle
+        // TODO: split into "detect" and "resolve", with "detect" checking for bounding box overlaps and putting PolygonFace indexes into the PotentialParticleCollisionsBuffer (move buffer out of the ParticleCollisions/Buffers/ folder and up to a folder that both particle collisions and particle-geometry collisions can access) and with "resolve" checking for boundary crossings and resolving per-particle
         void DetectAndResolveCollisions(unsigned int numWorkGroupsX) const;
 
         // buffers for all that jazz

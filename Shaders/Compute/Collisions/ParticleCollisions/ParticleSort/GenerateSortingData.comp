@@ -27,21 +27,7 @@ void main()
     uint mortonCode = PositionToMortonCode(AllParticles[threadIndex]._currPos);
     if (AllParticles[threadIndex]._isActive == 0)
     {
-        // override the code with a number that will cause it to be sorted to the back
-        // Note: The shader GuaranteeSortingDataUniqueness.comp will add the index of the sorted 
-        // data to the value itself.  This will guarantee that every sorted item has a unique 
-        // value, and this will help to remove depth spikes during binary radix tree 
-        // construction that are caused by duplicate entries (particles very very close to each 
-        // other, inactive particles).  Setting a value of maximum integer here will roll over 
-        // the unsigned integer to 0 and then keep going after such an addition, so need to find 
-        // a value that is greater than the maximum possible Morton Code but small enough that 
-        // adding the sorted particle's index won't cause it to roll over to 0 and beyond.  A 
-        // Morton Code is 30bits.  If the most significant 2 bits of a 32bit unsigned integer 
-        // are 1s (0xC0000000), then maximum int - that value will be 
-        // 0xffffffff - 0xC0000000 = 1,073,741,823.  That means that this will allow up to 
-        // ~1 billion "sorting data" entries with unique values after that shader is done.  That 
-        // is more than enough space for all the particles that this demo will ever need.
-        //mortonCode = 0xC0000000;
+        // sort inactive particles to the back by giving them a large sorting value
         mortonCode = 0xffffffff;
     }
 

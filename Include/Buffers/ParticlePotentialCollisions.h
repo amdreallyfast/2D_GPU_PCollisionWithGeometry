@@ -5,7 +5,7 @@
 
 /*------------------------------------------------------------------------------------------------
 Description:   
-    Must match the corresponding structure in ParticlePotentialCollisionsBuffer.comp.
+    Must match the corresponding structure in PotentialParticleCollisionsBuffer.comp.
 
     This object is the blueprint for an array of potential collisions that each particle is 
     engaged in.  This buffer was created because potential collision candidates is used only 

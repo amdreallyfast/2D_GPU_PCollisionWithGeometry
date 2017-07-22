@@ -1,0 +1,4 @@
+total BVH generation time: 70420	microseconds
+prep data: 11603	microseconds
+generate tree: 40115	microseconds
+merge bounding boxes: 18702	microseconds

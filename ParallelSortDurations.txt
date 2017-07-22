@@ -1,1 +1,1 @@
-total sorting time: 594838	microseconds
+total sorting time: 3685	microseconds

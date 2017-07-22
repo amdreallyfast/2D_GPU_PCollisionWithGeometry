@@ -359,9 +359,6 @@
     <None Include="Shaders\Compute\Collisions\MaxNumPotentialCollisions.comp">
       <Filter>Shaders\Compute\Collisions</Filter>
     </None>
-    <None Include="Shaders\Compute\Collisions\ParticlePotentialCollisionsBuffer.comp">
-      <Filter>Shaders\Compute\Collisions</Filter>
-    </None>
     <None Include="Shaders\Compute\Collisions\PositionToMortonCode.comp">
       <Filter>Shaders\Compute\Collisions</Filter>
     </None>
@@ -472,6 +469,9 @@
     </None>
     <None Include="Shaders\Compute\GeometryStuff\Box2D.comp">
       <Filter>Shaders\Compute\GeometryStuff</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\PotentialParticleCollisionsBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\Buffers</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

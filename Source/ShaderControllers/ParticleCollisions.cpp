@@ -240,13 +240,13 @@ namespace ShaderControllers
         {
             SortParticlesWithProfiling(numWorkGroupsX, numWorkGroupsXForPrefixSum);
             GenerateBvhWithProfiling(numWorkGroupsX);
-            //DetectAndResolveCollisionsWithProfiling(numWorkGroupsX);
+            DetectAndResolveCollisionsWithProfiling(numWorkGroupsX);
         }
         else
         {
             SortParticlesWithoutProfiling(numWorkGroupsX, numWorkGroupsXForPrefixSum);
             GenerateBvhWithoutProfiling(numWorkGroupsX);
-            //DetectAndResolveCollisionsWithoutProfiling(numWorkGroupsX);
+            DetectAndResolveCollisionsWithoutProfiling(numWorkGroupsX);
         }
 
         if (generateGeometry)
@@ -396,11 +396,35 @@ namespace ShaderControllers
         _programIdMergeBoundingVolumes = shaderStorageRef.GetShaderProgram(shaderKey);
     }
 
-    // TODO: header
-    // cleans up constructor
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Primarily serves to clean up the constructor.
+
+        Assembles headers, buffers, and functional .comp files for the shaders that detect and 
+        resolve particle-particle collisions.
+    Parameters: None
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
     void ParticleCollisions::AssembleCollisionShaders()
     {
+        ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+        std::string shaderKey;
+        std::string filePath;
 
+        shaderKey = "detect particle-particle collisions";
+        filePath = "Shaders/Compute/Collisions/ParticleCollisions/DetectCollisions.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdDetectCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "resolve particle-particle collisions";
+        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ResolveCollisions.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdResolveCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
     }
     
     /*--------------------------------------------------------------------------------------------
@@ -474,16 +498,9 @@ namespace ShaderControllers
         steady_clock::time_point start;
         steady_clock::time_point end;
         long long totalSortingTime = 0;
-        //long long durationPrepareToSort = 0;
-        //long long durationParticleSort = 0;
-        //std::vector<long long> durationsPrefixScan(totalBitCount);
-        //std::vector<long long> durationsSortSortingData(totalBitCount);
 
         start = high_resolution_clock::now();
         PrepareToSortParticles(numWorkGroupsX);
-        //WaitForComputeToFinish();
-        //end = high_resolution_clock::now();
-        //durationPrepareToSort = duration_cast<microseconds>(end - start).count();
 
         bool writeToSecondBuffer = true;
         unsigned int sortingDataReadBufferOffset = 0;
@@ -493,28 +510,15 @@ namespace ShaderControllers
             sortingDataReadBufferOffset = static_cast<unsigned int>(!writeToSecondBuffer) * _numParticles;
             sortingDataWriteBufferOffset = static_cast<unsigned int>(writeToSecondBuffer) * _numParticles;
 
-            //start = high_resolution_clock::now();
             PrefixScan(numWorkGroupsXPrefixScan, bitNumber, sortingDataReadBufferOffset);
-            //WaitForComputeToFinish();
-            //end = high_resolution_clock::now();
-            //durationsPrefixScan[bitNumber] = duration_cast<microseconds>(end - start).count();
-
-            //start = high_resolution_clock::now();
             SortSortingDataWithPrefixScan(numWorkGroupsX, bitNumber, sortingDataReadBufferOffset, sortingDataWriteBufferOffset);
-            //WaitForComputeToFinish();
-            //end = high_resolution_clock::now();
-            //durationsSortSortingData[bitNumber] = duration_cast<microseconds>(end - start).count();
 
             // swap read/write buffers and do it again
             writeToSecondBuffer = !writeToSecondBuffer;
         }
 
         // wherever the sorting data ended up, that is where the shader should read from
-        //start = high_resolution_clock::now();
         SortParticles(numWorkGroupsX, sortingDataWriteBufferOffset);
-        //WaitForComputeToFinish();
-        //end = high_resolution_clock::now();
-        //durationParticleSort = duration_cast<microseconds>(end - start).count();
 
         end = high_resolution_clock::now();
         totalSortingTime = duration_cast<microseconds>(end - start).count();
@@ -525,45 +529,8 @@ namespace ShaderControllers
         std::ofstream outFile("ParallelSortDurations.txt");
         if (outFile.is_open())
         {
-            //long long totalSortingTime = durationPrepareToSort + durationParticleSort;
-            //for (unsigned int bitCounter = 0; bitCounter < totalBitCount; bitCounter++)
-            //{
-            //    totalSortingTime += durationsPrefixScan[bitCounter];
-            //    totalSortingTime += durationsSortSortingData[bitCounter];
-            //}
-
             cout << "total sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
             outFile << "total sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
-
-            //cout << "preparation: " << durationPrepareToSort << "\tmicroseconds" << endl;
-            //outFile << "preparation: " << durationPrepareToSort << "\tmicroseconds" << endl;
-
-            //cout << "move particles to sorted positions: " << durationParticleSort << "\tmicroseconds" << endl;
-            //outFile << "move particles to sorted positions: " << durationParticleSort << "\tmicroseconds" << endl;
-
-            //cout << endl << "prepare for prefix scan:" << endl;
-            //outFile << endl << "prepare for prefix scan:" << endl;
-            //for (size_t i = 0; i < durationsPrepareForPrefixScan.size(); i++)
-            //{
-            //    cout << "\t" << durationsPrepareForPrefixScan[i] << "\tmicroseconds" << endl;
-            //    outFile << "\t" << durationsPrepareForPrefixScan[i] << "\tmicroseconds" << endl;
-            //}
-
-            //cout << endl << "prefix scan:" << endl;
-            //outFile << endl << "prefix scan:" << endl;
-            //for (size_t i = 0; i < durationsPrefixScan.size(); i++)
-            //{
-            //    cout << "\t" << durationsPrefixScan[i] << "\tmicroseconds" << endl;
-            //    outFile << "\t" << durationsPrefixScan[i] << "\tmicroseconds" << endl;
-            //}
-
-            //cout << endl << "sort sorting data:" << endl;
-            //outFile << endl << "sort sorting data:" << endl;
-            //for (size_t i = 0; i < durationsSortSortingData.size(); i++)
-            //{
-            //    cout << "\t" << durationsSortSortingData[i] << "\tmicroseconds" << endl;
-            //    outFile << "\t" << durationsSortSortingData[i] << "\tmicroseconds" << endl;
-            //}
         }
         outFile.close();
 
@@ -656,104 +623,104 @@ namespace ShaderControllers
         outFile.close();
     }
 
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    This method governs the shader dispatches that will result in colliding particles 
-    //    receiving new velocity vectors.
-    //Parameters: 
-    //    numWorkGroupsX  Expected to be the total particle count divided by work group size.
-    //Returns:    None
-    //Creator:    John Cox, 6/2017
-    //--------------------------------------------------------------------------------------------*/
-    //void ParticleCollisions::DetectAndResolveCollisionsWithoutProfiling(
-    //    unsigned int numWorkGroupsX) const
-    //{
-    //    DetectCollisions(numWorkGroupsX);
-    //    ResolveCollisions(numWorkGroupsX);
-    //}
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        This method governs the shader dispatches that will result in colliding particles 
+        receiving new velocity vectors.
+    Parameters: 
+        numWorkGroupsX  Expected to be the total particle count divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleCollisions::DetectAndResolveCollisionsWithoutProfiling(
+        unsigned int numWorkGroupsX) const
+    {
+        DetectCollisions(numWorkGroupsX);
+        ResolveCollisions(numWorkGroupsX);
+    }
 
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    Like DetectAndResolveCollisionsWithoutProfiling(...), but with 
-    //    (1) std::chrono calls 
-    //    (2) forced wait for shader to finish so that the std::chrono calls get an accurate 
-    //        reading for how long the shader takes 
-    //    (3) writing the output to a file (if desired)
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Like DetectAndResolveCollisionsWithoutProfiling(...), but with 
+        (1) std::chrono calls 
+        (2) forced wait for shader to finish so that the std::chrono calls get an accurate 
+            reading for how long the shader takes 
+        (3) writing the output to a file (if desired)
 
-    //    Note: There is no structure to verify as there was for particle sorting and BVH 
-    //    generation.
-    //Parameters: 
-    //    numWorkGroupsX  Expected to be the total particle count divided by work group size.
-    //Returns:    None
-    //Creator:    John Cox, 6/2017
-    //--------------------------------------------------------------------------------------------*/
-    //void ParticleCollisions::DetectAndResolveCollisionsWithProfiling(
-    //    unsigned int numWorkGroupsX) const
-    //{
-    //    cout << "detecting collisions for up to " << _numParticles << " particles" << endl;
+        Note: There is no structure to verify as there was for particle sorting and BVH 
+        generation.
+    Parameters: 
+        numWorkGroupsX  Expected to be the total particle count divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleCollisions::DetectAndResolveCollisionsWithProfiling(
+        unsigned int numWorkGroupsX) const
+    {
+        cout << "detecting collisions for up to " << _numParticles << " particles" << endl;
 
-    //    // for profiling
-    //    using namespace std::chrono;
-    //    steady_clock::time_point start;
-    //    steady_clock::time_point end;
-    //    long long durationDetectCollisions = 0;
-    //    long long durationResolveCollisions = 0;
+        // for profiling
+        using namespace std::chrono;
+        steady_clock::time_point start;
+        steady_clock::time_point end;
+        long long durationDetectCollisions = 0;
+        long long durationResolveCollisions = 0;
 
-    //    start = high_resolution_clock::now();
-    //    DetectCollisions(numWorkGroupsX);
-    //    WaitForComputeToFinish();
-    //    end = high_resolution_clock::now();
-    //    durationDetectCollisions = duration_cast<microseconds>(end - start).count();
+        start = high_resolution_clock::now();
+        DetectCollisions(numWorkGroupsX);
+        WaitForComputeToFinish();
+        end = high_resolution_clock::now();
+        durationDetectCollisions = duration_cast<microseconds>(end - start).count();
 
-    //    start = high_resolution_clock::now();
-    //    ResolveCollisions(numWorkGroupsX);
-    //    WaitForComputeToFinish();
-    //    end = high_resolution_clock::now();
-    //    durationResolveCollisions = duration_cast<microseconds>(end - start).count();
+        start = high_resolution_clock::now();
+        ResolveCollisions(numWorkGroupsX);
+        WaitForComputeToFinish();
+        end = high_resolution_clock::now();
+        durationResolveCollisions = duration_cast<microseconds>(end - start).count();
 
-    //    //unsigned int startingIndexBytes = 0;
-    //    //std::vector<ParticlePotentialCollisions> checkPotentialCollisions(_particlePotentialCollisionsSsbo.NumItems());
-    //    //unsigned int bufferSizeBytes = checkPotentialCollisions.size() * sizeof(ParticlePotentialCollisions);
-    //    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particlePotentialCollisionsSsbo.BufferId());
-    //    //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-    //    //memcpy(checkPotentialCollisions.data(), bufferPtr, bufferSizeBytes);
-    //    //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<ParticlePotentialCollisions> checkPotentialCollisions(_particlePotentialCollisionsSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkPotentialCollisions.size() * sizeof(ParticlePotentialCollisions);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particlePotentialCollisionsSsbo.BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkPotentialCollisions.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-    //    unsigned int startingIndexBytes = 0;
-    //    std::vector<Particle> checkPostCollisionParticles(_originalParticleSsbo->NumParticles());
-    //    unsigned int bufferSizeBytes = checkPostCollisionParticles.size() * sizeof(Particle);
-    //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _originalParticleSsbo->BufferId());
-    //    void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-    //    memcpy(checkPostCollisionParticles.data(), bufferPtr, bufferSizeBytes);
-    //    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<Particle> checkPostCollisionParticles(_originalParticleSsbo->NumParticles());
+        //unsigned int bufferSizeBytes = checkPostCollisionParticles.size() * sizeof(Particle);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _originalParticleSsbo->BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkPostCollisionParticles.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-    //    for (size_t i = 0; i < checkPostCollisionParticles.size(); i++)
-    //    {
-    //        if (isnan(checkPostCollisionParticles[i]._vel.x))
-    //        {
-    //            printf("");
-    //        }
-    //    }
+        //for (size_t i = 0; i < checkPostCollisionParticles.size(); i++)
+        //{
+        //    if (isnan(checkPostCollisionParticles[i]._vel.x))
+        //    {
+        //        printf("");
+        //    }
+        //}
 
-    //    //// nothing to verify, so just report the results
-    //    //// Note: Write the results to a tab-delimited text file so that I can dump them into an 
-    //    //// Excel spreadsheet.
-    //    //std::ofstream outFile("DetectAndResolveCollisionsDurations.txt");
-    //    //if (outFile.is_open())
-    //    //{
-    //    //    long long totalSortingTime = durationDetectCollisions + durationResolveCollisions;
+        // nothing to verify, so just report the results
+        // Note: Write the results to a tab-delimited text file so that I can dump them into an 
+        // Excel spreadsheet.
+        std::ofstream outFile("DetectAndResolveCollisionsDurations.txt");
+        if (outFile.is_open())
+        {
+            long long totalSortingTime = durationDetectCollisions + durationResolveCollisions;
 
-    //    //    cout << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
-    //    //    outFile << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
+            cout << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
+            outFile << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
 
-    //    //    cout << "detect collisions: " << durationDetectCollisions << "\tmicroseconds" << endl;
-    //    //    outFile << "detect collisions: " << durationDetectCollisions << "\tmicroseconds" << endl;
+            cout << "detect collisions: " << durationDetectCollisions << "\tmicroseconds" << endl;
+            outFile << "detect collisions: " << durationDetectCollisions << "\tmicroseconds" << endl;
 
-    //    //    cout << "resolve collisions: " << durationResolveCollisions << "\tmicroseconds" << endl;
-    //    //    outFile << "resolve collisions: " << durationResolveCollisions << "\tmicroseconds" << endl;
-    //    //}
-    //    //outFile.close();
-    //}
+            cout << "resolve collisions: " << durationResolveCollisions << "\tmicroseconds" << endl;
+            outFile << "resolve collisions: " << durationResolveCollisions << "\tmicroseconds" << endl;
+        }
+        outFile.close();
+    }
 
     /*--------------------------------------------------------------------------------------------
     Description:
@@ -1064,36 +1031,36 @@ namespace ShaderControllers
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
 
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    Populates the ParticlePotentialCollisionsBuffer.
-    //Parameters: 
-    //    numWorkGroupsX      Expected to be number of particles divided by work group size.
-    //Returns:    None
-    //Creator:    John Cox, 6/2017
-    //--------------------------------------------------------------------------------------------*/
-    //void ParticleCollisions::DetectCollisions(unsigned int numWorkGroupsX) const
-    //{
-    //    glUseProgram(_programIdDetectCollisions);
-    //    glDispatchCompute(numWorkGroupsX, 1, 1);
-    //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    //}
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Populates the PotentialParticleCollisionsBuffer.
+    Parameters: 
+        numWorkGroupsX      Expected to be number of particles divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleCollisions::DetectCollisions(unsigned int numWorkGroupsX) const
+    {
+        glUseProgram(_programIdDetectCollisions);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
 
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    Reads the ParticlePotentialCollisionsBuffer and gives particles new velocity vectors if 
-    //    they collide.
-    //Parameters: 
-    //    numWorkGroupsX      Expected to be number of particles divided by work group size.
-    //Returns:    None
-    //Creator:    John Cox, 6/2017
-    //--------------------------------------------------------------------------------------------*/
-    //void ParticleCollisions::ResolveCollisions(unsigned int numWorkGroupsX) const
-    //{
-    //    glUseProgram(_programIdResolveCollisions);
-    //    glDispatchCompute(numWorkGroupsX, 1, 1);
-    //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    //}
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Reads the PotentialParticleCollisionsBuffer and gives particles new velocity vectors if 
+        they collide.
+    Parameters: 
+        numWorkGroupsX      Expected to be number of particles divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleCollisions::ResolveCollisions(unsigned int numWorkGroupsX) const
+    {
+        glUseProgram(_programIdResolveCollisions);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
 
     ///*--------------------------------------------------------------------------------------------
     //Description:

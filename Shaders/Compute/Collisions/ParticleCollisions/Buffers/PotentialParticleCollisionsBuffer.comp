@@ -20,14 +20,14 @@ struct ParticlePotentialCollisions
 
 
 // should be 1 for each particle
-layout(location = UNIFORM_LOCATION_PARTICLE_POTENTIAL_COLLISIONS_BUFFER_SIZE) uniform uint uParticlePotentialCollisionsBufferSize;
+layout(location = UNIFORM_LOCATION_PARTICLE_POTENTIAL_COLLISIONS_BUFFER_SIZE) uniform uint uPotentialParticleCollisionsBufferSize;
 
 /*-----------------------------------------------------------------------------------------------
 Description:
     Nothing special to say about this.  It's the buffer.
 Creator:    John Cox, 6/2017
 -----------------------------------------------------------------------------------------------*/
-layout (std430, binding = PARTICLE_POTENTIAL_COLLISIONS_BUFFER_BINDING) buffer ParticlePotentialCollisionsBuffer
+layout (std430, binding = PARTICLE_POTENTIAL_COLLISIONS_BUFFER_BINDING) buffer PotentialParticleCollisionsBuffer
 {
     ParticlePotentialCollisions AllParticlePotentialCollisions[];
 };
