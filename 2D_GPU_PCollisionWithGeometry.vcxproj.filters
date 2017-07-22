@@ -362,12 +362,6 @@
     <None Include="Shaders\Compute\Collisions\PositionToMortonCode.comp">
       <Filter>Shaders\Compute\Collisions</Filter>
     </None>
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\DetectCollisions.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ResolveCollisions.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleCollisions</Filter>
-    </None>
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\ParticleBvhNodeBuffer.comp">
       <Filter>Shaders\Compute\Collisions\ParticleCollisions\Buffers</Filter>
     </None>
@@ -403,12 +397,6 @@
     </None>
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\SortSortingDataWithPrefixSums.comp">
       <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
-    </None>
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\DetectCollisions.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions</Filter>
-    </None>
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\ResolveCollisions.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions</Filter>
     </None>
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\BoundingBoxGeometryBuffer.comp">
       <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
@@ -472,6 +460,18 @@
     </None>
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\PotentialParticleCollisionsBuffer.comp">
       <Filter>Shaders\Compute\Collisions\ParticleCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\DetectParticleParticleCollisions.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ResolveParticleParticleCollisions.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\DetectParticleGeometryCollisions.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\ResolveParticleGeometryCollisions.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

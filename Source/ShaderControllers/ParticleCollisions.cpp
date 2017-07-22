@@ -413,14 +413,14 @@ namespace ShaderControllers
         std::string filePath;
 
         shaderKey = "detect particle-particle collisions";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/DetectCollisions.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleCollisions/DetectParticleParticleCollisions.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdDetectCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "resolve particle-particle collisions";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ResolveCollisions.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ResolveParticleParticleCollisions.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
