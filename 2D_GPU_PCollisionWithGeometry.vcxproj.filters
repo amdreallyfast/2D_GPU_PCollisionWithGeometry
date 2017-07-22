@@ -145,9 +145,6 @@
     <ClInclude Include="Include\Buffers\SSBOs\ParticleSortingDataSsbo.h">
       <Filter>Include\Buffers\SSBOs</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Buffers\ParticleSortingData.h">
-      <Filter>Include\Buffers</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\ParticlePropertiesSsbo.h">
       <Filter>Include\Buffers\SSBOs</Filter>
     </ClInclude>
@@ -192,6 +189,9 @@
     </ClInclude>
     <ClInclude Include="Include\Geometry\Box2D.h">
       <Filter>Include\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SortingData.h">
+      <Filter>Include\Buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

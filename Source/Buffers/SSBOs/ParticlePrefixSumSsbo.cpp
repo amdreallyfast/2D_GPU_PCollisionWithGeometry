@@ -131,11 +131,11 @@ ParticlePrefixSumSsbo::ParticlePrefixSumSsbo(unsigned int numDataEntries) :
 
     // the std::vector<...>(...) constructor will set everything to 0
     // Note: The +1 is because of a single uint in the buffer, totalNumberOfOnes.  See 
-    // explanation in PrefixScanBuffer.comp.
+    // explanation in ParticlePrefixScanBuffer.comp.
     std::vector<unsigned int> v(1 + _numDataEntries);
 
     // now bind this new buffer to the dedicated buffer binding location
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, PREFIX_SCAN_BUFFER_BINDING, _bufferId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, PARTICLE_PREFIX_SCAN_BUFFER_BINDING, _bufferId);
 
     // and fill it with 0s
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
@@ -155,7 +155,7 @@ Creator:    John Cox, 3/2017
 void ParticlePrefixSumSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
-    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxPrefixSums");
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxParticlePrefixSums");
 
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
@@ -165,7 +165,7 @@ void ParticlePrefixSumSsbo::ConfigureConstantUniforms(unsigned int computeProgra
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Returns the number of integers that have been allocated for the AllPrefixSums array.  The 
+    Returns the number of integers that have been allocated for the AllParticlePrefixSums array.  The 
     constructor ensures that there are enough entries for every item to be part of a work group.  
 Parameters: None
 Returns:    
@@ -179,8 +179,8 @@ unsigned int ParticlePrefixSumSsbo::NumDataEntries() const
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Returns the total number of integers contained in the PrefixScanBuffer.  See 
-    PrefixScanBuffer.comp for details.
+    Returns the total number of integers contained in the ParticlePrefixScanBuffer.  See 
+    ParticlePrefixScanBuffer.comp for details.
 Parameters: None
 Returns:    
     See Description.

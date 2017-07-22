@@ -61,7 +61,7 @@ int LengthOfCommonPrefix(int indexA, int indexB)
 {
     // don't need to check 'a' because the thread ID should always be in bounds
     // Note: It seems that a >= comparison between int and uint is ok, no cast required.
-    if (indexB < 0 || indexB >= uBvhNumberLeaves)
+    if (indexB < 0 || indexB >= uParticleBvhNumberLeaves)
     {
         return -1;
     }
@@ -210,7 +210,7 @@ Creator:    John Cox, 5/2017
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex >= uBvhNumberInternalNodes)
+    if (threadIndex >= uParticleBvhNumberInternalNodes)
     {
         return;
     }
@@ -220,8 +220,8 @@ void main()
     // negative.  For example, the function LengthOfCommonPrefix(...) will return -1 if the 
     // second index is out of range.  That is an important part of the range calculation.
     int thisLeafIndex = int(threadIndex);
-    int thisInternalNodeIndex = int(uBvhNumberLeaves + threadIndex);
-    int rootInternalNodeIndex = int(uBvhNumberLeaves);
+    int thisInternalNodeIndex = int(uParticleBvhNumberLeaves + threadIndex);
+    int rootInternalNodeIndex = int(uParticleBvhNumberLeaves);
 
     // prep for next stage (MergeBoundingVolumes.comp)
     AllBvhNodes[thisInternalNodeIndex]._threadEntranceCounter = 0;

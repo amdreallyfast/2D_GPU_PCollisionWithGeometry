@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 
 
-uniform uint uMaxPrefixSums;
+uniform uint uMaxParticlePrefixSums;
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -13,9 +13,9 @@ Description:
     SortSortingDataWithPrefixSums.comp to determine the offset for the 1s.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-layout (std430, binding = PREFIX_SCAN_BUFFER_BINDING) buffer PrefixScanBuffer
+layout (std430, binding = PARTICLE_PREFIX_SCAN_BUFFER_BINDING) buffer ParticlePrefixScanBuffer
 {
     uint totalNumberOfOnes;
-    uint AllPrefixSums[];
+    uint AllParticlePrefixSums[];
 };
 

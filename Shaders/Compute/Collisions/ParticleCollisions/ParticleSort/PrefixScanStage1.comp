@@ -115,6 +115,6 @@ void main()
 
     // no out-of-bounds checking here because the prefix sum array's size is calculated to be a 
     // multiple of work group size
-    AllPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
-    AllPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+    AllParticlePrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    AllParticlePrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
 }

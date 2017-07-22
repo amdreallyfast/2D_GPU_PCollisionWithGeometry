@@ -1,3 +1,26 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
-// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/SortingData.comp
 
+
+// expected to be the size of uMaxCollidablePolygons
+uniform uint uMaxNumGeometrySortingData;
+
+// these are swapped on each loop of the parallel sort routine
+layout(location = UNIFORM_LOCATION_GEOMETRY_SORTING_DATA_BUFFER_READ_OFFSET) uniform uint uGeometrySortingDataBufferReadOffset;
+layout(location = UNIFORM_LOCATION_GEOMETRY_SORTING_DATA_BUFFER_WRITE_OFFSET) uniform uint uGeometrySortingDataBufferWriteOffset;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    See description in ParticleSortingDataSsbo.h.
+
+    Will be 2x the size of uMaxCollidablePolygons.
+
+    Identical in contents and concept to ParticleSortingDataBuffer, but OpenGL compute shaders 
+    must refer to buffers explicityly by name, so different buffers need differnet names.
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+layout (std430, binding = GEOMETRY_SORTING_DATA_BUFFER_BINDING) buffer GeometrySortingDataBuffer
+{
+    SortingData AllGeometrySortingData[];
+};

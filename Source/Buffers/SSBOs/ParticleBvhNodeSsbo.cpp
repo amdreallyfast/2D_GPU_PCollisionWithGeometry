@@ -35,7 +35,7 @@ ParticleBvhNodeSsbo::ParticleBvhNodeSsbo(unsigned int numParticles) :
     }
 
     // now bind this new buffer to the dedicated buffer binding location
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BVH_NODE_BUFFER_BINDING, _bufferId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, PARTICLE_BVH_NODE_BUFFER_BINDING, _bufferId);
 
     // and fill it with new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
@@ -59,9 +59,9 @@ void ParticleBvhNodeSsbo::ConfigureConstantUniforms(unsigned int computeProgramI
 
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    unsigned int numLeavesUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uBvhNumberLeaves");
-    unsigned int numInternalNodesUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uBvhNumberInternalNodes");
-    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uBvhNodeBufferSize");
+    unsigned int numLeavesUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uParticleBvhNumberLeaves");
+    unsigned int numInternalNodesUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uParticleBvhNumberInternalNodes");
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uParticleBvhNodeBufferSize");
 
     glUniform1ui(numLeavesUnifLoc, _numLeaves);
     glUniform1ui(numInternalNodesUnifLoc, _numInternalNodes);

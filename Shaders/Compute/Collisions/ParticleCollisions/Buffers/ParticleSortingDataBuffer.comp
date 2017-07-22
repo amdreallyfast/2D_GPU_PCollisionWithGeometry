@@ -1,19 +1,7 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/SortingData.comp
 
-
-/*------------------------------------------------------------------------------------------------
-Description:
-    See description in ParticleSortingData.h.
-Creator:    John Cox, 5/2017
-------------------------------------------------------------------------------------------------*/
-struct ParticleSortingData
-{
-    uint _sortingData;
-    int _preSortedParticleIndex;
-
-    // no GLSL-native structures, so no padding necessary on the CPU side
-};
 
 // expected to be the size of uMaxNumParticles
 uniform uint uMaxNumParticleSortingData;
@@ -31,5 +19,5 @@ Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
 layout (std430, binding = PARTICLE_SORTING_DATA_BUFFER_BINDING) buffer ParticleSortingDataBuffer
 {
-    ParticleSortingData AllParticleSortingData[];
+    SortingData AllParticleSortingData[];
 };

@@ -5,7 +5,7 @@
 #include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
 #include "Shaders/ShaderStorage.h"
 
-#include "Include/Buffers/ParticleSortingData.h"
+#include "Include/Buffers/SortingData.h"
 
 #include <vector>
 
@@ -24,14 +24,14 @@ ParticleSortingDataSsbo::ParticleSortingDataSsbo(unsigned int numParticles) :
 {
     // allocate enough space for these structures to be moved from a "read" section to a 
     // "write" section and back again
-    std::vector<ParticleSortingData> v(numParticles * 2);
+    std::vector<SortingData> v(numParticles * 2);
 
     // now bind this new buffer to the dedicated buffer binding location
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, PARTICLE_SORTING_DATA_BUFFER_BINDING, _bufferId);
 
     // and fill it with new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, v.size() * sizeof(ParticleSortingData), v.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, v.size() * sizeof(SortingData), v.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 

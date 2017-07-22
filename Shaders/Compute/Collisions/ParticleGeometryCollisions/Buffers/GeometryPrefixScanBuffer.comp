@@ -1,3 +1,21 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
-// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+
+
+uniform uint uMaxGeometryPrefixSums;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Will be filled with 0s and 1s (bit values extracted from the numbers being sorted).
+    See explanation of sizes in ParticlePrefixSumSsbo.
+
+    Identical in contents and concept to ParticlePrefixScanBuffer, but OpenGL compute shaders 
+    must refer to buffers explicityly by name, so different buffers need differnet names.
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+layout (std430, binding = GEOMETRY_PREFIX_SCAN_BUFFER_BINDING) buffer GeometryPrefixScanBuffer
+{
+    uint totalNumberOfOnes;
+    uint AllGeometryPrefixSums[];
+};
 

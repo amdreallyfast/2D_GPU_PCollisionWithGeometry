@@ -180,8 +180,8 @@
     <ClInclude Include="Include\Buffers\Particle.h" />
     <ClInclude Include="Include\Buffers\ParticlePotentialCollisions.h" />
     <ClInclude Include="Include\Buffers\ParticleProperties.h" />
-    <ClInclude Include="Include\Buffers\ParticleSortingData.h" />
     <ClInclude Include="Include\Buffers\PersistentAtomicCounterBuffer.h" />
+    <ClInclude Include="Include\Buffers\SortingData.h" />
     <ClInclude Include="Include\Buffers\SSBOs\CollideableGeometrySsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleBoundingBoxGeometrySsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleBvhNodeSsbo.h" />

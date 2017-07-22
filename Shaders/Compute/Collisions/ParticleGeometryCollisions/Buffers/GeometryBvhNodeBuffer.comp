@@ -1,59 +1,23 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/BvhNode.comp
 
 
-/*------------------------------------------------------------------------------------------------
-Description:   
-    It's a box.  Self-explanatory.  
-Creator:    John Cox, 7/2017
-------------------------------------------------------------------------------------------------*/
-struct BoundingBox
-{
-    float _left;
-    float _right;
-    float _top;
-    float _bottom;
-};
-
-/*------------------------------------------------------------------------------------------------
-Description:   
-    Stores info about a single node in the BVH.  Can be either an internal node or a leaf node.  
-    If internal, then its children are either leaf nodes or other internal nodes.  If a leaf 
-    node, then it will have _data to analyze.
-Creator:    John Cox, 5/2017
-------------------------------------------------------------------------------------------------*/
-struct BvhNode
-{
-    BoundingBox _boundingBox;
-    int _isLeaf;
-    int _isNull;
-    int _parentIndex;
-    int _threadEntranceCounter;
-    int _leftChildIndex;
-    int _rightChildIndex;
-
-    // no padding needed as long as there are no vec* or mat* variables declared (yes, vec2's 
-    // included)
-    // Note: If there are, like the Particle structure in ParticleBuffer.comp, then the CPU-side 
-    // must be padded out to 16byte alignment.
-};
-
-
-// see description of ParticleBvhNodeBuffer for detail
-layout(location = UNIFORM_LOCATION_PARTICLE_BVH_NUMBER_LEAVES) uniform uint uBvhNumberLeaves;
-layout(location = UNIFORM_LOCATION_PARTICLE_BVH_NUMBER_INTERNAL_NODES) uniform uint uBvhNumberInternalNodes;
-layout(location = UNIFORM_LOCATION_PARTICLE_BVH_NODE_BUFFER_SIZE) uniform uint uBvhNodeBufferSize;
+uniform uint uGeometryBvhNumberLeaves;
+uniform uint uGeometryBvhNumberInternalNodes;
+uniform uint uGeometryBvhNodeBufferSize;
 
 /*-----------------------------------------------------------------------------------------------
 Description:
     The SSBO that will contain all nodes necessary for the internal nodes and the leaf nodes of 
     the BVH.
 
-    The number of internal nodes shall be #particles - 1;
-    The number of leaf nodes shall be #particles.
-Creator:    John Cox, 5/2017
+    Identical in contents and concept to ParticleBvhNodeBuffer, but OpenGL compute shaders must 
+    refer to buffers explicityly by name, so different buffers need differnet names even if the 
+    only difference is their size and data.
+Creator:    John Cox, 7/2017
 -----------------------------------------------------------------------------------------------*/
-layout (std430, binding = BVH_NODE_BUFFER_BINDING) buffer GeometryBvhNodeBuffer
+layout (std430, binding = GEOMETRY_BVH_NODE_BUFFER_BINDING) buffer GeometryBvhNodeBuffer
 {
     // leaf nodes first, then internal nodes 
     BvhNode AllBvhNodes[];

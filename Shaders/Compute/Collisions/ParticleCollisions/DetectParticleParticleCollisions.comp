@@ -73,7 +73,7 @@ void main()
     // Note: Alternate max thread count uPotentialParticleCollisionsBufferSize.  Both are the 
     // equivalent of the number of particles.
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex >= uBvhNumberLeaves)
+    if (threadIndex >= uParticleBvhNumberLeaves)
     {
         return;
     }
@@ -104,7 +104,7 @@ void main()
     // nodes that intersect with the bounding box for this thread's particle
     // Note: By definition of the BVH's construction, all bounding boxes are contained within 
     // the root node's bounding box, so don't bother checking for overlap with the root.
-    int currentNodeIndex = int(uBvhNumberLeaves);
+    int currentNodeIndex = int(uParticleBvhNumberLeaves);
     do
     {
         // check for overlap with node on the left

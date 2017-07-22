@@ -13,7 +13,7 @@ layout (local_size_x = WORK_GROUP_SIZE_X) in;
 Description:
     This is the end of the line for sorting.  By the time that this shader is called, the
     ParticleSortingDataBuffer's last written portion (should be switched to the "read" portion by 
-    now) should contain sorted ParticleSortingData structures.  Make the ParticleBuffer have this 
+    now) should contain sorted SortingData structures.  Make the ParticleBuffer have this 
     same order.
 
     Note: There is no "swap" in parallel sorting.  All particles were already copied to the 
@@ -42,7 +42,7 @@ void main()
     // the unsorted particles are in the second half of the buffer
     sourceIndex += uMaxNumParticles;
 
-    // the ParticleSortingData structure is already sorted, so whatever index it is at now is the 
+    // the SortingData structure is already sorted, so whatever index it is at now is the 
     // same index where the original data should be 
     AllParticles[threadIndex] = AllParticles[sourceIndex];
     

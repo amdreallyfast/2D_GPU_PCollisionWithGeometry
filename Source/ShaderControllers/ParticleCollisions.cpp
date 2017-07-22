@@ -5,7 +5,7 @@
 
 // for profiling and checking results
 #include "Include/ShaderControllers/ProfilingWaitToFinish.h"
-#include "Include/Buffers/ParticleSortingData.h"
+#include "Include/Buffers/SortingData.h"
 #include "Include/Buffers/BvhNode.h"
 #include "Include/Buffers/ParticlePotentialCollisions.h"
 #include "Include/Buffers/Particle.h"
@@ -741,8 +741,8 @@ namespace ShaderControllers
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         //unsigned int startingIndexBytes = 0;
-        //std::vector<ParticleSortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
-        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(ParticleSortingData);
+        //std::vector<SortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(SortingData);
         //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
@@ -839,9 +839,9 @@ namespace ShaderControllers
         glDispatchCompute(numWorkGroupsX, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        //unsigned int startingIndexBytes = sortingDataWriteOffset * sizeof(ParticleSortingData);
-        //std::vector<ParticleSortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
-        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(ParticleSortingData);
+        //unsigned int startingIndexBytes = sortingDataWriteOffset * sizeof(SortingData);
+        //std::vector<SortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(SortingData);
         //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
@@ -883,8 +883,8 @@ namespace ShaderControllers
         //// the radix sorting algorithm put the sorting data.
         ////start = high_resolution_clock::now();
         //unsigned int startingIndexBytes = sortingDataReadOffset;
-        //std::vector<ParticleSortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
-        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(ParticleSortingData);
+        //std::vector<SortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(SortingData);
         //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
@@ -925,8 +925,8 @@ namespace ShaderControllers
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         //unsigned int startingIndexBytes = 0;
-        //std::vector<ParticleSortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
-        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(ParticleSortingData);
+        //std::vector<SortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(SortingData);
         //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);

@@ -1,0 +1,35 @@
+/*------------------------------------------------------------------------------------------------
+Description:   
+    It's a box.  Self-explanatory.  
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+struct BoundingBox
+{
+    float _left;
+    float _right;
+    float _top;
+    float _bottom;
+};
+
+/*------------------------------------------------------------------------------------------------
+Description:   
+    Stores info about a single node in the BVH.  Can be either an internal node or a leaf node.  
+    If internal, then its children are either leaf nodes or other internal nodes.  If a leaf 
+    node, then it will have _data to analyze.
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+struct BvhNode
+{
+    BoundingBox _boundingBox;
+    int _isLeaf;
+    int _isNull;
+    int _parentIndex;
+    int _threadEntranceCounter;
+    int _leftChildIndex;
+    int _rightChildIndex;
+
+    // no padding needed as long as there are no vec* or mat* variables declared (yes, vec2's 
+    // included)
+    // Note: If there are, like the Particle structure in ParticleBuffer.comp, then the CPU-side 
+    // must be padded out to 16byte alignment.
+};

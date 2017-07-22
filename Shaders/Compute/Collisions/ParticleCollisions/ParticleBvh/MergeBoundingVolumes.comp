@@ -30,7 +30,7 @@ Creator:    John Cox, 5/2017
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex >= uBvhNumberLeaves)
+    if (threadIndex >= uParticleBvhNumberLeaves)
     {
         return;
     }
