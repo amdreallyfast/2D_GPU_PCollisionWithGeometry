@@ -28,10 +28,9 @@ public:
     
     GLuint LinkShader(const std::string &programKey);
     GLuint GetShaderProgram(const std::string &programKey) const;
-    GLint GetUniformLocation(const std::string &programKey,
-        const std::string &uniformName) const;
-    GLint GetAttributeLocation(const std::string &programKey,
-        const std::string &attributeName) const;
+    GLint GetUniformLocation(const std::string &programKey, const std::string &uniformName) const;
+    GLint GetUniformLocation(GLuint programId, const std::string &uniformName) const;
+    GLint GetAttributeLocation(const std::string &programKey, const std::string &attributeName) const;
 
 private:
     // defined privately to enforce singleton-ness

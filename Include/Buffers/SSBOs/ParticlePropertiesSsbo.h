@@ -12,7 +12,7 @@ class ParticlePropertiesSsbo : public SsboBase
 {
 public:
     ParticlePropertiesSsbo();
-    virtual ~ParticlePropertiesSsbo() = default;
+    ~ParticlePropertiesSsbo() = default;
     using SharedPtr = std::shared_ptr<ParticlePropertiesSsbo>;
     using SharedConstPtr = std::shared_ptr<const ParticlePropertiesSsbo>;
 

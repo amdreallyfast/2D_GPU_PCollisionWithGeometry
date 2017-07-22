@@ -3,6 +3,7 @@
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"
 #include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
+#include "Shaders/ShaderStorage.h"
 
 #include "Include/Geometry/BoundingBox.h"
 
@@ -44,8 +45,11 @@ Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
 void ParticleBoundingBoxGeometrySsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
+    ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uParticleBoundingBoxGeometryBufferSize");
+
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    glUniform1ui(UNIFORM_LOCATION_PARTICLE_BOUNDING_BOX_GEOMETRY_BUFFER_SIZE, _numVertices);
+    glUniform1ui(bufferSizeUnifLoc, _numVertices);
     glUseProgram(0);
 }

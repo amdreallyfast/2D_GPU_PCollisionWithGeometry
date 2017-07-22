@@ -139,7 +139,7 @@ Description:
     Define in derived class if the SSBO's data will be used during rendering.  
     Example: ParticleSsbo and VertexSsboBase.
     
-    Counter example: BvhNodeSsbo and ParticleSortingDataSsbo do not draw and therefore do not 
+    Counter example: ParticleBvhNodeSsbo and ParticleSortingDataSsbo do not draw and therefore do not 
     override this.
 
     Note: This method cannot be const because the the user needs to record the draw style.

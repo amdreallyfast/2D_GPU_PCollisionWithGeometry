@@ -5,6 +5,7 @@
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"
 #include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
+#include "Shaders/ShaderStorage.h"
 
 #include "Include/Geometry/PolygonFace.h"
 #include <vector>
@@ -63,7 +64,7 @@ CollideableGeometrySsbo::CollideableGeometrySsbo(const std::string &blenderMeshF
     _numVertices = (v.size() * sizeof(PolygonFace)) / sizeof(MyVertex);
 
     // now bind this new buffer to the dedicated buffer binding location
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDEABLE_GEOMETRY_BUFFER_BINDING, _bufferId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_GEOMETRY_BUFFER_BINDING, _bufferId);
 
     // and fill it with new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
@@ -82,9 +83,12 @@ Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
 void CollideableGeometrySsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
+    ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxCollidablePolygons");
+
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    glUniform1ui(UNIFORM_LOCATION_MAX_COLLIDEABLE_POLYGONS, _numPolygons);
+    glUniform1ui(bufferSizeUnifLoc, _numPolygons);
     glUseProgram(0);
 }
 

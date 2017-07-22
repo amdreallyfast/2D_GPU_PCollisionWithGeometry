@@ -19,7 +19,7 @@ class ParticleSsbo : public SsboBase
 {
 public:
     ParticleSsbo(unsigned int numParticles);
-    virtual ~ParticleSsbo() = default;
+    ~ParticleSsbo() = default;
     using SharedPtr = std::shared_ptr<ParticleSsbo>;
     using SharedConstPtr = std::shared_ptr<const ParticleSsbo>;
 

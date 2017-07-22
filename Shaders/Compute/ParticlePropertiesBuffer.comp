@@ -14,7 +14,7 @@ struct ParticleProperties
 };
 
 
-layout(location = UNIFORM_LOCATION_NUM_PARTICLE_PROPERTIES) uniform uint uNumParticleProperties;
+uniform uint uNumParticleProperties;
 
 /*-----------------------------------------------------------------------------------------------
 Description:

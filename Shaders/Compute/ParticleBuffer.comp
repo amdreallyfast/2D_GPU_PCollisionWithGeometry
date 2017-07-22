@@ -21,7 +21,7 @@ struct Particle
 };
 
 // whatever size the user wants
-layout(location = UNIFORM_LOCATION_MAX_NUM_PARTICLES) uniform uint uMaxNumParticles;
+uniform uint uMaxNumParticles;
 
 
 /*------------------------------------------------------------------------------------------------

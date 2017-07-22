@@ -20,7 +20,7 @@ struct ParticlePotentialCollisions
 
 
 // should be 1 for each particle
-layout(location = UNIFORM_LOCATION_PARTICLE_POTENTIAL_COLLISIONS_BUFFER_SIZE) uniform uint uPotentialParticleCollisionsBufferSize;
+uniform uint uPotentialParticleCollisionsBufferSize;
 
 /*-----------------------------------------------------------------------------------------------
 Description:

@@ -1,4 +1,4 @@
-#include "Include/Buffers/SSBOs/PrefixSumSsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePrefixSumSsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 
@@ -115,7 +115,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
-PrefixSumSsbo::PrefixSumSsbo(unsigned int numDataEntries) :
+ParticlePrefixSumSsbo::ParticlePrefixSumSsbo(unsigned int numDataEntries) :
     SsboBase(),  // generate buffers
     _numDataEntries(0)
 {
@@ -152,14 +152,14 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/  
-void PrefixSumSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
+void ParticlePrefixSumSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxPrefixSums");
 
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-
-    glUniform1ui(UNIFORM_LOCATION_PARTICLE_ALL_PREFIX_SUMS_SIZE, _numDataEntries);
+    glUniform1ui(bufferSizeUnifLoc, _numDataEntries);
     glUseProgram(0);
 }
 
@@ -172,7 +172,7 @@ Returns:
     See Description.
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int PrefixSumSsbo::NumDataEntries() const
+unsigned int ParticlePrefixSumSsbo::NumDataEntries() const
 {
     return _numDataEntries;
 }
@@ -186,7 +186,7 @@ Returns:
     See Description.
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int PrefixSumSsbo::TotalBufferEntries() const
+unsigned int ParticlePrefixSumSsbo::TotalBufferEntries() const
 {
     return _numDataEntries + 1;
 }

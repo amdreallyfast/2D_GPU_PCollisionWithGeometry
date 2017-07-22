@@ -15,7 +15,7 @@ class ParticleSortingDataSsbo: public SsboBase
 {
 public:
     ParticleSortingDataSsbo(unsigned int numParticles);
-    virtual ~ParticleSortingDataSsbo() = default;
+    ~ParticleSortingDataSsbo() = default;
     using SharedPtr = std::shared_ptr<ParticleSortingDataSsbo>;
     using SharedConstPtr = std::shared_ptr<const ParticleSortingDataSsbo>;
 

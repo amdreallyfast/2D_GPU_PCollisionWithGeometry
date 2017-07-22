@@ -4,7 +4,7 @@
 // REQUIRES CrossShaderUniformLocations.comp
 // REQUIRES ParticleBuffer.comp
 //// REQUIRES ParticleBoundingBoxesBuffer.comp
-// REQUIRES CollideableGeometryBuffer.comp
+// REQUIRES CollidableGeometryBuffer.comp
 
 // Y and Z work group sizes default to 1
 //layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -31,7 +31,7 @@ Creator:    John Cox, 6/2017
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Each particle examines all the polygon faces in the CollideableGeometryBuffer and bounces 
+    Each particle examines all the polygon faces in the CollidableGeometryBuffer and bounces 
     off them if necessary.
 
     Consider two line segments "a" and "b".  Each are defined by a position vector + travel 
@@ -86,9 +86,9 @@ void main()
     
     Particle p = AllParticles[threadIndex];
 
-    for(uint polyCounter = 0; polyCounter < uMaxPolygons; polyCounter++)
+    for(uint polyCounter = 0; polyCounter < uMaxCollidablePolygons; polyCounter++)
     {
-        PolygonFace polyFace = AllCollideableGeometry[polyCounter];
+        PolygonFace polyFace = AllCollidableGeometry[polyCounter];
 
         // figure out where it crossed the line
         // Note: In this function, "a" will be the particle travel vector and "b" will be the 

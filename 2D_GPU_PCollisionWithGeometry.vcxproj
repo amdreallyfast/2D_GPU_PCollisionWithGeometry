@@ -149,15 +149,15 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shaders\ShaderStorage.cpp" />
     <ClCompile Include="Source\Buffers\PersistentAtomicCounterBuffer.cpp" />
-    <ClCompile Include="Source\Buffers\SSBOs\BvhNodeSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\CollideableGeometrySsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleBoundingBoxGeometrySsbo.cpp" />
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleBvhNodeSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticlePotentialCollisionsSsbo.cpp" />
+    <ClCompile Include="Source\Buffers\SSBOs\ParticlePrefixSumSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticlePropertiesSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleSortingDataSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleVelocityVectorGeometrySsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleSsbo.cpp" />
-    <ClCompile Include="Source\Buffers\SSBOs\PrefixSumSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\SsboBase.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\VertexSsboBase.cpp" />
     <ClCompile Include="Source\Geometry\BlenderLoad.cpp" />
@@ -183,15 +183,15 @@
     <ClInclude Include="Include\Buffers\ParticleProperties.h" />
     <ClInclude Include="Include\Buffers\ParticleSortingData.h" />
     <ClInclude Include="Include\Buffers\PersistentAtomicCounterBuffer.h" />
-    <ClInclude Include="Include\Buffers\SSBOs\BvhNodeSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\CollideableGeometrySsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleBoundingBoxGeometrySsbo.h" />
+    <ClInclude Include="Include\Buffers\SSBOs\ParticleBvhNodeSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticlePotentialCollisionsSsbo.h" />
+    <ClInclude Include="Include\Buffers\SSBOs\ParticlePrefixSumSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticlePropertiesSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleSortingDataSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleVelocityVectorGeometrySsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleSsbo.h" />
-    <ClInclude Include="Include\Buffers\SSBOs\PrefixSumSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\SsboBase.h" />
     <ClInclude Include="Include\Buffers\SSBOs\VertexSsboBase.h" />
     <ClInclude Include="Include\Geometry\BlenderLoad.h" />
@@ -214,7 +214,7 @@
     <ClInclude Include="Shaders\ShaderStorage.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\Compute\Collisions\CollideableGeometryBuffer.comp" />
+    <None Include="Shaders\Compute\Collisions\CollidableGeometryBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\MaxNumPotentialCollisions.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\BoundingBoxGeometryBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\ParticleBvhNodeBuffer.comp" />

@@ -2,12 +2,12 @@
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 
 
-layout(location = UNIFORM_LOCATION_PARTICLE_ALL_PREFIX_SUMS_SIZE) uniform uint uMaxPrefixSums;
+uniform uint uMaxPrefixSums;
 
 /*------------------------------------------------------------------------------------------------
 Description:
     Will be filled with 0s and 1s (bit values extracted from the numbers being sorted).
-    See explanation of sizes in PrefixSumSsbo.
+    See explanation of sizes in ParticlePrefixSumSsbo.
 
     Note: The totalNumberOfOnes is used along with uPrefixSumsMaxEntries in 
     SortSortingDataWithPrefixSums.comp to determine the offset for the 1s.

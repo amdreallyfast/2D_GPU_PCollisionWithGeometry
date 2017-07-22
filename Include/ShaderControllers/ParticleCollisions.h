@@ -3,11 +3,11 @@
 #include <memory>
 #include <string>
 
-#include "Include/Buffers/SSBOs/BvhNodeSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleBvhNodeSsbo.h"
 #include "Include/Buffers/SSBOs/ParticlePropertiesSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleSortingDataSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Buffers/SSBOs/PrefixSumSsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePrefixSumSsbo.h"
 #include "Include/Buffers/SSBOs/ParticlePotentialCollisionsSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleVelocityVectorGeometrySsbo.h"
 #include "Include/Buffers/SSBOs/ParticleBoundingBoxGeometrySsbo.h"
@@ -86,8 +86,8 @@ namespace ShaderControllers
 
         // buffers for sorting, BVH generation, and anything else that's necessary
         ParticleSortingDataSsbo _particleSortingDataSsbo;
-        PrefixSumSsbo _prefixSumSsbo;
-        BvhNodeSsbo _bvhNodeSsbo;
+        ParticlePrefixSumSsbo _prefixSumSsbo;
+        ParticleBvhNodeSsbo _bvhNodeSsbo;
         ParticlePotentialCollisionsSsbo _particlePotentialCollisionsSsbo;
         ParticleVelocityVectorGeometrySsbo _velocityVectorGeometrySsbo;
         ParticleBoundingBoxGeometrySsbo _boundingBoxGeometrySsbo;

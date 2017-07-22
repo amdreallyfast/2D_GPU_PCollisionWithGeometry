@@ -13,7 +13,7 @@ class ParticleBoundingBoxGeometrySsbo : public VertexSsboBase
 {
 public:
     ParticleBoundingBoxGeometrySsbo(unsigned int numParticles);
-    virtual ~ParticleBoundingBoxGeometrySsbo() = default;
+    ~ParticleBoundingBoxGeometrySsbo() = default;
     using SharedPtr = std::shared_ptr<ParticleBoundingBoxGeometrySsbo>;
     using SharedConstPtr = std::shared_ptr<const ParticleBoundingBoxGeometrySsbo>;
 

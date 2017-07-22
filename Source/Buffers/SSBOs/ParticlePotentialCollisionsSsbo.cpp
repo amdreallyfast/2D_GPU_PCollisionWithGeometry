@@ -3,6 +3,7 @@
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"
 #include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
+#include "Shaders/ShaderStorage.h"
 
 #include "Include/Buffers/ParticlePotentialCollisions.h"
 
@@ -43,9 +44,12 @@ Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
 void ParticlePotentialCollisionsSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
+    ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uPotentialParticleCollisionsBufferSize");
+
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    glUniform1ui(UNIFORM_LOCATION_PARTICLE_POTENTIAL_COLLISIONS_BUFFER_SIZE, _numItems);
+    glUniform1ui(bufferSizeUnifLoc, _numItems);
     glUseProgram(0);
 }
 

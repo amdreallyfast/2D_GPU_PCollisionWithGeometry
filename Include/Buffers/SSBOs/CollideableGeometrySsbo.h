@@ -15,7 +15,7 @@ class CollideableGeometrySsbo : public VertexSsboBase
 {
 public:
     CollideableGeometrySsbo(const std::string &blenderMeshFilePath);
-    virtual ~CollideableGeometrySsbo() = default;
+    ~CollideableGeometrySsbo() = default;
     using SharedPtr = std::shared_ptr<CollideableGeometrySsbo>;
     using SharedConstPtr = std::shared_ptr<const CollideableGeometrySsbo>;
 

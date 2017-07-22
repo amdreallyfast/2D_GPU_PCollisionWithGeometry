@@ -13,7 +13,7 @@ class ParticleVelocityVectorGeometrySsbo : public VertexSsboBase
 {
 public:
     ParticleVelocityVectorGeometrySsbo(unsigned int numParticles);
-    virtual ~ParticleVelocityVectorGeometrySsbo() = default;
+    ~ParticleVelocityVectorGeometrySsbo() = default;
     using SharedPtr = std::shared_ptr<ParticleVelocityVectorGeometrySsbo>;
     using SharedConstPtr = std::shared_ptr<const ParticleVelocityVectorGeometrySsbo>;
 

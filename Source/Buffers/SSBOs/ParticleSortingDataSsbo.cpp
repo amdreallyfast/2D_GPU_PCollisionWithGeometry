@@ -3,6 +3,7 @@
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"
 #include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
+#include "Shaders/ShaderStorage.h"
 
 #include "Include/Buffers/ParticleSortingData.h"
 
@@ -45,9 +46,12 @@ Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
 void ParticleSortingDataSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
+    ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxNumParticleSortingData");
+
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    glUniform1ui(UNIFORM_LOCATION_MAX_NUM_SORTING_DATA, _numItems);
+    glUniform1ui(bufferSizeUnifLoc, _numItems);
     glUseProgram(0);
 }
 

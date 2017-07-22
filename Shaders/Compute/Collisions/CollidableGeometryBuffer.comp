@@ -2,16 +2,16 @@
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/GeometryStuff/PolygonFace.comp
 
-layout(location = UNIFORM_LOCATION_MAX_COLLIDEABLE_POLYGONS) uniform uint uMaxPolygons;
 
+uniform uint uMaxCollidablePolygons;
 
 /*------------------------------------------------------------------------------------------------
 Description:
     See description in CollideableGeometrySsbo.h.
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-layout (std430, binding = COLLIDEABLE_GEOMETRY_BUFFER_BINDING) buffer CollideableGeometryBuffer
+layout (std430, binding = COLLIDABLE_GEOMETRY_BUFFER_BINDING) buffer CollidableGeometryBuffer
 {
-    PolygonFace AllCollideableGeometry[];
+    PolygonFace AllCollidableGeometry[];
 };
 

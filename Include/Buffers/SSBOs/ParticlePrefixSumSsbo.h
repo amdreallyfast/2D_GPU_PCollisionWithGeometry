@@ -10,13 +10,13 @@ Description:
     Note: "Prefix scan", "prefix sum", same thing.
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
-class PrefixSumSsbo : public SsboBase
+class ParticlePrefixSumSsbo : public SsboBase
 {
 public:
-    PrefixSumSsbo(unsigned int numDataEntries);
-    virtual ~PrefixSumSsbo() = default;
-    using SharedPtr = std::shared_ptr<PrefixSumSsbo>;
-    using SharedConstPtr = std::shared_ptr<const PrefixSumSsbo>;
+    ParticlePrefixSumSsbo(unsigned int numDataEntries);
+    ~ParticlePrefixSumSsbo() = default;
+    using SharedPtr = std::shared_ptr<ParticlePrefixSumSsbo>;
+    using SharedConstPtr = std::shared_ptr<const ParticlePrefixSumSsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
     unsigned int NumDataEntries() const;

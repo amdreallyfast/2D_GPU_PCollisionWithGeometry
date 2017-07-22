@@ -16,7 +16,7 @@ struct ParticleSortingData
 };
 
 // expected to be the size of uMaxNumParticles
-layout(location = UNIFORM_LOCATION_MAX_NUM_SORTING_DATA) uniform uint uMaxNumParticleSortingData;
+uniform uint uMaxNumParticleSortingData;
 
 // these are swapped on each loop of the parallel sort routine
 layout(location = UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET) uniform uint uParticleSortingDataBufferReadOffset;

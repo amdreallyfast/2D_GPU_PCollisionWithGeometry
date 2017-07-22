@@ -253,7 +253,7 @@ void UpdateAllTheThings()
 
     bool withProfiling = false;
     bool generateGeometry = false;
-    particleCollisions->DetectAndResolve(withProfiling, generateGeometry);
+    //particleCollisions->DetectAndResolve(withProfiling, generateGeometry);
     //particleGeometryCollisions->DetectAndResolve(false);
 
 

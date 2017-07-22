@@ -375,13 +375,37 @@ GLint ShaderStorage::GetUniformLocation(const std::string &programKey,
     }
 
     GLint programId = itr->second;
+
     GLint uniformLocation = glGetUniformLocation(programId, uniformName.c_str());
     if (uniformLocation < 0)
     {
-        fprintf(stderr, "No uniform '%s' in shader program '%s'\n", uniformName.c_str(), 
-            programKey.c_str());
+        fprintf(stderr, "No uniform '%s' in shader program '%s'\n", uniformName.c_str(), programKey.c_str());
     }
     
+    return uniformLocation;
+}
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    A getter for a uniform location within a compiled program.  
+
+    Prints errors to stderr.
+Parameters:
+    programId   A value somehow retrieved from ShaderStorage::GetShaderProgram(...).
+    uniformName The string that spells out verbatim a uniform name within the requested shader.
+Returns:
+    A uniform location, or -1 if (1) the requested program doesn't exist or (2) the uniform 
+    could not be found.
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+GLint ShaderStorage::GetUniformLocation(GLuint programId, const std::string &uniformName) const
+{
+    GLint uniformLocation = glGetUniformLocation(programId, uniformName.c_str());
+    if (uniformLocation < 0)
+    {
+        fprintf(stderr, "No uniform '%s' in shader program '%u'\n", uniformName.c_str(), programId);
+    }
+
     return uniformLocation;
 }
 

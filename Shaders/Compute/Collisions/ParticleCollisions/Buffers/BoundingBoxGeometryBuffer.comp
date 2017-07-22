@@ -3,7 +3,7 @@
 // REQUIRES Shaders/Compute/GeometryStuff/BoundingBox.comp
 
 
-layout(location = UNIFORM_LOCATION_PARTICLE_BOUNDING_BOX_GEOMETRY_BUFFER_SIZE) uniform uint uParticleBoundingBoxGeometryBufferSize;
+uniform uint uParticleBoundingBoxGeometryBufferSize;
 
 /*-----------------------------------------------------------------------------------------------
 Description:

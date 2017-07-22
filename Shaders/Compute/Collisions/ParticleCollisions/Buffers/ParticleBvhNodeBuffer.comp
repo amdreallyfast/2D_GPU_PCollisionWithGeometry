@@ -40,9 +40,9 @@ struct BvhNode
 
 
 // see description of ParticleBvhNodeBuffer for detail
-layout(location = UNIFORM_LOCATION_PARTICLE_BVH_NUMBER_LEAVES) uniform uint uBvhNumberLeaves;
-layout(location = UNIFORM_LOCATION_PARTICLE_BVH_NUMBER_INTERNAL_NODES) uniform uint uBvhNumberInternalNodes;
-layout(location = UNIFORM_LOCATION_PARTICLE_BVH_NODE_BUFFER_SIZE) uniform uint uBvhNodeBufferSize;
+uniform uint uBvhNumberLeaves;
+uniform uint uBvhNumberInternalNodes;
+uniform uint uBvhNodeBufferSize;
 
 /*-----------------------------------------------------------------------------------------------
 Description:

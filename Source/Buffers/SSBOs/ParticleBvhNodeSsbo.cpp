@@ -1,8 +1,9 @@
-#include "Include/Buffers/SSBOs/BvhNodeSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleBvhNodeSsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"
 #include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
+#include "Shaders/ShaderStorage.h"
 
 #include "Include/Buffers/BvhNode.h"
 
@@ -19,7 +20,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
-BvhNodeSsbo::BvhNodeSsbo(unsigned int numParticles) :
+ParticleBvhNodeSsbo::ParticleBvhNodeSsbo(unsigned int numParticles) :
     SsboBase()
 {
     // binary trees with N leaves have N-1 branches
@@ -52,13 +53,19 @@ Returns:
     See Description.
 Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
-void BvhNodeSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
+void ParticleBvhNodeSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
+    ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    glUniform1ui(UNIFORM_LOCATION_PARTICLE_BVH_NUMBER_LEAVES, _numLeaves);
-    glUniform1ui(UNIFORM_LOCATION_PARTICLE_BVH_NUMBER_INTERNAL_NODES, _numInternalNodes);
-    glUniform1ui(UNIFORM_LOCATION_PARTICLE_BVH_NODE_BUFFER_SIZE, _numTotalNodes);
+    unsigned int numLeavesUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uBvhNumberLeaves");
+    unsigned int numInternalNodesUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uBvhNumberInternalNodes");
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uBvhNodeBufferSize");
+
+    glUniform1ui(numLeavesUnifLoc, _numLeaves);
+    glUniform1ui(numInternalNodesUnifLoc, _numInternalNodes);
+    glUniform1ui(bufferSizeUnifLoc, _numTotalNodes);
     glUseProgram(0);
 
 }
@@ -71,7 +78,7 @@ Returns:
     See Description.
 Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int BvhNodeSsbo::NumLeafNodes() const
+unsigned int ParticleBvhNodeSsbo::NumLeafNodes() const
 {
     return _numLeaves;
 }
@@ -84,7 +91,7 @@ Returns:
     See Description.
 Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int BvhNodeSsbo::NumTotalNodes() const
+unsigned int ParticleBvhNodeSsbo::NumTotalNodes() const
 {
     return _numTotalNodes;
 }

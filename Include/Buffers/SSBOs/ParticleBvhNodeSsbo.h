@@ -20,13 +20,13 @@ Description:
     bounding box generation and comparison easier.
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
-class BvhNodeSsbo : public SsboBase
+class ParticleBvhNodeSsbo : public SsboBase
 {
 public:
-    BvhNodeSsbo(unsigned int numParticles);
-    virtual ~BvhNodeSsbo() = default;
-    using SharedPtr = std::shared_ptr<BvhNodeSsbo>;
-    using SharedConstPtr = std::shared_ptr<const BvhNodeSsbo>;
+    ParticleBvhNodeSsbo(unsigned int numParticles);
+    ~ParticleBvhNodeSsbo() = default;
+    using SharedPtr = std::shared_ptr<ParticleBvhNodeSsbo>;
+    using SharedConstPtr = std::shared_ptr<const ParticleBvhNodeSsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
     unsigned int NumLeafNodes() const;

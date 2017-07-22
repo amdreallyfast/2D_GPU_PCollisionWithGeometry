@@ -13,7 +13,7 @@ class ParticlePotentialCollisionsSsbo : public SsboBase
 {
 public:
     ParticlePotentialCollisionsSsbo(unsigned int numParticles);
-    virtual ~ParticlePotentialCollisionsSsbo() = default;
+    ~ParticlePotentialCollisionsSsbo() = default;
     using SharedPtr = std::shared_ptr<ParticlePotentialCollisionsSsbo>;
     using SharedConstPtr = std::shared_ptr<const ParticlePotentialCollisionsSsbo>;
 
