@@ -473,6 +473,9 @@
     <None Include="Shaders\Compute\Collisions\CollidableGeometryBuffer.comp">
       <Filter>Shaders\Compute\Collisions</Filter>
     </None>
+    <None Include="Shaders\Compute\Collisions\SortingData.comp">
+      <Filter>Shaders\Compute\Collisions</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\Compute\ParticleReset\ReadMe.txt">

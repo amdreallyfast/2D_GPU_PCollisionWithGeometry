@@ -3,7 +3,7 @@ Description:
     See description in SortingData.h.
 Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
-struct ParticleSortingData
+struct SortingData
 {
     uint _sortingData;
     int _preSortedParticleIndex;

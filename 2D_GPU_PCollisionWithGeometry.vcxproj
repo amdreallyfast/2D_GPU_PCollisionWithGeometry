@@ -253,6 +253,7 @@
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortSortingDataWithPrefixSums.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\ResolveParticleGeometryCollisions.comp" />
     <None Include="Shaders\Compute\Collisions\PositionToMortonCode.comp" />
+    <None Include="Shaders\Compute\Collisions\SortingData.comp" />
     <None Include="Shaders\Compute\GeometryStuff\Box2D.comp" />
     <None Include="Shaders\Compute\GeometryStuff\MyVertex.comp" />
     <None Include="Shaders\Compute\GeometryStuff\PolygonFace.comp" />
