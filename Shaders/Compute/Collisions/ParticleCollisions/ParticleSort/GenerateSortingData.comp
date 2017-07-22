@@ -41,7 +41,8 @@ void main()
         // 0xffffffff - 0xC0000000 = 1,073,741,823.  That means that this will allow up to 
         // ~1 billion "sorting data" entries with unique values after that shader is done.  That 
         // is more than enough space for all the particles that this demo will ever need.
-        mortonCode = 0xC0000000;
+        //mortonCode = 0xC0000000;
+        mortonCode = 0xffffffff;
     }
 
     AllParticleSortingData[threadIndex]._sortingData = mortonCode;

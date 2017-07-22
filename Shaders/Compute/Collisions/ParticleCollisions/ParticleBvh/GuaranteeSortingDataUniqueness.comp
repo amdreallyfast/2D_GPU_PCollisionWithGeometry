@@ -2,6 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/ParticleBuffer.comp
 // REQUIRES Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticleSortingDataBuffer.comp
 
 // Y and Z work group sizes default to 1
@@ -22,12 +23,18 @@ Description:
     of duplicate entries, which will cause a spike in tree depth and thus in construction time 
     for the inactive nodes in the tree.
 
-    Solution: Modify the value with the index of the data.  
+    Solution: Modify the value with the index of the data while maintaining the sorted order.
+
+    If the particle is active, then add the thread ID.  
+    If the particle is inactive, then it was set to maximum integer (0xffffffff), so subtract 
+    the distance from the current index (thread ID) to the end of the buffer.  
     
-    Note: The shader that generated the sorting data took into account the need for this 
-    modification and so left enough overhead to allow the sorted data's index to be added to 
-    the value itself without rolling the 32bit uint over to 0.  
-    
+    It is ok that one side is adding and the other is subtracting because the maximum Morton 
+    Code is 0x3fffffff, or ~1B, while maximum integer is 0xffffffff, or ~4B.  That leaves ~3B 
+    difference to play with.  My dev machine can only handle a few thousand particles running at 
+    the same time with all the collision handling, so there is no risk of the maximum Morton 
+    Code overlapping with the minimum inactive sorting value.
+
     Note: The actual value is not important when generating the tree.  It WAS when sorting the 
     particles so that particles that were near each other in space usually ended up near each 
     other in the sorted data, which will help minimize data divergence during tree construction 
@@ -41,15 +48,23 @@ Description:
 
 Parameters: None
 Returns:    None
-Creator:    John Cox, 5/2017
+Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
     if (threadIndex >= uMaxNumParticleSortingData)
     {
+        // uMaxNumParticles would work too; they should be identical
         return;
     }
 
-    AllParticleSortingData[threadIndex]._sortingData += threadIndex;
+    if (AllParticles[threadIndex]._isActive == 1)
+    {
+        AllParticleSortingData[threadIndex]._sortingData += threadIndex;
+    }
+    else
+    {
+        AllParticleSortingData[threadIndex]._sortingData -= (uMaxNumParticleSortingData - threadIndex);
+    }
 }

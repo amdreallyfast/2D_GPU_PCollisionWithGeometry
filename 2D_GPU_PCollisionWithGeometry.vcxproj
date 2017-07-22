@@ -253,7 +253,7 @@
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\ResolveCollisions.comp" />
     <None Include="Shaders\Compute\Collisions\ParticlePotentialCollisionsBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\PositionToMortonCode.comp" />
-    <None Include="Shaders\Compute\GeometryStuff\BoundingBox.comp" />
+    <None Include="Shaders\Compute\GeometryStuff\Box2D.comp" />
     <None Include="Shaders\Compute\GeometryStuff\MyVertex.comp" />
     <None Include="Shaders\Compute\GeometryStuff\PolygonFace.comp" />
     <None Include="Shaders\Compute\ParticleBuffer.comp" />

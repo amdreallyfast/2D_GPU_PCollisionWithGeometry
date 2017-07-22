@@ -351,11 +351,49 @@ namespace ShaderControllers
         _programIdSortParticles = shaderStorageRef.GetShaderProgram(shaderKey);
     }
 
-    // TODO: header
-    // cleans up constructor
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Primarily serves to clean up the constructor.
+
+        Assembles headers, buffers, and functional .comp files for the shaders that generate the 
+        bounding volume hierarchy. 
+    Parameters: None
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
     void ParticleCollisions::AssembleBvhShaders()
     {
+        ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+        std::string shaderKey;
+        std::string filePath;
 
+        shaderKey = "guarantee particle sorting data uniqueness";
+        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleBvh/GuaranteeSortingDataUniqueness.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdGuaranteeSortingDataUniqueness= shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "generate particle bounding boxes";
+        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleBvh/GenerateLeafNodeBoundingBoxes.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdGenerateLeafNodeBoundingBoxes = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "generate particle binary radix tree";
+        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleBvh/GenerateBinaryRadixTree.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdGenerateBinaryRadixTree = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "merge particle bounding volumes";
+        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleBvh/MergeBoundingVolumes.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdMergeBoundingVolumes = shaderStorageRef.GetShaderProgram(shaderKey);
     }
 
     // TODO: header

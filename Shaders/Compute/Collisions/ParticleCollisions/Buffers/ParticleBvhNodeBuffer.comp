@@ -1,6 +1,20 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/GeometryStuff/BoundingBox.comp
+
+
+/*------------------------------------------------------------------------------------------------
+Description:   
+    It's a box.  Self-explanatory.  
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+struct BoundingBox
+{
+    float _left;
+    float _right;
+    float _top;
+    float _bottom;
+};
+
 
 /*------------------------------------------------------------------------------------------------
 Description:   

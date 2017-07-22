@@ -347,9 +347,6 @@
     <None Include="Shaders\Compute\ParticleReset\Random.comp">
       <Filter>Shaders\Compute\ParticleReset</Filter>
     </None>
-    <None Include="Shaders\Compute\GeometryStuff\BoundingBox.comp">
-      <Filter>Shaders\Compute\GeometryStuff</Filter>
-    </None>
     <None Include="Shaders\Compute\GeometryStuff\MyVertex.comp">
       <Filter>Shaders\Compute\GeometryStuff</Filter>
     </None>
@@ -472,6 +469,9 @@
     </None>
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanStage3.comp">
       <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\GeometryStuff\Box2D.comp">
+      <Filter>Shaders\Compute\GeometryStuff</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

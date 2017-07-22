@@ -6,11 +6,9 @@ Description:
 
     Note: This is NOT to be confused with the BoundingBox structure of the same name in 
     BvhNodeBuffer.comp.  This one is meant for drawing.
-
-    TODO: ??change to simply Box2D??
 Creator:    John Cox, 6/2017
 -----------------------------------------------------------------------------------------------*/
-struct BoundingBox
+struct Box2D
 {
     PolygonFace _left;
     PolygonFace _right;
