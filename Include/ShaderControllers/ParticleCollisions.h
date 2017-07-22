@@ -63,8 +63,8 @@ namespace ShaderControllers
         void SortParticlesWithoutProfiling(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const;
         void SortParticlesWithProfiling(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const;
 
-        //void GenerateBvhWithoutProfiling(unsigned int numWorkGroupsX) const;
-        //void GenerateBvhWithProfiling(unsigned int numWorkGroupsX) const;
+        void GenerateBvhWithoutProfiling(unsigned int numWorkGroupsX) const;
+        void GenerateBvhWithProfiling(unsigned int numWorkGroupsX) const;
 
         //void DetectAndResolveCollisionsWithoutProfiling(unsigned int numWorkGroupsX) const;
         //void DetectAndResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const;
@@ -74,8 +74,10 @@ namespace ShaderControllers
         void PrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset) const;
         void SortSortingDataWithPrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset, unsigned int sortingDataWriteOffset) const;
         void SortParticles(unsigned int numWorkGroupsX, unsigned int sortingDataReadOffset) const;
-        //void GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const;
-        //void MergeNodesIntoBvh(unsigned int numWorkGroupsX) const;
+
+        void PrepareForBinaryTree(unsigned int numWorkGroupsX) const;
+        void GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const;
+        void MergeNodesIntoBvh(unsigned int numWorkGroupsX) const;
         //void DetectCollisions(unsigned int numWorkGroupsX) const;
         //void ResolveCollisions(unsigned int numWorkGroupsX) const;
 

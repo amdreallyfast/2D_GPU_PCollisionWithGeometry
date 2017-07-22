@@ -239,13 +239,13 @@ namespace ShaderControllers
         if (withProfiling)
         {
             SortParticlesWithProfiling(numWorkGroupsX, numWorkGroupsXForPrefixSum);
-            //GenerateBvhWithProfiling(numWorkGroupsX);
+            GenerateBvhWithProfiling(numWorkGroupsX);
             //DetectAndResolveCollisionsWithProfiling(numWorkGroupsX);
         }
         else
         {
             SortParticlesWithoutProfiling(numWorkGroupsX, numWorkGroupsXForPrefixSum);
-            //GenerateBvhWithoutProfiling(numWorkGroupsX);
+            GenerateBvhWithoutProfiling(numWorkGroupsX);
             //DetectAndResolveCollisionsWithoutProfiling(numWorkGroupsX);
         }
 
@@ -571,145 +571,90 @@ namespace ShaderControllers
         glUseProgram(0);
     }
 
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    This method governs the shader dispatches that will result in a balanced binary tree of 
-    //    bounding boxes from the leaves (particles) up to the root of the tree.
-    //Parameters: 
-    //    numWorkGroupsX  Expected to be the total particle count divided by work group size.
-    //Returns:    None
-    //Creator:    John Cox, 6/2017
-    //--------------------------------------------------------------------------------------------*/
-    //void ParticleCollisions::GenerateBvhWithoutProfiling(unsigned int numWorkGroupsX) const
-    //{
-    //    PrepareForBinaryTree(numWorkGroupsX);
-    //    GenerateBinaryRadixTree(numWorkGroupsX);
-    //    MergeNodesIntoBvh(numWorkGroupsX);
-    //}
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        This method governs the shader dispatches that will result in a balanced binary tree of 
+        bounding boxes from the leaves (particles) up to the root of the tree.
+    Parameters: 
+        numWorkGroupsX  Expected to be the total particle count divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleCollisions::GenerateBvhWithoutProfiling(unsigned int numWorkGroupsX) const
+    {
+        PrepareForBinaryTree(numWorkGroupsX);
+        GenerateBinaryRadixTree(numWorkGroupsX);
+        MergeNodesIntoBvh(numWorkGroupsX);
+    }
 
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    Like GenerateBvhWithoutProfiling(...), but with 
-    //    (1) std::chrono calls 
-    //    (2) forced wait for shader to finish so that the std::chrono calls get an accurate 
-    //        reading for how long the shader takes 
-    //    (3) verification of a valid tree (all nodes' parent-child relationships are reciprocated)
-    //    (4) writing the output to a file (if desired)
-    //Parameters: 
-    //    numWorkGroupsX  Expected to be the total particle count divided by work group size.
-    //Returns:    None
-    //Creator:    John Cox, 6/2017
-    //--------------------------------------------------------------------------------------------*/
-    //void ParticleCollisions::GenerateBvhWithProfiling(unsigned int numWorkGroupsX) const
-    //{
-    //    cout << "generating BVH for " << _numParticles << " particles" << endl;
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Like GenerateBvhWithoutProfiling(...), but with 
+        (1) std::chrono calls 
+        (2) forced wait for shader to finish so that the std::chrono calls get an accurate 
+            reading for how long the shader takes 
+        (3) verification of a valid tree (all nodes' parent-child relationships are reciprocated)
+        (4) writing the output to a file (if desired)
+    Parameters: 
+        numWorkGroupsX  Expected to be the total particle count divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleCollisions::GenerateBvhWithProfiling(unsigned int numWorkGroupsX) const
+    {
+        cout << "generating BVH for " << _numParticles << " particles" << endl;
 
-    //    // for profiling
-    //    using namespace std::chrono;
-    //    steady_clock::time_point start;
-    //    steady_clock::time_point end;
-    //    long long durationPrepData = 0;
-    //    long long durationGenerateTree = 0;
-    //    long long durationMergeBoundingBoxes = 0;
-    //    long long durationCheckForValidTree = 0;
+        // for profiling
+        using namespace std::chrono;
+        steady_clock::time_point start;
+        steady_clock::time_point end;
+        long long durationPrepData = 0;
+        long long durationGenerateTree = 0;
+        long long durationMergeBoundingBoxes = 0;
 
-    //    // prep data
-    //    start = high_resolution_clock::now();
-    //    PrepareForBinaryTree(numWorkGroupsX);
-    //    WaitForComputeToFinish();
-    //    end = high_resolution_clock::now();
-    //    durationPrepData = duration_cast<microseconds>(end - start).count();
+        // prep data
+        start = high_resolution_clock::now();
+        PrepareForBinaryTree(numWorkGroupsX);
+        WaitForComputeToFinish();
+        end = high_resolution_clock::now();
+        durationPrepData = duration_cast<microseconds>(end - start).count();
 
-    //    // generate the tree
-    //    start = high_resolution_clock::now();
-    //    GenerateBinaryRadixTree(numWorkGroupsX);
-    //    WaitForComputeToFinish();
-    //    end = high_resolution_clock::now();
-    //    durationGenerateTree = duration_cast<microseconds>(end - start).count();
+        // generate the tree
+        start = high_resolution_clock::now();
+        GenerateBinaryRadixTree(numWorkGroupsX);
+        WaitForComputeToFinish();
+        end = high_resolution_clock::now();
+        durationGenerateTree = duration_cast<microseconds>(end - start).count();
 
-    //    // populate the tree with bounding volumes to finish the BVH
-    //    start = high_resolution_clock::now();
-    //    MergeNodesIntoBvh(numWorkGroupsX);
-    //    WaitForComputeToFinish();
-    //    end = high_resolution_clock::now();
-    //    durationMergeBoundingBoxes = duration_cast<microseconds>(end - start).count();
+        // populate the tree with bounding volumes to finish the BVH
+        start = high_resolution_clock::now();
+        MergeNodesIntoBvh(numWorkGroupsX);
+        WaitForComputeToFinish();
+        end = high_resolution_clock::now();
+        durationMergeBoundingBoxes = duration_cast<microseconds>(end - start).count();
 
-    //    // verify that the binary tree is valid by checking that all parent-child relationships 
-    //    // are reciprocated 
-    //    // Note: By virtue of being a binary tree, every node except the root has a parent, and 
-    //    // that parent also specifies that node as a child exactly once.
-    //    start = high_resolution_clock::now();
-    //    unsigned int startingIndexBytes = 0;
-    //    std::vector<BvhNode> checkBinaryTree(_bvhNodeSsbo.NumTotalNodes());
-    //    unsigned int bufferSizeBytes = checkBinaryTree.size() * sizeof(BvhNode);
-    //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bvhNodeSsbo.BufferId());
-    //    void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-    //    memcpy(checkBinaryTree.data(), bufferPtr, bufferSizeBytes);
-    //    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    //    
-    //    // check the root node (no parent, only children)
-    //    int rootnodeindex = _bvhNodeSsbo.NumLeafNodes();
-    //    const BvhNode &rootnode = checkBinaryTree[rootnodeindex];
-    //    if ((rootnodeindex != checkBinaryTree[rootnode._leftChildIndex]._parentIndex) &&
-    //        (rootnodeindex != checkBinaryTree[rootnode._rightChildIndex]._parentIndex))
-    //    {
-    //        // root-child relationship not reciprocated
-    //        printf("");
-    //    }
+        // report results
+        // Note: Write the results to a tab-delimited text file so that I can dump them into an 
+        // Excel spreadsheet.
+        std::ofstream outFile("GenerateBvhDurations.txt");
+        if (outFile.is_open())
+        {
+            long long totalSortingTime = durationPrepData + durationGenerateTree + durationMergeBoundingBoxes;
 
-    //    // check all the other nodes (have parents, leaves don't have children)
-    //    for (size_t thisNodeIndex = 0; thisNodeIndex < checkBinaryTree.size(); thisNodeIndex++)
-    //    {
-    //        const BvhNode &thisNode = checkBinaryTree[thisNodeIndex];
+            cout << "total BVH generation time: " << totalSortingTime << "\tmicroseconds" << endl;
+            outFile << "total BVH generation time: " << totalSortingTime << "\tmicroseconds" << endl;
 
-    //        if (thisNode._parentIndex == -1)
-    //        {
-    //            // skip if it is the root; everyone else should have a parent
-    //            if (thisNodeIndex != _bvhNodeSsbo.NumLeafNodes())
-    //            {
-    //                // bad: non-root node has a -1 parent
-    //                printf("");
-    //            }
-    //        }
-    //        else
-    //        {
-    //            if ((thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._leftChildIndex) &&
-    //                (thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._rightChildIndex))
-    //            {
-    //                // parent-child relationship not reciprocated
-    //                printf("");
-    //            }
-    //        }
-    //    }
+            cout << "prep data: " << durationPrepData << "\tmicroseconds" << endl;
+            outFile << "prep data: " << durationPrepData << "\tmicroseconds" << endl;
 
-    //    end = high_resolution_clock::now();
-    //    durationCheckForValidTree = duration_cast<microseconds>(end - start).count();
+            cout << "generate tree: " << durationGenerateTree << "\tmicroseconds" << endl;
+            outFile << "generate tree: " << durationGenerateTree << "\tmicroseconds" << endl;
 
-    //    // report results
-    //    // Note: Write the results to a tab-delimited text file so that I can dump them into an 
-    //    // Excel spreadsheet.
-    //    std::ofstream outFile("GenerateBvhDurations.txt");
-    //    if (outFile.is_open())
-    //    {
-    //        long long totalSortingTime = durationPrepData + durationGenerateTree + durationMergeBoundingBoxes;
-
-    //        cout << "total BVH generation time: " << totalSortingTime << "\tmicroseconds" << endl;
-    //        outFile << "total BVH generation time: " << totalSortingTime << "\tmicroseconds" << endl;
-
-    //        cout << "prep data: " << durationPrepData << "\tmicroseconds" << endl;
-    //        outFile << "prep data: " << durationPrepData << "\tmicroseconds" << endl;
-
-    //        cout << "generate tree: " << durationGenerateTree << "\tmicroseconds" << endl;
-    //        outFile << "generate tree: " << durationGenerateTree << "\tmicroseconds" << endl;
-
-    //        cout << "merge bounding boxes: " << durationMergeBoundingBoxes << "\tmicroseconds" << endl;
-    //        outFile << "merge bounding boxes: " << durationMergeBoundingBoxes << "\tmicroseconds" << endl;
-
-    //        cout << "check for valid tree: " << durationCheckForValidTree << "\tmicroseconds" << endl;
-    //        outFile << "check for valid tree: " << durationCheckForValidTree << "\tmicroseconds" << endl;
-    //    }
-    //    outFile.close();
-    //}
+            cout << "merge bounding boxes: " << durationMergeBoundingBoxes << "\tmicroseconds" << endl;
+            outFile << "merge bounding boxes: " << durationMergeBoundingBoxes << "\tmicroseconds" << endl;
+        }
+        outFile.close();
+    }
 
     ///*--------------------------------------------------------------------------------------------
     //Description:
@@ -861,8 +806,8 @@ namespace ShaderControllers
         glDispatchCompute(numWorkGroupsX, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        //unsigned int startingIndexBytes = 1024 * sizeof(unsigned int);
-        //std::vector<unsigned int> checkPrefixScan(1 + _prefixSumSsbo.NumDataEntries());
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<unsigned int> checkPrefixScan(_prefixSumSsbo.TotalBufferEntries());
         //unsigned int bufferSizeBytes = checkPrefixScan.size() * sizeof(unsigned int);
         //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _prefixSumSsbo.BufferId());
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
@@ -992,58 +937,132 @@ namespace ShaderControllers
         //printf("");
     }
 
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    Modifies the ParticleSortingDataBuffer so that the resulting tree won't have depth 
-    //    spikes due to duplicate entries, then gives each leaf node in the BvhNodeBuffer a 
-    //    bounding box based on the particle that it is associated with.
-    //Parameters: 
-    //    numWorkGroupsX      Expected to be number of particles divided by work group size.
-    //Returns:    None
-    //Creator:    John Cox, 6/2017
-    //--------------------------------------------------------------------------------------------*/
-    //void ParticleCollisions::PrepareForBinaryTree(unsigned int numWorkGroupsX) const
-    //{
-    //    glUseProgram(_programIdGuaranteeSortingDataUniqueness);
-    //    glDispatchCompute(numWorkGroupsX, 1, 1);
-    //    glUseProgram(_programIdGenerateLeafNodeBoundingBoxes);
-    //    glDispatchCompute(numWorkGroupsX, 1, 1);
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Modifies the ParticleSortingDataBuffer so that the resulting tree won't have depth 
+        spikes due to duplicate entries, then gives each leaf node in the BvhNodeBuffer a 
+        bounding box based on the particle that it is associated with.
+    Parameters: 
+        numWorkGroupsX      Expected to be number of particles divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleCollisions::PrepareForBinaryTree(unsigned int numWorkGroupsX) const
+    {
+        glUseProgram(_programIdGuaranteeSortingDataUniqueness);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glUseProgram(_programIdGenerateLeafNodeBoundingBoxes);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
 
-    //    // the two shaders worked on independent data, so only need one memory barrier at the end
-    //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    //}
+        // the two shaders worked on independent data, so only need one memory barrier at the end
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    All that sorting to get to here.
-    //Parameters: 
-    //    numWorkGroupsX      Expected to be number of particles divided by work group size.
-    //Returns:    None
-    //Creator:    John Cox, 6/2017
-    //--------------------------------------------------------------------------------------------*/
-    //void ParticleCollisions::GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const
-    //{
-    //    glUseProgram(_programIdGenerateBinaryRadixTree);
-    //    glDispatchCompute(numWorkGroupsX, 1, 1);
-    //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    //}
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<ParticleSortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(ParticleSortingData);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    And finally the binary radix tree blooms with beautiful bounding boxes into a Bounding 
-    //    Volume Hierarchy.  I'm tired and am thinking of nice "tree in spring" analogy.  The 
-    //    analogy starts to fall apart when I think of creating the tree anew ~60x/sec.  
-    //Parameters: 
-    //    numWorkGroupsX      Expected to be number of particles divided by work group size.
-    //Returns:    None
-    //Creator:    John Cox, 6/2017
-    //--------------------------------------------------------------------------------------------*/
-    //void ParticleCollisions::MergeNodesIntoBvh(unsigned int numWorkGroupsX) const
-    //{
-    //    glUseProgram(_programIdMergeBoundingVolumes);
-    //    glDispatchCompute(numWorkGroupsX, 1, 1);
-    //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    //}
+        //// check for duplicate elements
+        //// Note: This is an array of sorted elements, but the elements themselves are not on the 
+        //// range [0,n-1], so I can't do the fanciest and most efficient checks.  I also don't 
+        //// want to bother using a hash approach (std::map<...>), and this is just a debugging 
+        //// thing anyway, so go brute force.
+        //for (size_t i = 0; i < checkSortingData.size(); i++)
+        //{
+        //    for (size_t j = i + 1; j < checkSortingData.size(); j++)
+        //    {
+        //        if (checkSortingData[i]._sortingData == checkSortingData[j]._sortingData)
+        //        {
+        //            printf("");
+        //        }
+        //    }
+        //}
+        //printf("");
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        All that sorting to get to here.
+    Parameters: 
+        numWorkGroupsX      Expected to be number of particles divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleCollisions::GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const
+    {
+        glUseProgram(_programIdGenerateBinaryRadixTree);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        // verify that the binary tree is valid by checking that all parent-child relationships 
+        // are reciprocated 
+        // Note: By virtue of being a binary tree, every node except the root has a parent, and 
+        // that parent also specifies that node as a child exactly once.
+        unsigned int startingIndexBytes = 0;
+        std::vector<BvhNode> checkBinaryTree(_bvhNodeSsbo.NumTotalNodes());
+        unsigned int bufferSizeBytes = checkBinaryTree.size() * sizeof(BvhNode);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bvhNodeSsbo.BufferId());
+        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkBinaryTree.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        // check the root node (no parent, only children)
+        int rootnodeindex = _bvhNodeSsbo.NumLeafNodes();
+        const BvhNode &rootnode = checkBinaryTree[rootnodeindex];
+        if ((rootnodeindex != checkBinaryTree[rootnode._leftChildIndex]._parentIndex) &&
+            (rootnodeindex != checkBinaryTree[rootnode._rightChildIndex]._parentIndex))
+        {
+            // root-child relationship not reciprocated
+            printf("");
+        }
+
+        // check all the other nodes (have parents, leaves don't have children)
+        for (size_t thisNodeIndex = 0; thisNodeIndex < checkBinaryTree.size(); thisNodeIndex++)
+        {
+            const BvhNode &thisNode = checkBinaryTree[thisNodeIndex];
+
+            if (thisNode._parentIndex == -1)
+            {
+                // skip if it is the root; everyone else should have a parent
+                if (thisNodeIndex != _bvhNodeSsbo.NumLeafNodes())
+                {
+                    // bad: non-root node has a -1 parent
+                    printf("");
+                }
+            }
+            else
+            {
+                if ((thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._leftChildIndex) &&
+                    (thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._rightChildIndex))
+                {
+                    // parent-child relationship not reciprocated
+                    printf("");
+                }
+            }
+        }
+
+        printf("");
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        And finally the binary radix tree blooms with beautiful bounding boxes into a Bounding 
+        Volume Hierarchy.  I'm tired and am thinking of nice "tree in spring" analogy.  The 
+        analogy starts to fall apart when I think of creating the tree anew ~60x/sec.  
+    Parameters: 
+        numWorkGroupsX      Expected to be number of particles divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleCollisions::MergeNodesIntoBvh(unsigned int numWorkGroupsX) const
+    {
+        glUseProgram(_programIdMergeBoundingVolumes);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
 
     ///*--------------------------------------------------------------------------------------------
     //Description:
