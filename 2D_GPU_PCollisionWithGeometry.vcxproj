@@ -176,7 +176,6 @@
     <ClCompile Include="Source\ShaderControllers\RenderParticles.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Buffers\BoundingBox.h" />
     <ClInclude Include="Include\Buffers\BvhNode.h" />
     <ClInclude Include="Include\Buffers\Particle.h" />
     <ClInclude Include="Include\Buffers\ParticlePotentialCollisions.h" />
@@ -195,6 +194,7 @@
     <ClInclude Include="Include\Buffers\SSBOs\SsboBase.h" />
     <ClInclude Include="Include\Buffers\SSBOs\VertexSsboBase.h" />
     <ClInclude Include="Include\Geometry\BlenderLoad.h" />
+    <ClInclude Include="Include\Geometry\Box2D.h" />
     <ClInclude Include="Include\Geometry\MyVertex.h" />
     <ClInclude Include="Include\Geometry\PolygonFace.h" />
     <ClInclude Include="Include\OpenGlErrorHandling.h" />

@@ -147,6 +147,7 @@ void GenerateParticleEmitters()
     //particleResetter->AddEmitter(barEmitter2);
 }
 
+#include "Include/Buffers/BvhNode.h"
 
 /*------------------------------------------------------------------------------------------------
 Description:

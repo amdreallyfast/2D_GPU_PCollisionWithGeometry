@@ -169,9 +169,6 @@
     <ClInclude Include="Include\Geometry\BlenderLoad.h">
       <Filter>Include\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Buffers\BoundingBox.h">
-      <Filter>Include\Geometry</Filter>
-    </ClInclude>
     <ClInclude Include="Include\ShaderControllers\ParticleGeometryCollisions.h">
       <Filter>Include\ShaderControllers</Filter>
     </ClInclude>
@@ -192,6 +189,9 @@
     </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\ParticlePrefixSumSsbo.h">
       <Filter>Include\Buffers\SSBOs</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Geometry\Box2D.h">
+      <Filter>Include\Geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@
 #include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
 #include "Shaders/ShaderStorage.h"
 
-#include "Include/Geometry/BoundingBox.h"
+#include "Include/Geometry/Box2D.h"
 
 #include <vector>
 
@@ -22,15 +22,15 @@ Creator:    John Cox, 6/2017
 ParticleBoundingBoxGeometrySsbo::ParticleBoundingBoxGeometrySsbo(unsigned int numParticles) :
     VertexSsboBase()  // generate buffers and configure VAO
 {
-    std::vector<BoundingBox> v(numParticles);
-    _numVertices = (v.size() * sizeof(BoundingBox)) / sizeof(MyVertex);
+    std::vector<Box2D> v(numParticles);
+    _numVertices = (v.size() * sizeof(Box2D)) / sizeof(MyVertex);
 
     // now bind this new buffer to the dedicated buffer binding location
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, PARTICLE_BOUNDING_BOX_GEOMETRY_BUFFER_BINDING, _bufferId);
 
     // and fill it with new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, v.size() * sizeof(BoundingBox), v.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, v.size() * sizeof(Box2D), v.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
