@@ -1,3 +1,3 @@
-total collision handling time: 9202	microseconds
-detect collisions: 9036	microseconds
-resolve collisions: 166	microseconds
+total collision handling time: 25247	microseconds
+detect collisions: 25122	microseconds
+resolve collisions: 125	microseconds

@@ -76,67 +76,67 @@ namespace ShaderControllers
         // kept around for debugging purposes
         _originalParticleSsbo(particleSsbo)
     {
-        //AssembleSortingShaders();
-        //AssembleBvhShaders();
-        //AssembleCollisionShaders();
+        AssembleSortingShaders();
+        AssembleBvhShaders();
+        AssembleCollisionShaders();
 
-        //// load the buffer size uniforms where the SSBOs will be used
-        //particleSsbo->ConfigureConstantUniforms(_programIdCopyParticlesToCopyBuffer);
-        //particleSsbo->ConfigureConstantUniforms(_programIdGenerateSortingData);
-        //particleSsbo->ConfigureConstantUniforms(_programIdSortParticles);
-        //particleSsbo->ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
-        //particleSsbo->ConfigureConstantUniforms(_programIdDetectCollisions);
-        //particleSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
-        //particleSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
-        //particleSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
+        // load the buffer size uniforms where the SSBOs will be used
+        particleSsbo->ConfigureConstantUniforms(_programIdCopyParticlesToCopyBuffer);
+        particleSsbo->ConfigureConstantUniforms(_programIdGenerateSortingData);
+        particleSsbo->ConfigureConstantUniforms(_programIdSortParticles);
+        particleSsbo->ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
+        particleSsbo->ConfigureConstantUniforms(_programIdDetectCollisions);
+        particleSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
+        particleSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
+        particleSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
 
-        //particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
-        //particlePropertiesSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
-        //particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
+        particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
+        particlePropertiesSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
+        particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
 
-        //_particleSortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
-        //_particleSortingDataSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
-        //_particleSortingDataSsbo.ConfigureConstantUniforms(_programIdSortSortingDataWithPrefixSums);
-        //_particleSortingDataSsbo.ConfigureConstantUniforms(_programIdSortParticles);
-        //_particleSortingDataSsbo.ConfigureConstantUniforms(_programIdGuaranteeSortingDataUniqueness);
-        //_particleSortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
+        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
+        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
+        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdSortSortingDataWithPrefixSums);
+        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdSortParticles);
+        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdGuaranteeSortingDataUniqueness);
+        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
 
-        //_prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
-        //_prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage2);
-        //_prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage3);
-        //_prefixSumSsbo.ConfigureConstantUniforms(_programIdSortSortingDataWithPrefixSums);
+        _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
+        _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage2);
+        _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage3);
+        _prefixSumSsbo.ConfigureConstantUniforms(_programIdSortSortingDataWithPrefixSums);
 
-        //_bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
-        //_bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
-        //_bvhNodeSsbo.ConfigureConstantUniforms(_programIdMergeBoundingVolumes);
-        //_bvhNodeSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
+        _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
+        _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
+        _bvhNodeSsbo.ConfigureConstantUniforms(_programIdMergeBoundingVolumes);
+        _bvhNodeSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
 
-        //_particlePotentialCollisionsSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
-        //_particlePotentialCollisionsSsbo.ConfigureConstantUniforms(_programIdResolveCollisions);
+        _particlePotentialCollisionsSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
+        _particlePotentialCollisionsSsbo.ConfigureConstantUniforms(_programIdResolveCollisions);
 
-        //_velocityVectorGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
+        _velocityVectorGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
 
-        //_boundingBoxGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
-
-
-        ////unsigned int startingIndexBytes = 0;
-        ////std::vector<ParticleProperties> checkParticlePropertiesBuffer(particlePropertiesSsbo->NumProperties());
-        ////unsigned int bufferSizeBytes = checkParticlePropertiesBuffer.size() * sizeof(ParticleProperties);
-        ////glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlePropertiesSsbo->BufferId());
-        ////void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-        ////memcpy(checkParticlePropertiesBuffer.data(), bufferPtr, bufferSizeBytes);
-        ////glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        _boundingBoxGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
 
 
-        ////unsigned int startingIndexBytes = 0;
-        ////std::vector<Particle> checkParticleBuffer(particleSsbo->NumParticles());
-        ////unsigned int bufferSizeBytes = checkParticleBuffer.size() * sizeof(Particle);
-        ////glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
-        ////void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-        ////memcpy(checkParticleBuffer.data(), bufferPtr, bufferSizeBytes);
-        ////glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<ParticleProperties> checkParticlePropertiesBuffer(particlePropertiesSsbo->NumProperties());
+        //unsigned int bufferSizeBytes = checkParticlePropertiesBuffer.size() * sizeof(ParticleProperties);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlePropertiesSsbo->BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkParticlePropertiesBuffer.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-        //printf("");
+
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<Particle> checkParticleBuffer(particleSsbo->NumParticles());
+        //unsigned int bufferSizeBytes = checkParticleBuffer.size() * sizeof(Particle);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkParticleBuffer.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        printf("");
     }
 
     /*--------------------------------------------------------------------------------------------
