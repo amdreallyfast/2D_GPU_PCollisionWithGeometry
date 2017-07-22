@@ -232,8 +232,6 @@ namespace ShaderControllers
         // Note: See description of PrefixScanSsbo for why the prefix scan algorithm needs its 
         // own work group size calculation.
         unsigned int numItemsInPrefixScanBuffer = _prefixSumSsbo.NumDataEntries();
-        //int numWorkGroupsXForPrefixSum = numItemsInPrefixScanBuffer / PREFIX_SCAN_ITEMS_PER_WORK_GROUP;
-        //remainder = numItemsInPrefixScanBuffer % PREFIX_SCAN_ITEMS_PER_WORK_GROUP;
         int numWorkGroupsXForPrefixSum = numItemsInPrefixScanBuffer / (WORK_GROUP_SIZE_X * 2);
         remainder = numItemsInPrefixScanBuffer % (WORK_GROUP_SIZE_X * 2);
         numWorkGroupsXForPrefixSum += (remainder == 0) ? 0 : 1;
@@ -440,7 +438,6 @@ namespace ShaderControllers
         long long totalSortingTime = 0;
         //long long durationPrepareToSort = 0;
         //long long durationParticleSort = 0;
-        //long long durationSortVerification = 0;
         //std::vector<long long> durationsPrefixScan(totalBitCount);
         //std::vector<long long> durationsSortSortingData(totalBitCount);
 
@@ -484,33 +481,6 @@ namespace ShaderControllers
         end = high_resolution_clock::now();
         totalSortingTime = duration_cast<microseconds>(end - start).count();
 
-        // verify sorted data
-        // Note: Only need to copy the first half of the buffer.  This is where the last loop of 
-        // the radix sorting algorithm put the sorting data.
-        //start = high_resolution_clock::now();
-        unsigned int startingIndexBytes = sortingDataWriteBufferOffset;
-        std::vector<ParticleSortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
-        unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(ParticleSortingData);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
-        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-        memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        for (unsigned int i = 1; i < checkSortingData.size(); i++)
-        {
-            // start at 1 so that prevIndex isn't out of bounds
-            unsigned int thisIndex = i;
-            unsigned int prevIndex = i - 1;
-            unsigned int val = checkSortingData[thisIndex]._sortingData;
-            unsigned int prevVal = checkSortingData[prevIndex]._sortingData;
-            if (val < prevVal)
-            {
-                printf("value %u at index %u is >= previous value %u and index %u\n", val, i, prevVal, i - 1);
-            }
-        }
-
-        //end = high_resolution_clock::now();
-        //durationSortVerification = duration_cast<microseconds>(end - start).count();
-
         // report results
         // Note: Write the results to a tab-delimited text file so that I can dump them into an 
         // Excel spreadsheet.
@@ -526,9 +496,6 @@ namespace ShaderControllers
 
             cout << "total sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
             outFile << "total sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
-
-            //cout << "sort verification: " << durationSortVerification << "\tmicroseconds" << endl;
-            //outFile << "sort verification: " << durationSortVerification << "\tmicroseconds" << endl;
 
             //cout << "preparation: " << durationPrepareToSort << "\tmicroseconds" << endl;
             //outFile << "preparation: " << durationPrepareToSort << "\tmicroseconds" << endl;
@@ -960,6 +927,31 @@ namespace ShaderControllers
         glUniform1ui(UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET, sortingDataReadOffset);
         glDispatchCompute(numWorkGroupsX, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        //// verify sorted data
+        //// Note: Only need to copy the first half of the buffer.  This is where the last loop of 
+        //// the radix sorting algorithm put the sorting data.
+        ////start = high_resolution_clock::now();
+        //unsigned int startingIndexBytes = sortingDataReadOffset;
+        //std::vector<ParticleSortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(ParticleSortingData);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //for (unsigned int i = 1; i < checkSortingData.size(); i++)
+        //{
+        //    // start at 1 so that prevIndex isn't out of bounds
+        //    unsigned int thisIndex = i;
+        //    unsigned int prevIndex = i - 1;
+        //    unsigned int val = checkSortingData[thisIndex]._sortingData;
+        //    unsigned int prevVal = checkSortingData[prevIndex]._sortingData;
+        //    if (val < prevVal)
+        //    {
+        //        printf("value %u at index %u is >= previous value %u and index %u\n", val, i, prevVal, i - 1);
+        //    }
+        //}
+        //printf("");
     }
 
     ///*--------------------------------------------------------------------------------------------

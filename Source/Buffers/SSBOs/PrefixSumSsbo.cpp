@@ -35,8 +35,9 @@ Description:
     concern myself with trying to optimize that last group's threads.  It is easier to just pad 
     the data and give the threads something to chew on.  Like hay for horses.  It's cheap.
 
-    In the following examples, work group size = 512, so
-    PREFIX_SCAN_ITEMS_PER_WORK_GROUP = work group size * 2 = 1024.
+    In the following examples, 
+        work group size = 512, so 
+        items per work group = work group size * 2 = 1024.
 
     Ex 1: data size = 42
     allocated data  = ((42 / 1024) + (42 % 1024 == 0) ? 0 : 1) * 1024
@@ -114,35 +115,22 @@ Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
 PrefixSumSsbo::PrefixSumSsbo(unsigned int numDataEntries) :
     SsboBase(),  // generate buffers
-    _numPerGroupPrefixSums(0),
     _numDataEntries(0)
 {
     // see explanation essay at the top of the file
     // Note: If the user passes in a data set of size 0, then the following calculation 
-    // will give a number of data entries of 0, so the number of work groups calculated in the 
-    // ParallelSort compute controller will lso be 0 and the sorting process will go nowhere.  
+    // will give a number of data entries of 0, so the number of work groups calculated before 
+    // prefix scan dispatch will also be 0 and the sorting process will go nowhere.  
     // At least it won't crash.
     unsigned int prefixScanWorkGroupSize = WORK_GROUP_SIZE_X * 2;
     _numDataEntries = (numDataEntries / prefixScanWorkGroupSize);
     _numDataEntries += (numDataEntries % prefixScanWorkGroupSize == 0) ? 0 : 1;
     _numDataEntries *= prefixScanWorkGroupSize;
 
-    // use one work group's worth of data for the per-work-group prefix sums
-    // Note: The prefix scan of the "per work group sums" is a necessary step in preparation for 
-    // Radix Sort, so the individual work groups' prefix sums are rather useless without the 
-    // results of each work group being tallied and one more chunk of data is required.  This 
-    // data will also have the prefix scan run on it, so it must be the size of one work group's 
-    // worth of data.  
-    // Also Note: If the original data set is larger than 
-    // PREFIX_SCAN_ITEMS_PER_WORK_GROUP * PREFIX_SCAN_ITEMS_PER_WORK_GROUP 
-    // (number of work group sums * amount of data that each work group operates on), then 
-    // PREFIX_SCAN_ITEMS_PER_WORK_GROUP will need to be increased.
-    _numPerGroupPrefixSums = prefixScanWorkGroupSize;
-
     // the std::vector<...>(...) constructor will set everything to 0
     // Note: The +1 is because of a single uint in the buffer, totalNumberOfOnes.  See 
     // explanation in PrefixScanBuffer.comp.
-    std::vector<unsigned int> v(_numPerGroupPrefixSums + 1 + _numDataEntries);
+    std::vector<unsigned int> v(1 + _numDataEntries);
 
     // now bind this new buffer to the dedicated buffer binding location
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, PREFIX_SCAN_BUFFER_BINDING, _bufferId);
@@ -172,7 +160,7 @@ void PrefixSumSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) con
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Returns the number of integers that have been allocated for the PrefixSumsPerWorkGroup array.  The 
+    Returns the number of integers that have been allocated for the AllPrefixSums array.  The 
     constructor ensures that there are enough entries for every item to be part of a work group.  
 Parameters: None
 Returns:    
@@ -195,6 +183,6 @@ Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
 unsigned int PrefixSumSsbo::TotalBufferEntries() const
 {
-    return _numDataEntries + 1 + _numPerGroupPrefixSums;
+    return _numDataEntries + 1;
 }
 

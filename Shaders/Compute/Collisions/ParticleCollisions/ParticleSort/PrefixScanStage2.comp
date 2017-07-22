@@ -34,12 +34,12 @@ void main()
     // messing up the sum
     uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
     uint lesserSourceIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
-    bool lesserSourceIndexValidRange = lesserSourceIndex < uPrefixSumsPerWorkGroupArraySize;
-    fastTempArr[doubleLocalIndex] = lesserSourceIndexValidRange ? PrefixSumsPerWorkGroup[lesserSourceIndex] : 0;
+    bool lesserSourceIndexValidRange = lesserSourceIndex < uMaxPrefixSums;
+    fastTempArr[doubleLocalIndex] = lesserSourceIndexValidRange ? AllPrefixSums[lesserSourceIndex] : 0;
 
     uint greaterSourceIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
-    bool greaterSourceIndexValidRange = greaterSourceIndex < uPrefixSumsPerWorkGroupArraySize;
-    fastTempArr[doubleLocalIndex + 1] = greaterSourceIndexValidRange ? PrefixSumsPerWorkGroup[greaterSourceIndex] : 0;
+    bool greaterSourceIndexValidRange = greaterSourceIndex < uMaxPrefixSums;
+    fastTempArr[doubleLocalIndex + 1] = greaterSourceIndexValidRange ? AllPrefixSums[greaterSourceIndex] : 0;
 
     // keep going up
     uint localIndex = gl_LocalInvocationID.x;
@@ -84,10 +84,10 @@ void main()
 
     if (lesserSourceIndexValidRange)
     {
-        PrefixSumsPerWorkGroup[lesserSourceIndex] = fastTempArr[doubleLocalIndex];
+        AllPrefixSums[lesserSourceIndex] = fastTempArr[doubleLocalIndex];
     }
     if (greaterSourceIndexValidRange)
     {
-        PrefixSumsPerWorkGroup[greaterSourceIndex] = fastTempArr[doubleLocalIndex + 1];
+        AllPrefixSums[greaterSourceIndex] = fastTempArr[doubleLocalIndex + 1];
     }
 }

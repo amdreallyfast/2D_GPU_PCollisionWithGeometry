@@ -2,62 +2,20 @@
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 
 
-// Note: The ParallelSort compute controller should be carefully controlling the number of work 
-// groups and therefore the number of threads, so this value shouldn't actually be neccesary for 
-// excess thread checks (if gl_GlobalInvocationID.x > uPrefixSumsPerWorkGroupArraySize) { return; }),
-// but it is good practice to have a uniform buffer size wherever there is buffer.
-layout(location = UNIFORM_LOCATION_ALL_PREFIX_SUMS_SIZE) uniform uint uPrefixSumsPerWorkGroupArraySize;
+layout(location = UNIFORM_LOCATION_ALL_PREFIX_SUMS_SIZE) uniform uint uMaxPrefixSums;
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    This is the data that is being scanned AND that is being altered into a prefix sum.
+    Will be filled with 0s and 1s (bit values extracted from the numbers being sorted).
     See explanation of sizes in PrefixSumSsbo.
 
-    The prefix scan has to be split into two parts.  This would not be necessary if GLSL compute 
-    shaders had a "hang all threads in the dispatch until they reach this point", but since it 
-    only has a "hang all threads in work group until they reach this point", then the parallel 
-    prefix scan has to be divided into two parts in order to operate on a data set larger 
-    than GL_MAX_COMPUTE_WORK_GROUP_SIZE * 2 (remember that this scan operates on two integers 
-    per thread).  The Khronos documentation says that this variable should be called 
-    GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, and it may be on another OpenGL implementation than 
-    GLLoad, but for me it is called GL_MAX_COMPUTE_WORK_GROUP_SIZE.  
-    
-    On my GTX 560M that I am currently (3-11-2017) programming on, this max value is 1536.  If I 
-    want to sort, for example, 10,000 particles, I can't do a prefix sum over a single work 
-    group.  So I need to split the jobs up into multiple work groups.
-    
-    With each work group handling PREFIX_SCAN_ITEMS_PER_WORK_GROUP (1024) sums, and having a 
-    separate array of size PREFIX_SCAN_ITEMS_PER_WORK_GROUP for the work group sums, I can then 
-    perform a prefix sum over 1024 * 1024 ~= 1M particles.  That's more than enough for my GPU.
-
-    Note: In the middle of the prefix scan algorithm, the total sum value is set.  
-    - If the prefix scan is running over the total data set, then the total sum is set in that 
-        work group's index in PrefixSumsOfWorkGroupSums.  
-    - If the prefix scan is running over PrefixSumsOfWorkGroupSums, then this total sum will be 
-        the total sum of all 1s in the entire data set.  This value is assigned to 
-        totalNumberOfOnes.
-    
-    This value is used along with uPrefixSumsPerWorkGroupArraySize in to determine the total 
-    number of 0s and thus the 1s' offset.
-
-    Prefix sum of 0s = index into PrefixSumsPerWorkGroup - value at that index (sum of 1s)
-
-    Why is there a "number of 1s" variable being used to determine the number of 0s?  Because 
-    (1) The 1s go after the 0s, so the index for the 1s requires knowing how many 0s came before.
-    (2) You can sum all the 0s in the world and you will still get 0.  Sure, it is possible 
-    to count the number of 0s, but then you'll have to use a counting algorithm, not a sum 
-    algorithm.
-
-    Also Note: Yes, PrefixSumsOfWorkGroupSums[] are prefix sums of other work group sums, but it 
-    is necessary so that values from different work groups can get the full picture of all the 
-    prefix sums that came before it.  This is part of Radix Sort.
-
-Creator:    John Cox, 3/11/2017
+    Note: The totalNumberOfOnes is used along with uPrefixSumsMaxEntries in 
+    SortSortingDataWithPrefixSums.comp to determine the offset for the 1s.
+Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
 layout (std430, binding = PREFIX_SCAN_BUFFER_BINDING) buffer PrefixScanBuffer
 {
-    uint PrefixSumsOfWorkGroupSums[WORK_GROUP_SIZE_X * 2];
     uint totalNumberOfOnes;
-    uint PrefixSumsPerWorkGroup[];
+    uint AllPrefixSums[];
 };
 

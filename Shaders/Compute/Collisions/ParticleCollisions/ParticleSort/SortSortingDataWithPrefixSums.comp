@@ -38,16 +38,8 @@ void main()
         return;
     }
 
-    // remember that, during prefix scan, each thread works on 2 items, so the number of data 
-    // entries that were scanned per work group is twice the size of a work group, but this 
-    // shader deals with one entry per thread, so divide work group ID in half to get the right 
-    // prefix sum
-    uint prefixSumOfOnes = 
-        //PrefixSumsOfWorkGroupSums[gl_WorkGroupID.x / 2] + 
-        PrefixSumsPerWorkGroup[threadIndex];
-
-    // there are only 0s and 1s, so if they weren't counted in the sum, then they are 0s
-    uint prefixSumOfZeros = threadIndex - prefixSumOfOnes;
+    uint prefixSumOfOnes = AllPrefixSums[threadIndex];
+    uint offsetForZeros = threadIndex - prefixSumOfOnes;
     uint totalNumberOfZeros = uMaxNumParticleSortingData - totalNumberOfOnes;
 
     // this values determines if the value should go with the 0s or with 1s on this sort step
@@ -58,7 +50,7 @@ void main()
     // data set is maintained (as per Radix Sort) by the number of 0s that came before the 
     // current value.  If the value being sorted has a 1 at the current bit, then the order is 
     // maintained by the number of 1s that came before it.
-    uint destinationIndex = (bitVal == 0) ? prefixSumOfZeros : (totalNumberOfZeros + prefixSumOfOnes);
+    uint destinationIndex = (bitVal == 0) ? offsetForZeros : (totalNumberOfZeros + prefixSumOfOnes);
     destinationIndex += uParticleSortingDataBufferWriteOffset;
 
     // do the sort

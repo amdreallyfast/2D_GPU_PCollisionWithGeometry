@@ -24,8 +24,8 @@ void main()
     // bounds of the PrefixScanBuffer or the fastTempArray
     uint doubleThreadIndex = gl_GlobalInvocationID.x * 2;
     uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
-    fastTempArr[doubleLocalIndex] = PrefixSumsPerWorkGroup[doubleThreadIndex];
-    fastTempArr[doubleLocalIndex + 1] = PrefixSumsPerWorkGroup[doubleThreadIndex + 1];
+    fastTempArr[doubleLocalIndex] = AllPrefixSums[doubleThreadIndex];
+    fastTempArr[doubleLocalIndex + 1] = AllPrefixSums[doubleThreadIndex + 1];
 
     // reproduce the end of the "up the tree" loop for a starting position
     uint indexMultiplierDueToDepth = 1;
@@ -56,6 +56,6 @@ void main()
 
     // wait for the last write
     barrier();
-    PrefixSumsPerWorkGroup[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
-    PrefixSumsPerWorkGroup[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+    AllPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    AllPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
 }

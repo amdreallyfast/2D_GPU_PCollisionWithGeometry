@@ -23,6 +23,5 @@ public:
     unsigned int TotalBufferEntries() const;
 
 private:
-    unsigned int _numPerGroupPrefixSums;
     unsigned int _numDataEntries;
 };

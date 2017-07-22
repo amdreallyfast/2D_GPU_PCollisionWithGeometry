@@ -250,7 +250,7 @@ void UpdateAllTheThings()
 
     particleResetter->ResetParticles(10);
     particleUpdater->Update(deltaTimeSec);
-    particleCollisions->DetectAndResolve(true, false);
+    particleCollisions->DetectAndResolve(false, false);
     //particleGeometryCollisions->DetectAndResolve(false);
 
 

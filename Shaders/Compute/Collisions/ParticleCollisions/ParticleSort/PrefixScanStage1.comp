@@ -79,7 +79,7 @@ void main()
     // Note: The sorting data buffer is double sized ("read" half and "write" half), but the 
     // "size" uniform only says how big each half is (as if it weren't double sized), so 
     // out-of-bounds checks will always fail when the "read offset" is the second half unless 
-    // that offset is left out of check.
+    // that offset is left out of these checks.
     uint bitVal1 = 0;
     if (doubleThreadIndex < uMaxNumParticleSortingData)
     {
@@ -115,6 +115,6 @@ void main()
 
     // no out-of-bounds checking here because the prefix sum array's size is calculated to be a 
     // multiple of work group size
-    PrefixSumsPerWorkGroup[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
-    PrefixSumsPerWorkGroup[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+    AllPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    AllPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
 }

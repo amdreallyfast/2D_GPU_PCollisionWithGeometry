@@ -143,32 +143,6 @@ void ShaderStorage::NewShader(const std::string &programKey)
         _shaderBinaries.insert({ programKey, _BINARY_MAP::value_type::second_type() });
     }
 }
-//
-///*------------------------------------------------------------------------------------------------
-//Description:
-//    Creates an empty string under the provided key that is ready to accept file contents from 
-//    AddPartialShaderFile(...).  Must be called prior to calling that function for the same program 
-//    key.
-//
-//    Prints errors to stderr.
-//Parameters: 
-//    programKey  The name that will be used to refer to this shader for the rest of the program.
-//                If it already exists, it prints a message to stderr and immediately returns.
-//Returns:    None
-//Creator:    John Cox, 3/2017
-//------------------------------------------------------------------------------------------------*/
-//void ShaderStorage::NewCompositeShader(const std::string &programKey)
-//{
-//    if (_partialShaderContents.find(programKey) != _partialShaderContents.end())
-//    {
-//        fprintf(stderr, "partial shader file already exists for program key '%s'\n",
-//            programKey.c_str());
-//    }
-//    else
-//    {
-//        _partialShaderContents.insert({ programKey, _COMPOSITE_SHADER_MAP::value_type::second_type() });
-//    }
-//}
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -187,14 +161,6 @@ Creator:    John Cox, 3/11/2107
 ------------------------------------------------------------------------------------------------*/
 void ShaderStorage::DeleteShader(const std::string &programKey)
 {
-    //_COMPOSITE_SHADER_MAP::iterator shaderItr = _partialShaderContents.find(programKey);
-    //if (shaderItr != _partialShaderContents.end())
-    //{
-    //    // just a std::string, so no OpenGL function calls necessary
-    //    _partialShaderContents.erase(shaderItr);
-    //    fprintf(stdout, "Deleting shader contents for program key '%s'\n", programKey.c_str());
-    //}
-
     _BINARY_MAP::iterator binariesItr = _shaderBinaries.find(programKey);
     if (binariesItr != _shaderBinaries.end())
     {
@@ -246,12 +212,6 @@ void ShaderStorage::AddAndCompileShaderFile(const std::string &programKey, const
         return;
     }
 
-
-    //std::stringstream shaderData;
-    //shaderData << shaderFile.rdbuf();
-    //shaderFile.close();
-    //std::string fileContents = shaderData.str();
-
     std::string fileContents;
     RecursivelyAddFileDependencies(shaderFile, fileContents);
 
@@ -293,105 +253,6 @@ void ShaderStorage::AddAndCompileShaderFile(const std::string &programKey, const
     // inserations, so this notation is ok.
     _shaderBinaries[programKey].push_back(shaderId);
 }
-//
-///*------------------------------------------------------------------------------------------------
-//Description:
-//    Attempts to add the contents of the specified file to an intermediate string under the 
-//    provided program key.  No compilation is performed.  It is up to the user to make sure that 
-//    file contents are added in the correct order.  This option allows for piecing together files, 
-//    which can cause confusion because shader compiler errors will be spit out with line numbers 
-//    for the composite file contents, not for any one particular file.  So be careful.
-//
-//    Prints its own errors to stderr.  The APIENTRY debug function doesn't report shader compile
-//    errors.
-//Parameters:
-//    programKey  Must have already been created by NewShader(...).
-//    filePath    Can be relative to program or an absolute path.
-//    shaderType  ??
-//Returns:    None
-//Creator:    John Cox, 3/11/2107
-//------------------------------------------------------------------------------------------------*/
-//void ShaderStorage::AddPartialShaderFile(const std::string &programKey, const std::string &filePath)
-//{
-//    if (_partialShaderContents.find(programKey) == _partialShaderContents.end())
-//    {
-//        fprintf(stderr, "Could not add shader file '%s'.  No program key '%s'\n",
-//            filePath.c_str(), programKey.c_str());
-//        return;
-//    }
-//
-//    std::ifstream shaderFile(filePath);
-//    if (!shaderFile.is_open())
-//    {
-//        fprintf(stderr, "Cannot open shader file '%s'\n", filePath.c_str());
-//        return;
-//    }
-//
-//    std::stringstream shaderData;
-//    shaderData << shaderFile.rdbuf();
-//    shaderFile.close();
-//    std::string fileContents = shaderData.str();
-//
-//    if (fileContents.empty())
-//    {
-//        fprintf(stderr, "Shader file '%s' is empty\n", filePath.c_str());
-//        return;
-//    }
-//
-//    // add a new line just to make sure that there is a clear distinction between any possible 
-//    // prior file contents and the current file
-//    _partialShaderContents[programKey] += ("\n" + fileContents);
-//}
-//
-///*------------------------------------------------------------------------------------------------
-//Description:
-//    Attempts to read the shader file text under the provided program key and compile it into the 
-//    specified shader type.  Stores the resulting binary in a collection of binaries under the 
-//    same program key.  The shader file's contents remain and are not deleted until program end 
-//    unless manually deleted by calling DeleteShader(...).
-//
-//    If successful, the composite shader contents that have been gathered under this programKey 
-//    are deleted.  If there is an error in the compilation, the contents are untouched.  This 
-//    is so that multiple composite shaders (ex: vertex and fragment) can be assembled and 
-//    compiled under the same program key.
-//
-//    Prints its own errors to stderr.The APIENTRY debug function doesn't report shader compile
-//    errors.
-//Parameters: None
-//    programKey  Must have already been created by NewShader(...).
-//    shaderType  GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, etc.
-//Returns:    None (there is no linked program yet, so nothing to return)
-//Creator:    John Cox, 3/11/2017
-//------------------------------------------------------------------------------------------------*/
-//void ShaderStorage::CompileCompositeShader(const std::string &programKey, const GLenum shaderType)
-//{
-//    _COMPOSITE_SHADER_MAP::iterator itr = _partialShaderContents.find(programKey);
-//    if (itr == _partialShaderContents.end())
-//    {
-//        fprintf(stderr, "No shader exists for program key '%s'.\n", programKey.c_str());
-//        return;
-//    }
-//
-//    const std::string &fileContents = itr->second;
-//    if (fileContents.empty())
-//    {
-//        fprintf(stderr, "Program key '%s' exists, but the composite shader is empty.\n", programKey.c_str());
-//        return;
-//    }
-//
-//    GLuint shaderId = CompileShader(fileContents, shaderType);
-//    if (shaderId == 0)
-//    {
-//        fprintf(stderr, "Problem compiling shader for program key '%s'\n", programKey.c_str());
-//        return;
-//    }
-//
-//    // compilation went fine
-//    _shaderBinaries[programKey].push_back(shaderId);
-//
-//    // now clean up after it
-//    itr->second.clear();
-//}
 
 /*------------------------------------------------------------------------------------------------
 Description:
