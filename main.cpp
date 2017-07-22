@@ -216,8 +216,8 @@ void Init()
     // for moving particles
     particleUpdater = std::make_shared<ShaderControllers::ParticleUpdate>(particleBuffer);
 
-    //// for sorting, detecting collisions between, and resolving said collisions between particles
-    //particleCollisions = std::make_shared<ShaderControllers::ParticleCollisions>(particleBuffer, particlePropertiesBuffer);
+    // for sorting, detecting collisions between, and resolving said collisions between particles
+    particleCollisions = std::make_shared<ShaderControllers::ParticleCollisions>(particleBuffer, particlePropertiesBuffer);
 
     // for drawing particles
     particleRenderer = std::make_shared<ShaderControllers::RenderParticles>();
@@ -250,7 +250,7 @@ void UpdateAllTheThings()
 
     particleResetter->ResetParticles(10);
     particleUpdater->Update(deltaTimeSec);
-    //particleCollisions->DetectAndResolve(false, false);
+    particleCollisions->DetectAndResolve(true, false);
     //particleGeometryCollisions->DetectAndResolve(false);
 
 

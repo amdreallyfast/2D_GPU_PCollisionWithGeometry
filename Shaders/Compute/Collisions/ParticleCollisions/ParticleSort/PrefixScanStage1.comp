@@ -37,17 +37,19 @@ Description:
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
 
-// REQUIRES Version.comp
-// REQUIRES ParallelSortConstants.comp
-// REQUIRES UniformLocations.comp
-// REQUIRES SsboBufferBindings.comp
-// REQUIRES IntermediateSortBuffers.comp
-// REQUIRES PrefixScanBuffer.comp
+// REQUIRES Shaders/ShaderHeaders/Version.comp
+// REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticleSortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticlePrefixScanBuffer.comp
 
 
-layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
 layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
-shared uint[ITEMS_PER_WORK_GROUP] fastTempArr;
+
+#define DATA_SIZE (WORK_GROUP_SIZE_X * 2)
+shared uint[DATA_SIZE] fastTempArr;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -59,13 +61,29 @@ Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
 void main()
 {
-    // each half of the IntermediateDataBuffer is the same size as the AllPrefixSums buffer, 
-    // which is carefully sized so that every thread in the prefix scan work groups will be 
-    // within the buffer's boundaries, so no range checking is required here
     uint doubleThreadIndex = gl_GlobalInvocationID.x * 2;
-    uint bitReadIndex = uIntermediateBufferReadOffset + doubleThreadIndex;
-    uint bitVal1 = (IntermediateDataBuffer[bitReadIndex]._data >> uBitNumber) & 1;
-    uint bitVal2 = (IntermediateDataBuffer[bitReadIndex + 1]._data >> uBitNumber) & 1;
+    uint bitReadIndex = uParticleSortingDataBufferReadOffset + doubleThreadIndex;
+
+    // these checks should only fail on the last work group
+    // Note: This algorithm relies on each thread handling two items, so this algorithm will 
+    // always try to work with an even number of items.  If there are an odd number of items 
+    // (unusual, but conceivable), then the last thread will pull one bit from the data that 
+    // needs the prefix scan and the second bit must be 0 (won't mess with the sum).  That last 
+    // thread needs to work on that one item, so it shouldn't be dismissed by an out-of-bounds 
+    // check.  The easiest way forward here is to just have all threads in the work group 
+    // participate in the algorithm (that is, don't return from a thread if it is out of 
+    // bounds), and those that are out-of-bounds will sum 0s.
+    uint bitVal1 = 0;
+    if (bitReadIndex < uMaxNumParticleSortingData)
+    {
+        bitVal1 = (AllParticleSortingData[bitReadIndex]._sortingData >> uBitNumber) & 1;
+    }
+
+    uint bitVal2 = 0;
+    if ((bitReadIndex + 1) < uMaxNumParticleSortingData)
+    {
+        bitVal2 = (AllParticleSortingData[bitReadIndex + 1]._sortingData >> uBitNumber) & 1;
+    }
     
     uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
     fastTempArr[doubleLocalIndex] = bitVal1;
@@ -75,19 +93,21 @@ void main()
     // going up
     uint indexMultiplierDueToDepth = 1;
     uint localIndex = gl_LocalInvocationID.x;
-    for (uint dataPairs = ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
+    for (uint dataPairs = DATA_SIZE >> 1; dataPairs > 0; dataPairs >>= 1)
     {
         barrier();
         if (localIndex < dataPairs)
         {
             uint lesserIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
             uint greaterIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
-
+    
             fastTempArr[greaterIndex] += fastTempArr[lesserIndex];
         }
         indexMultiplierDueToDepth <<= 1;    // *=2
     }
 
-    AllPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
-    AllPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+    // no out-of-bounds checking here because the prefix sum array's size is calculated to be a 
+    // multiple of work group size
+    PrefixSumsPerWorkGroup[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    PrefixSumsPerWorkGroup[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
 }

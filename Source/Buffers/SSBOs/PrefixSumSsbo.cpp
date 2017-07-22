@@ -122,9 +122,10 @@ PrefixSumSsbo::PrefixSumSsbo(unsigned int numDataEntries) :
     // will give a number of data entries of 0, so the number of work groups calculated in the 
     // ParallelSort compute controller will lso be 0 and the sorting process will go nowhere.  
     // At least it won't crash.
-    _numDataEntries = (numDataEntries / PREFIX_SCAN_ITEMS_PER_WORK_GROUP);
-    _numDataEntries += (numDataEntries % PREFIX_SCAN_ITEMS_PER_WORK_GROUP == 0) ? 0 : 1;
-    _numDataEntries *= PREFIX_SCAN_ITEMS_PER_WORK_GROUP;
+    unsigned int prefixScanWorkGroupSize = WORK_GROUP_SIZE_X * 2;
+    _numDataEntries = (numDataEntries / prefixScanWorkGroupSize);
+    _numDataEntries += (numDataEntries % prefixScanWorkGroupSize == 0) ? 0 : 1;
+    _numDataEntries *= prefixScanWorkGroupSize;
 
     // use one work group's worth of data for the per-work-group prefix sums
     // Note: The prefix scan of the "per work group sums" is a necessary step in preparation for 
@@ -136,7 +137,7 @@ PrefixSumSsbo::PrefixSumSsbo(unsigned int numDataEntries) :
     // PREFIX_SCAN_ITEMS_PER_WORK_GROUP * PREFIX_SCAN_ITEMS_PER_WORK_GROUP 
     // (number of work group sums * amount of data that each work group operates on), then 
     // PREFIX_SCAN_ITEMS_PER_WORK_GROUP will need to be increased.
-    _numPerGroupPrefixSums = PREFIX_SCAN_ITEMS_PER_WORK_GROUP;
+    _numPerGroupPrefixSums = prefixScanWorkGroupSize;
 
     // the std::vector<...>(...) constructor will set everything to 0
     // Note: The +1 is because of a single uint in the buffer, totalNumberOfOnes.  See 

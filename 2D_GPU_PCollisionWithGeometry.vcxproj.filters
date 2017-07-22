@@ -398,22 +398,10 @@
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\MergeBoundingVolumes.comp">
       <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh</Filter>
     </None>
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\ClearWorkGroupSums.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
-    </None>
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\CopyParticlesToCopyBuffer.comp">
       <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
     </None>
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\GenerateSortingData.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
-    </None>
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\GetBitForPrefixScan.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
-    </None>
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanOverAllData.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
-    </None>
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanOverWorkGroupSums.comp">
       <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
     </None>
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\SortParticles.comp">
@@ -475,6 +463,15 @@
     </None>
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortSortingDataWithPrefixSums.comp">
       <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanStage1.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanStage2.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanStage3.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

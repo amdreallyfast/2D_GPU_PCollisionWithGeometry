@@ -106,11 +106,11 @@ namespace ShaderControllers
         // cleanup
         glUseProgram(0);
 
-        //unsigned int startingIndex = 0;
+        //unsigned int startingIndexBytes = 0;
         //std::vector<Particle> checkUpdateParticles(particleSsbo->NumParticles());
         //unsigned int bufferSizeBytes = checkUpdateParticles.size() * sizeof(Particle);
         //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
-        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkUpdateParticles.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 

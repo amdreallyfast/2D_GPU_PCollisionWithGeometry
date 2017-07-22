@@ -119,20 +119,20 @@ namespace ShaderControllers
         _boundingBoxGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
 
 
-        //unsigned int startingIndex = 0;
+        //unsigned int startingIndexBytes = 0;
         //std::vector<ParticleProperties> checkParticlePropertiesBuffer(particlePropertiesSsbo->NumProperties());
         //unsigned int bufferSizeBytes = checkParticlePropertiesBuffer.size() * sizeof(ParticleProperties);
         //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlePropertiesSsbo->BufferId());
-        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkParticlePropertiesBuffer.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 
-        //unsigned int startingIndex = 0;
+        //unsigned int startingIndexBytes = 0;
         //std::vector<Particle> checkParticleBuffer(particleSsbo->NumParticles());
         //unsigned int bufferSizeBytes = checkParticleBuffer.size() * sizeof(Particle);
         //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
-        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkParticleBuffer.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
@@ -232,8 +232,10 @@ namespace ShaderControllers
         // Note: See description of PrefixScanSsbo for why the prefix scan algorithm needs its 
         // own work group size calculation.
         unsigned int numItemsInPrefixScanBuffer = _prefixSumSsbo.NumDataEntries();
-        int numWorkGroupsXForPrefixSum = numItemsInPrefixScanBuffer / PREFIX_SCAN_ITEMS_PER_WORK_GROUP;
-        remainder = numItemsInPrefixScanBuffer % PREFIX_SCAN_ITEMS_PER_WORK_GROUP;
+        //int numWorkGroupsXForPrefixSum = numItemsInPrefixScanBuffer / PREFIX_SCAN_ITEMS_PER_WORK_GROUP;
+        //remainder = numItemsInPrefixScanBuffer % PREFIX_SCAN_ITEMS_PER_WORK_GROUP;
+        int numWorkGroupsXForPrefixSum = numItemsInPrefixScanBuffer / (WORK_GROUP_SIZE_X * 2);
+        remainder = numItemsInPrefixScanBuffer % (WORK_GROUP_SIZE_X * 2);
         numWorkGroupsXForPrefixSum += (remainder == 0) ? 0 : 1;
 
         if (withProfiling)
@@ -486,11 +488,11 @@ namespace ShaderControllers
         // Note: Only need to copy the first half of the buffer.  This is where the last loop of 
         // the radix sorting algorithm put the sorting data.
         //start = high_resolution_clock::now();
-        unsigned int startingIndex = sortingDataWriteBufferOffset;
+        unsigned int startingIndexBytes = sortingDataWriteBufferOffset;
         std::vector<ParticleSortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
         unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(ParticleSortingData);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
-        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
         for (unsigned int i = 1; i < checkSortingData.size(); i++)
@@ -632,11 +634,11 @@ namespace ShaderControllers
     //    // Note: By virtue of being a binary tree, every node except the root has a parent, and 
     //    // that parent also specifies that node as a child exactly once.
     //    start = high_resolution_clock::now();
-    //    unsigned int startingIndex = 0;
+    //    unsigned int startingIndexBytes = 0;
     //    std::vector<BvhNode> checkBinaryTree(_bvhNodeSsbo.NumTotalNodes());
     //    unsigned int bufferSizeBytes = checkBinaryTree.size() * sizeof(BvhNode);
     //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bvhNodeSsbo.BufferId());
-    //    void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+    //    void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
     //    memcpy(checkBinaryTree.data(), bufferPtr, bufferSizeBytes);
     //    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
     //    
@@ -759,19 +761,19 @@ namespace ShaderControllers
     //    end = high_resolution_clock::now();
     //    durationResolveCollisions = duration_cast<microseconds>(end - start).count();
 
-    //    //unsigned int startingIndex = 0;
+    //    //unsigned int startingIndexBytes = 0;
     //    //std::vector<ParticlePotentialCollisions> checkPotentialCollisions(_particlePotentialCollisionsSsbo.NumItems());
     //    //unsigned int bufferSizeBytes = checkPotentialCollisions.size() * sizeof(ParticlePotentialCollisions);
     //    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particlePotentialCollisionsSsbo.BufferId());
-    //    //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+    //    //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
     //    //memcpy(checkPotentialCollisions.data(), bufferPtr, bufferSizeBytes);
     //    //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-    //    unsigned int startingIndex = 0;
+    //    unsigned int startingIndexBytes = 0;
     //    std::vector<Particle> checkPostCollisionParticles(_originalParticleSsbo->NumParticles());
     //    unsigned int bufferSizeBytes = checkPostCollisionParticles.size() * sizeof(Particle);
     //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _originalParticleSsbo->BufferId());
-    //    void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+    //    void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
     //    memcpy(checkPostCollisionParticles.data(), bufferPtr, bufferSizeBytes);
     //    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
@@ -820,6 +822,15 @@ namespace ShaderControllers
 
         // the two shaders worked on independent data, so only need one memory barrier at the end
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        unsigned int startingIndexBytes = 0;
+        std::vector<ParticleSortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
+        unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(ParticleSortingData);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
+        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -846,13 +857,42 @@ namespace ShaderControllers
         glDispatchCompute(numWorkGroupsX, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+        unsigned int startingIndexBytes = (1 + 1024) * sizeof(unsigned int);
+        std::vector<unsigned int> checkPrefixScan(_prefixSumSsbo.NumDataEntries());
+        unsigned int bufferSizeBytes = checkPrefixScan.size() * sizeof(unsigned int);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _prefixSumSsbo.BufferId());
+        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
         glUseProgram(_programIdPrefixScanStage2);
         glDispatchCompute(1, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _prefixSumSsbo.BufferId());
+        bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
         glUseProgram(_programIdPrefixScanStage3);
         glDispatchCompute(numWorkGroupsX, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _prefixSumSsbo.BufferId());
+        bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        // verify the sum
+        for (size_t i = 1; i < checkPrefixScan.size(); i++)
+        {
+            // each successive value must be greater than or equal to the sum before it
+            if (checkPrefixScan[i] < checkPrefixScan[i - 1])
+            {
+                printf("");
+            }
+        }
+        printf("");
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -1003,11 +1043,11 @@ namespace ShaderControllers
 
     //    //// in case of debugging
     //    //WaitForComputeToFinish();
-    //    //unsigned int startingIndex = 0;
+    //    //unsigned int startingIndexBytes = 0;
     //    //std::vector<MyVertex> checkResultantGeometry(_velocityVectorGeometrySsbo.NumVertices());
     //    //unsigned int bufferSizeBytes = checkResultantGeometry.size() * sizeof(MyVertex);
     //    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _velocityVectorGeometrySsbo.BufferId());
-    //    //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+    //    //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
     //    //memcpy(checkResultantGeometry.data(), bufferPtr, bufferSizeBytes);
     //    //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
     //}

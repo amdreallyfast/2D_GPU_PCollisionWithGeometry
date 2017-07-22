@@ -11,6 +11,6 @@ Creator:    John Cox, 3/2017
 #define WORK_GROUP_SIZE_Y 1
 #define WORK_GROUP_SIZE_Z 1
 
-// Note: Each thread in the prefix scan algorithm works on 2 data entries. 
-#define PREFIX_SCAN_ITEMS_PER_WORK_GROUP (WORK_GROUP_SIZE_X * 2)
+//// Note: Each thread in the prefix scan algorithm works on 2 data entries. 
+//#define PREFIX_SCAN_ITEMS_PER_WORK_GROUP (WORK_GROUP_SIZE_X * 2)
 

@@ -89,5 +89,3 @@ void main()
     // write particle back to global memory
     AllParticles[index] = pCopy;
 }
-
-

@@ -35,7 +35,7 @@ Creator:    John Cox, 3/2017
 // PrefixScanBuffer.comp
 #define UNIFORM_LOCATION_ALL_PREFIX_SUMS_SIZE 5
 
-// GetBitForPrefixScans.comp
+// PrefixScanStage1.comp, SortSortingDataWithPrefixSums.comp
 #define UNIFORM_LOCATION_BIT_NUMBER 6
 
 // ParticleUpdate.comp; PositiontoMortonCode.comp

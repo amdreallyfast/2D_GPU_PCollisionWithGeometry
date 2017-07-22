@@ -32,39 +32,37 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-void RecursivelyAddFileDependencies(std::ifstream &newFileStream, std::string *putDataHere)
+void RecursivelyAddFileDependencies(std::ifstream &newFileStream, std::string &putDataHere)
 {
-    // "// REQUIRES Some/File/Path.comp" should be at the top of the file
-    std::string s;
+    // dump the whole file into a stream in memory
+    std::stringstream fileContentStream;
+    fileContentStream << newFileStream.rdbuf();
+    std::string line;
     std::string req("// REQUIRES ");
-    std::getline(newFileStream, s);
-    while (s.find(req) != std::string::npos)
+    while (!fileContentStream.eof())
     {
-        // has dependency
-        s = s.substr(req.length());
-        std::ifstream dependencyFileStream(s);
-        if (!dependencyFileStream.is_open())
+        std::getline(fileContentStream, line);
+        if (line.find(req) == std::string::npos)
         {
-            cout << __FILE__ << ", " << __FUNCTION__ << " cannot open dependency file " << s << endl;
+            putDataHere += line + "\n";
         }
         else
         {
-            s.clear();
-            RecursivelyAddFileDependencies(dependencyFileStream, &s);
-            *putDataHere += s;
+            // have a dependency file, replace the "REQUIRES" line with it
+            line = line.substr(req.length());
+            std::ifstream dependencyFileStream(line);
+            if (!dependencyFileStream.is_open())
+            {
+                cout << __FILE__ << ", " << __FUNCTION__ << " cannot open dependency file " << line << endl;
+            }
+            else
+            {
+                std::string s;
+                RecursivelyAddFileDependencies(dependencyFileStream, s);
+                putDataHere += s;
+            }
         }
-
-        // next dependency
-        std::getline(newFileStream, s);
     }
-
-    // no more dependencies
-    // Note: Dump in the line that just failed the string::find(...) check, then dump in rest of 
-    // the file.
-    *putDataHere += s;
-    std::stringstream shaderData;
-    shaderData << newFileStream.rdbuf();
-    *putDataHere += shaderData.str();
 }
 
 /*------------------------------------------------------------------------------------------------
@@ -255,7 +253,25 @@ void ShaderStorage::AddAndCompileShaderFile(const std::string &programKey, const
     //std::string fileContents = shaderData.str();
 
     std::string fileContents;
-    RecursivelyAddFileDependencies(shaderFile, &fileContents);
+    RecursivelyAddFileDependencies(shaderFile, fileContents);
+
+//#define DEBUG
+#ifdef DEBUG
+    // useful because the OpenGL shader compilation spits out errors as if the shader were one 
+    // file, and shaders with dependency files dumped into it are not
+    cout << endl << endl << "----------------------------------" << endl << endl;
+    std::stringstream ss(fileContents);
+    std::string line;
+    int lineCounter = 0;
+    while (!ss.eof())
+    {
+        std::getline(ss, line);
+        char lineNumberStr[6];
+        snprintf(lineNumberStr, 6, "%-5d", lineCounter);
+        cout << lineNumberStr << line << endl;
+        lineCounter++;
+    }
+#endif // DEBUG
 
 
     if (fileContents.empty())

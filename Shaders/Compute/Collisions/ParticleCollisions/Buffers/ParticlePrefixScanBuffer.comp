@@ -56,7 +56,7 @@ Creator:    John Cox, 3/11/2017
 ------------------------------------------------------------------------------------------------*/
 layout (std430, binding = PREFIX_SCAN_BUFFER_BINDING) buffer PrefixScanBuffer
 {
-    uint PrefixSumsOfWorkGroupSums[PREFIX_SCAN_ITEMS_PER_WORK_GROUP];
+    uint PrefixSumsOfWorkGroupSums[WORK_GROUP_SIZE_X * 2];
     uint totalNumberOfOnes;
     uint PrefixSumsPerWorkGroup[];
 };

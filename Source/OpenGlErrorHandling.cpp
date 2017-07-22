@@ -1,7 +1,11 @@
 #include "Include/OpenGlErrorHandling.h"
 
 #include <string>
-#include <stdio.h>
+//#include <stdio.h>
+#include <iostream>
+using std::cerr;
+using std::endl;
+
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -22,6 +26,8 @@ Creator:    John Cox (2014)
 void CODEGEN_FUNCPTR DebugFunc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
     const GLchar* message, const GLvoid* userParam)
 {
+    static int debugMessageCounter = 0;
+
     std::string srcName;
     switch (source)
     {
@@ -63,10 +69,14 @@ void CODEGEN_FUNCPTR DebugFunc(GLenum source, GLenum type, GLuint id, GLenum sev
     }
 
     //??the heck is id??
-    fprintf(stderr, "DebugFunc: length = '%d', id = '%u', userParam = '%x'\n", length, id, (unsigned int)userParam);
-    fprintf(stderr, "%s from %s,\t%s priority\nMessage: %s\n",
-        errorType.c_str(), srcName.c_str(), typeSeverity.c_str(), message);
-    fprintf(stderr, "\n");  // separate this error from the next thing that prints
+    cerr << endl << "debug message #" << debugMessageCounter++ << endl <<
+        "DebugFunc: length = " << length << ", id = " << id << ", userParam = " << (unsigned int)userParam << endl <<
+        errorType << "from " << srcName << ",\t" << typeSeverity << " priority" << endl <<
+        message << endl;
+    //fprintf(stderr, "DebugFunc: length = '%d', id = '%u', userParam = '%x'\n", length, id, (unsigned int)userParam);
+    //fprintf(stderr, "%s from %s,\t%s priority\nMessage: %s\n",
+    //    errorType.c_str(), srcName.c_str(), typeSeverity.c_str(), message);
+    //fprintf(stderr, "\n");  // separate this error from the next thing that prints
 }
 
 //

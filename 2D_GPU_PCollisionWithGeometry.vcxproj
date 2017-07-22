@@ -226,12 +226,11 @@
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\GenerateVerticesParticleBoundingBoxes.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\GuaranteeSortingDataUniqueness.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\MergeBoundingVolumes.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\ClearWorkGroupSums.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\CopyParticlesToCopyBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\GenerateSortingData.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\GetBitForPrefixScan.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanOverAllData.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanOverWorkGroupSums.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanStage1.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanStage2.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanStage3.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\SortParticles.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\SortSortingDataWithPrefixSums.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ResolveCollisions.comp" />

@@ -1,13 +1,14 @@
-// REQUIRES Version.comp
-// REQUIRES ParallelSortConstants.comp
-// REQUIRES UniformLocations.comp
-// REQUIRES SsboBufferBindings.comp
-// REQUIRES PrefixScanBuffer.comp
+// REQUIRES Shaders/ShaderHeaders/Version.comp
+// REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticlePrefixScanBuffer.comp
 
 
-layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
-layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
-shared uint[ITEMS_PER_WORK_GROUP] fastTempArr;
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+#define DATA_SIZE (WORK_GROUP_SIZE_X * 2)
+shared uint[DATA_SIZE] fastTempArr;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -23,12 +24,12 @@ void main()
     // bounds of the PrefixScanBuffer or the fastTempArray
     uint doubleThreadIndex = gl_GlobalInvocationID.x * 2;
     uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
-    fastTempArr[doubleLocalIndex] = AllPrefixSums[doubleThreadIndex];
-    fastTempArr[doubleLocalIndex + 1] = AllPrefixSums[doubleThreadIndex + 1];
+    fastTempArr[doubleLocalIndex] = PrefixSumsPerWorkGroup[doubleThreadIndex];
+    fastTempArr[doubleLocalIndex + 1] = PrefixSumsPerWorkGroup[doubleThreadIndex + 1];
 
     // reproduce the end of the "up the tree" loop for a starting position
     uint indexMultiplierDueToDepth = 1;
-    for (uint dataPairs = ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
+    for (uint dataPairs = DATA_SIZE >> 1; dataPairs > 0; dataPairs >>= 1)
     {
         indexMultiplierDueToDepth <<= 1;    // multiply by 2
     }
@@ -36,7 +37,7 @@ void main()
 
     // keep going down
     uint localIndex = gl_LocalInvocationID.x;
-    for (uint dataPairs = 1; dataPairs < ITEMS_PER_WORK_GROUP; dataPairs *= 2)
+    for (uint dataPairs = 1; dataPairs < DATA_SIZE; dataPairs *= 2)
     {
         barrier();
         if (localIndex < dataPairs)
@@ -55,6 +56,6 @@ void main()
 
     // wait for the last write
     barrier();
-    AllPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
-    AllPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+    PrefixSumsPerWorkGroup[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    PrefixSumsPerWorkGroup[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
 }

@@ -204,11 +204,11 @@ namespace ShaderControllers
             glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
         }
 
-        //unsigned int startingIndex = 0;
+        //unsigned int startingIndexBytes = 0;
         //std::vector<Particle> checkResetParticles(particleSsbo->NumParticles());
         //unsigned int bufferSizeBytes = checkResetParticles.size() * sizeof(Particle);
         //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
-        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkResetParticles.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 

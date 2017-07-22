@@ -234,20 +234,20 @@ namespace ShaderControllers
 
         std::vector<PolygonFace> checkPolygons(_collideableGeometrySsbo.NumPolygons());
         {
-            unsigned int startingIndex = 0;
+            unsigned int startingIndexBytes = 0;
             unsigned int bufferSizeBytes = checkPolygons.size() * sizeof(PolygonFace);
             glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideableGeometrySsbo.BufferId());
-            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
             memcpy(checkPolygons.data(), bufferPtr, bufferSizeBytes);
             glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
         }
 
         std::vector<Particle> checkParticles(_particleSsbo->NumParticles());
         {
-            unsigned int startingIndex = 0;
+            unsigned int startingIndexBytes = 0;
             unsigned int bufferSizeBytes = checkParticles.size() * sizeof(Particle);
             glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSsbo->BufferId());
-            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
+            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
             memcpy(checkParticles.data(), bufferPtr, bufferSizeBytes);
             glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
         }
