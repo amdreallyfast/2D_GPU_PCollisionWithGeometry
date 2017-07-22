@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 
 
-layout(location = UNIFORM_LOCATION_ALL_PREFIX_SUMS_SIZE) uniform uint uMaxPrefixSums;
+layout(location = UNIFORM_LOCATION_PARTICLE_ALL_PREFIX_SUMS_SIZE) uniform uint uMaxPrefixSums;
 
 /*------------------------------------------------------------------------------------------------
 Description:

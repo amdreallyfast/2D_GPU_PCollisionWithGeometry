@@ -15,7 +15,6 @@ struct BoundingBox
     float _bottom;
 };
 
-
 /*------------------------------------------------------------------------------------------------
 Description:   
     Stores info about a single node in the BVH.  Can be either an internal node or a leaf node.  
@@ -40,10 +39,10 @@ struct BvhNode
 };
 
 
-// see description of BvhNodeBuffer for detail
-layout(location = UNIFORM_LOCATION_BVH_NUMBER_LEAVES) uniform uint uBvhNumberLeaves;
-layout(location = UNIFORM_LOCATION_BVH_NUMBER_INTERNAL_NODES) uniform uint uBvhNumberInternalNodes;
-layout(location = UNIFORM_LOCATION_BVH_NODE_BUFFER_SIZE) uniform uint uBvhNodeBufferSize;
+// see description of ParticleBvhNodeBuffer for detail
+layout(location = UNIFORM_LOCATION_PARTICLE_BVH_NUMBER_LEAVES) uniform uint uBvhNumberLeaves;
+layout(location = UNIFORM_LOCATION_PARTICLE_BVH_NUMBER_INTERNAL_NODES) uniform uint uBvhNumberInternalNodes;
+layout(location = UNIFORM_LOCATION_PARTICLE_BVH_NODE_BUFFER_SIZE) uniform uint uBvhNodeBufferSize;
 
 /*-----------------------------------------------------------------------------------------------
 Description:
@@ -54,7 +53,7 @@ Description:
     The number of leaf nodes shall be #particles.
 Creator:    John Cox, 5/2017
 -----------------------------------------------------------------------------------------------*/
-layout (std430, binding = BVH_NODE_BUFFER_BINDING) buffer BvhNodeBuffer
+layout (std430, binding = BVH_NODE_BUFFER_BINDING) buffer ParticleBvhNodeBuffer
 {
     // leaf nodes first, then internal nodes 
     BvhNode AllBvhNodes[];

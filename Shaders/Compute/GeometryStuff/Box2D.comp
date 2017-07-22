@@ -5,7 +5,7 @@ Description:
     See BoundingBox.h for more detail.
 
     Note: This is NOT to be confused with the BoundingBox structure of the same name in 
-    BvhNodeBuffer.comp.  This one is meant for drawing.
+    ParticleBvhNodeBuffer.comp.  This one is meant for drawing.
 Creator:    John Cox, 6/2017
 -----------------------------------------------------------------------------------------------*/
 struct Box2D

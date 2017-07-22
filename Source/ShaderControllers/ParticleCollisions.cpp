@@ -907,7 +907,7 @@ namespace ShaderControllers
     /*--------------------------------------------------------------------------------------------
     Description:
         Modifies the ParticleSortingDataBuffer so that the resulting tree won't have depth 
-        spikes due to duplicate entries, then gives each leaf node in the BvhNodeBuffer a 
+        spikes due to duplicate entries, then gives each leaf node in the ParticleBvhNodeBuffer a 
         bounding box based on the particle that it is associated with.
     Parameters: 
         numWorkGroupsX      Expected to be number of particles divided by work group size.

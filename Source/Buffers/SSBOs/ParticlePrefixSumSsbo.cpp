@@ -5,8 +5,10 @@
 #include "Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"
 #include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
+#include "Shaders/ShaderStorage.h"
 
 #include <vector>
+
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -152,9 +154,12 @@ Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/  
 void PrefixSumSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
+    ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    glUniform1ui(UNIFORM_LOCATION_ALL_PREFIX_SUMS_SIZE, _numDataEntries);
+
+    glUniform1ui(UNIFORM_LOCATION_PARTICLE_ALL_PREFIX_SUMS_SIZE, _numDataEntries);
     glUseProgram(0);
 }
 

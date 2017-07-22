@@ -56,9 +56,9 @@ void BvhNodeSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    glUniform1ui(UNIFORM_LOCATION_BVH_NUMBER_LEAVES, _numLeaves);
-    glUniform1ui(UNIFORM_LOCATION_BVH_NUMBER_INTERNAL_NODES, _numInternalNodes);
-    glUniform1ui(UNIFORM_LOCATION_BVH_NODE_BUFFER_SIZE, _numTotalNodes);
+    glUniform1ui(UNIFORM_LOCATION_PARTICLE_BVH_NUMBER_LEAVES, _numLeaves);
+    glUniform1ui(UNIFORM_LOCATION_PARTICLE_BVH_NUMBER_INTERNAL_NODES, _numInternalNodes);
+    glUniform1ui(UNIFORM_LOCATION_PARTICLE_BVH_NODE_BUFFER_SIZE, _numTotalNodes);
     glUseProgram(0);
 
 }
