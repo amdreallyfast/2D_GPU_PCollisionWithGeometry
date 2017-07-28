@@ -403,7 +403,7 @@ GLint ShaderStorage::GetUniformLocation(GLuint programId, const std::string &uni
     GLint uniformLocation = glGetUniformLocation(programId, uniformName.c_str());
     if (uniformLocation < 0)
     {
-        fprintf(stderr, "No uniform '%s' in shader program '%u'\n", uniformName.c_str(), programId);
+        //fprintf(stderr, "No uniform '%s' in shader program '%u'\n", uniformName.c_str(), programId);
     }
 
     return uniformLocation;

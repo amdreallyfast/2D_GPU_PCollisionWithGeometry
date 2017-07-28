@@ -228,7 +228,7 @@
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\GuaranteeSortingDataUniqueness.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleBvh\MergeBoundingVolumes.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\CopyParticlesToCopyBuffer.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\GenerateSortingData.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\GenerateParticleSortingData.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanStage1.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanStage2.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\PrefixScanStage3.comp" />
@@ -244,11 +244,11 @@
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh\GenerateLeafNodeBoundingBoxes.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh\GuaranteeSortingDataUniqueness.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometryBvh\MergeBoundingVolumes.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\ClearWorkGroupSums.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\CopyGeometryToCopyBuffer.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\GenerateSortingData.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\GetBitForPrefixScan.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\ParallelPrefixScanPrefixScan.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\GenerateGeometrySortingData.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\PrefixScanStage1.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\PrefixScanStage2.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\PrefixScanStage3.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortGeometry.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortSortingDataWithPrefixSums.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\ResolveParticleGeometryCollisions.comp" />

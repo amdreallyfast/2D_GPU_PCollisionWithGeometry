@@ -1,0 +1,66 @@
+// REQUIRES Shaders/ShaderHeaders/Version.comp
+// REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/GeometrySortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/GeometryPrefixScanBuffer.comp
+
+
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
+
+#define DATA_SIZE (WORK_GROUP_SIZE_X * 2)
+shared uint[DATA_SIZE] fastTempArr;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Like ParticleCollisions/ParticleSort/PrefixScanStage1.comp, but for the collidable geometry 
+    buffer.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint doubleThreadIndex = gl_GlobalInvocationID.x * 2;
+    uint bitReadIndex = uGeometrySortingDataBufferReadOffset + doubleThreadIndex;
+
+    uint bitVal1 = 0;
+    if (doubleThreadIndex < uMaxNumGeometrySortingData)
+    {
+        bitVal1 = (AllGeometrySortingData[bitReadIndex]._sortingData >> uBitNumber) & 1;
+    }
+
+    uint bitVal2 = 0;
+    if ((doubleThreadIndex + 1) < uMaxNumGeometrySortingData)
+    {
+        bitVal2 = (AllGeometrySortingData[bitReadIndex + 1]._sortingData >> uBitNumber) & 1;
+    }
+    
+    uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
+    fastTempArr[doubleLocalIndex] = bitVal1;
+    fastTempArr[doubleLocalIndex + 1] = bitVal2;
+    barrier();
+
+    // going up
+    uint indexMultiplierDueToDepth = 1;
+    uint localIndex = gl_LocalInvocationID.x;
+    for (uint dataPairs = DATA_SIZE >> 1; dataPairs > 0; dataPairs >>= 1)
+    {
+        barrier();
+        if (localIndex < dataPairs)
+        {
+            uint lesserIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
+            uint greaterIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
+    
+            fastTempArr[greaterIndex] += fastTempArr[lesserIndex];
+        }
+        indexMultiplierDueToDepth <<= 1;    // *=2
+    }
+
+    // no out-of-bounds checking here because the prefix sum array's size is calculated to be a 
+    // multiple of work group size
+    AllGeometryPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    AllGeometryPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+}

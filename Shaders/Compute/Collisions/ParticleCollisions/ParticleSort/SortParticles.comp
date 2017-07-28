@@ -37,7 +37,7 @@ void main()
     // loop is changed to run an odd number of times and therefore cause the sorted data to end 
     // up in the buffer's second half 
     uint sortedDataIndex = threadIndex + uParticleSortingDataBufferReadOffset;
-    uint sourceIndex = AllParticleSortingData[sortedDataIndex]._preSortedParticleIndex;
+    uint sourceIndex = AllParticleSortingData[sortedDataIndex]._preSortedIndex;
 
     // the unsorted particles are in the second half of the buffer
     sourceIndex += uMaxNumParticles;
@@ -45,8 +45,4 @@ void main()
     // the SortingData structure is already sorted, so whatever index it is at now is the 
     // same index where the original data should be 
     AllParticles[threadIndex] = AllParticles[sourceIndex];
-    
-    
-    
-    AllParticles[threadIndex]._numNearbyParticles = int(AllParticleSortingData[sortedDataIndex]._sortingData);
 }

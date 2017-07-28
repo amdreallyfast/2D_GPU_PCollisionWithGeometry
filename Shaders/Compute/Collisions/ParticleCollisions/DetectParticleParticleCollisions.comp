@@ -41,8 +41,6 @@ bool BoundingBoxesOverlap(BoundingBox otherNodeBoundingBox)
     return horizontalIntersection && verticalIntersection;
 }
 
-
-
 /*------------------------------------------------------------------------------------------------
 Description:
     Navigates the Bounding Volume Hierarchy (BVH) and finds overlapping collision boxes.  When 

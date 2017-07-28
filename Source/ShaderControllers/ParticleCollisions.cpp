@@ -87,12 +87,12 @@ namespace ShaderControllers
         particleSsbo->ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
         particleSsbo->ConfigureConstantUniforms(_programIdDetectCollisions);
         particleSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
-        particleSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
-        particleSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
+        //particleSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
+        //particleSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
 
         particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
         particlePropertiesSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
-        particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
+        //particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
 
         _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
         _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
@@ -114,9 +114,9 @@ namespace ShaderControllers
         _particlePotentialCollisionsSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
         _particlePotentialCollisionsSsbo.ConfigureConstantUniforms(_programIdResolveCollisions);
 
-        _velocityVectorGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
+        //_velocityVectorGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
 
-        _boundingBoxGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
+        //_boundingBoxGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
 
 
         //unsigned int startingIndexBytes = 0;
@@ -309,7 +309,7 @@ namespace ShaderControllers
         _programIdCopyParticlesToCopyBuffer = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "generate particle sorting data";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleSort/GenerateSortingData.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleSort/GenerateParticleSortingData.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);

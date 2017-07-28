@@ -1,0 +1,91 @@
+// REQUIRES Shaders/ShaderHeaders/Version.comp
+// REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/GeometryPrefixScanBuffer.comp
+
+
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+#define DATA_SIZE (WORK_GROUP_SIZE_X * 2)
+shared uint[DATA_SIZE] fastTempArr;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Like ParticleCollisions/ParticleSort/PrefixScanStage2.comp, but for the collidable geometry 
+    buffer.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    // reproduce the end of the "up the tree" loop for a starting position
+    uint indexMultiplierDueToDepth = 1;
+    for (uint dataPairs = DATA_SIZE >> 1; dataPairs > 0; dataPairs >>= 1)
+    {
+        indexMultiplierDueToDepth <<= 1;
+    }
+
+    // if no work group sum from stage 1 exists for the "source index", put in a 0 to avoid 
+    // messing up the sum
+    uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
+    uint lesserSourceIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
+    bool lesserSourceIndexValidRange = lesserSourceIndex < uMaxGeometryPrefixSums;
+    fastTempArr[doubleLocalIndex] = lesserSourceIndexValidRange ? AllGeometryPrefixSums[lesserSourceIndex] : 0;
+
+    uint greaterSourceIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
+    bool greaterSourceIndexValidRange = greaterSourceIndex < uMaxGeometryPrefixSums;
+    fastTempArr[doubleLocalIndex + 1] = greaterSourceIndexValidRange ? AllGeometryPrefixSums[greaterSourceIndex] : 0;
+
+    // keep going up
+    uint localIndex = gl_LocalInvocationID.x;
+    indexMultiplierDueToDepth = 1;
+    for (uint dataPairs = DATA_SIZE >> 1; dataPairs > 0; dataPairs >>= 1)
+    {
+        barrier();
+        if (localIndex < dataPairs)
+        {
+            uint lesserIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
+            uint greaterIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
+
+            fastTempArr[greaterIndex] += fastTempArr[lesserIndex];
+        }
+        indexMultiplierDueToDepth <<= 1;    // multiply by 2
+    }
+
+    if (doubleLocalIndex == 0)
+    {
+        totalNumberOfOnes = fastTempArr[DATA_SIZE - 1];
+        fastTempArr[DATA_SIZE - 1] = 0;
+    }
+    indexMultiplierDueToDepth >>= 1;
+
+    // going down
+    for (uint dataPairs = 1; dataPairs < DATA_SIZE; dataPairs *= 2)
+    {
+        barrier();
+        if (localIndex < dataPairs)
+        {
+            uint lesserIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
+            uint greaterIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
+
+            // the algorithm calls for a swap and sum
+            uint temp = fastTempArr[lesserIndex];
+            fastTempArr[lesserIndex] = fastTempArr[greaterIndex];
+            fastTempArr[greaterIndex] += temp;
+        }
+        indexMultiplierDueToDepth >>= 1;    // /= 2
+    }
+    barrier();
+
+    if (lesserSourceIndexValidRange)
+    {
+        AllGeometryPrefixSums[lesserSourceIndex] = fastTempArr[doubleLocalIndex];
+    }
+    if (greaterSourceIndexValidRange)
+    {
+        AllGeometryPrefixSums[greaterSourceIndex] = fastTempArr[doubleLocalIndex + 1];
+    }
+}

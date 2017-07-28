@@ -6,6 +6,7 @@
 // REQUIRES Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticleSortingDataBuffer.comp
 // REQUIRES Shaders/Compute/ParticleBuffer.comp
 
+
 // Y and Z work group sizes default to 1
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
 
@@ -32,5 +33,5 @@ void main()
     }
 
     AllParticleSortingData[threadIndex]._sortingData = mortonCode;
-    AllParticleSortingData[threadIndex]._preSortedParticleIndex = int(threadIndex);
+    AllParticleSortingData[threadIndex]._preSortedIndex = int(threadIndex);
 }

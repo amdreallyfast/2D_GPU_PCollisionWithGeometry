@@ -14,8 +14,8 @@ layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
 /*------------------------------------------------------------------------------------------------
 Description:
     Uses the Radix Sorting algorithm to sort the SortingData structures in the "read" 
-    buffer into the "write" buffer from ParticleMotronCodeBuffer using the prefix sums from 
-    ParticlePrefixScanBuffer.
+    buffer into the "write" buffer from the sorting data buffer using the prefix sums from 
+    prefix scan buffer.
 
     This is part of the Radix Sort algorithm.
 
@@ -42,7 +42,7 @@ void main()
     uint offsetForZeros = threadIndex - prefixSumOfOnes;
     uint totalNumberOfZeros = uMaxNumParticleSortingData - totalNumberOfOnes;
 
-    // this values determines if the value should go with the 0s or with 1s on this sort step
+    // determines if the value should go with the 0s or with the 1s on this sort step
     uint sourceIndex = threadIndex + uParticleSortingDataBufferReadOffset;
     uint bitVal = (AllParticleSortingData[sourceIndex]._sortingData >> uBitNumber) & 1;
 

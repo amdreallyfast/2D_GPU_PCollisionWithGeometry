@@ -6,7 +6,7 @@ Creator:    John Cox, 5/2017
 struct SortingData
 {
     uint _sortingData;
-    int _preSortedParticleIndex;
+    int _preSortedIndex;
 
     // no GLSL-native structures, so no padding necessary on the CPU side
 };
