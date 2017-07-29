@@ -3,7 +3,7 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonSortingDataBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidableGeometryPrefixScanBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonPrefixScanBuffer.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -29,7 +29,7 @@ void main()
         return;
     }
 
-    uint prefixSumOfOnes = AllCollidableGeometryPrefixSums[threadIndex];
+    uint prefixSumOfOnes = AllCollidablePolygonPrefixSums[threadIndex];
     uint offsetForZeros = threadIndex - prefixSumOfOnes;
     uint totalNumberOfZeros = uMaxNumCollidablePolygonSortingData - totalNumberOfOnes;
 

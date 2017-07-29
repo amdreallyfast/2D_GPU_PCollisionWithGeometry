@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidableGeometryPrefixScanBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonPrefixScanBuffer.comp
 
 
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -32,12 +32,12 @@ void main()
     // messing up the sum
     uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
     uint lesserSourceIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
-    bool lesserSourceIndexValidRange = lesserSourceIndex < uMaxGeometryPrefixSums;
-    fastTempArr[doubleLocalIndex] = lesserSourceIndexValidRange ? AllCollidableGeometryPrefixSums[lesserSourceIndex] : 0;
+    bool lesserSourceIndexValidRange = lesserSourceIndex < uMaxCollidablePolygonPrefixSums;
+    fastTempArr[doubleLocalIndex] = lesserSourceIndexValidRange ? AllCollidablePolygonPrefixSums[lesserSourceIndex] : 0;
 
     uint greaterSourceIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
-    bool greaterSourceIndexValidRange = greaterSourceIndex < uMaxGeometryPrefixSums;
-    fastTempArr[doubleLocalIndex + 1] = greaterSourceIndexValidRange ? AllCollidableGeometryPrefixSums[greaterSourceIndex] : 0;
+    bool greaterSourceIndexValidRange = greaterSourceIndex < uMaxCollidablePolygonPrefixSums;
+    fastTempArr[doubleLocalIndex + 1] = greaterSourceIndexValidRange ? AllCollidablePolygonPrefixSums[greaterSourceIndex] : 0;
 
     // keep going up
     uint localIndex = gl_LocalInvocationID.x;
@@ -82,10 +82,10 @@ void main()
 
     if (lesserSourceIndexValidRange)
     {
-        AllCollidableGeometryPrefixSums[lesserSourceIndex] = fastTempArr[doubleLocalIndex];
+        AllCollidablePolygonPrefixSums[lesserSourceIndex] = fastTempArr[doubleLocalIndex];
     }
     if (greaterSourceIndexValidRange)
     {
-        AllCollidableGeometryPrefixSums[greaterSourceIndex] = fastTempArr[doubleLocalIndex + 1];
+        AllCollidablePolygonPrefixSums[greaterSourceIndex] = fastTempArr[doubleLocalIndex + 1];
     }
 }

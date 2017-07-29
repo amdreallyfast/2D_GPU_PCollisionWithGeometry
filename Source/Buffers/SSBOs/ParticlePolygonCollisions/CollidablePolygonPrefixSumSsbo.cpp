@@ -55,7 +55,7 @@ Creator:    John Cox, 7/2017
 void CollidablePolygonPrefixSumSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
-    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxGeometryPrefixSums");
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxCollidablePolygonPrefixSums");
 
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
@@ -65,7 +65,7 @@ void CollidablePolygonPrefixSumSsbo::ConfigureConstantUniforms(unsigned int comp
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Returns the number of integers that have been allocated for the AllCollidableGeometryPrefixSums array.  The 
+    Returns the number of integers that have been allocated for the AllCollidablePolygonPrefixSums array.  The 
     constructor ensures that there are enough entries for every item to be part of a work group.  
 Parameters: None
 Returns:    
@@ -79,7 +79,7 @@ unsigned int CollidablePolygonPrefixSumSsbo::NumDataEntries() const
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Returns the number of prefix sum entries in CollidableGeometryPrefixScanBuffer plus 1 
+    Returns the number of prefix sum entries in CollidablePolygonPrefixScanBuffer plus 1 
     (for totalNumberOfOnes).  
 Parameters: None
 Returns:    

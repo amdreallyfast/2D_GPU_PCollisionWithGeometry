@@ -3,7 +3,7 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonSortingDataBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidableGeometryPrefixScanBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonPrefixScanBuffer.comp
 
 
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -61,6 +61,6 @@ void main()
 
     // no out-of-bounds checking here because the prefix sum array's size is calculated to be a 
     // multiple of 2x the work group size
-    AllCollidableGeometryPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
-    AllCollidableGeometryPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+    AllCollidablePolygonPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    AllCollidablePolygonPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
 }

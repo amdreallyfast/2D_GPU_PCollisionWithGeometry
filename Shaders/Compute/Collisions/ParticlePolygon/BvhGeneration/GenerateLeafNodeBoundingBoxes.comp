@@ -3,7 +3,7 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/Collisions/CollidablePolygonBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidableGeometryBvhNodeBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonBvhNodeBuffer.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -25,11 +25,11 @@ void main()
     
     // unlike particles, which can deactivate when out of bounds, the geometry will always be 
     // present
-    AllCollidablePolygonBvhNodes._isNull = 0;
+    AllCollidablePolygonBvhNodes[threadIndex]._isNull = 0;
     
     // create the bounding box for the bounding volume hierarchy
     vec4 p1 = AllCollidablePolygons[threadIndex]._start._pos;
-    vec4 p2 = AllCollidablePolygons[threadIndex]._start._end;
+    vec4 p2 = AllCollidablePolygons[threadIndex]._end._pos;
 
     BoundingBox bb;
     bb._left = min(p1.x, p2.x);

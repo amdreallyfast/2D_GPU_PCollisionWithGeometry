@@ -197,49 +197,49 @@ namespace ShaderControllers
         std::string filePath;
 
         shaderKey = "copy geometry to copy buffer";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometrySort/CopyGeometryToCopyBuffer.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/Sorting/CopyGeometryToCopyBuffer.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdCopyGeometryToCopyBuffer = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "generate geometry sorting data";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometrySort/GenerateGeometrySortingData.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/Sorting/GenerateGeometrySortingData.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdGenerateSortingData = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "geometry prefix scan stage 1";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometrySort/PrefixScanStage1.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/Sorting/PrefixScanStage1.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdPrefixScanStage1 = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "geometry prefix scan stage 2";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometrySort/PrefixScanStage2.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/Sorting/PrefixScanStage2.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdPrefixScanStage2 = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "geometry prefix scan stage 3";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometrySort/PrefixScanStage3.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/Sorting/PrefixScanStage3.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdPrefixScanStage3 = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "sort geometry sorting data with prefix sums";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometrySort/SortSortingDataWithPrefixSums.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/Sorting/SortSortingDataWithPrefixSums.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdSortSortingDataWithPrefixSums = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "sort geometry";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometrySort/SortCollidableGeometry.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/Sorting/SortCollidablePolygons.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
@@ -265,28 +265,28 @@ namespace ShaderControllers
         std::string filePath;
 
         shaderKey = "guarantee collidable geometry sorting data uniqueness";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometryBvh/GuaranteeSortingDataUniqueness.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/BvhGeneration/GuaranteeSortingDataUniqueness.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdGuaranteeSortingDataUniqueness = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "generate collidable geometry bounding boxes";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometryBvh/GenerateLeafNodeBoundingBoxes.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/BvhGeneration/GenerateLeafNodeBoundingBoxes.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdGenerateLeafNodeBoundingBoxes = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "generate collidable geometry binary radix tree";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometryBvh/GenerateBinaryRadixTree.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/BvhGeneration/GenerateBinaryRadixTree.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdGenerateBinaryRadixTree = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "merge collidable geometry bounding volumes";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/GeometryBvh/MergeBoundingVolumes.comp";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/BvhGeneration/MergeBoundingVolumes.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
@@ -558,7 +558,7 @@ namespace ShaderControllers
     Description:
         Modifies the CollidablePolygonSortingDataBuffer so that the resulting tree won't have 
         depth spikes due to duplicate entries, then gives each leaf node in the 
-        CollidableGeometryBvhNodeBuffer a bounding box based on the polygon that it is 
+        CollidablePolygonBvhNodeBuffer a bounding box based on the polygon that it is 
         associated with.
     Parameters: 
         numWorkGroupsX      Expected to be number of polygons divided by work group size.
