@@ -403,6 +403,11 @@ GLint ShaderStorage::GetUniformLocation(GLuint programId, const std::string &uni
     GLint uniformLocation = glGetUniformLocation(programId, uniformName.c_str());
     if (uniformLocation < 0)
     {
+        // uncomment if you want to be told when a uniform is not being used
+        // Note: If the program is not 0, then it compiled and linked just fine, so if the 
+        // uniform can't be found, then the program creation found that the uniform was not 
+        // being used and therefore optimized it out.  This is not a problem and doesn't need to 
+        // be reported unless the user wants to find unused uniforms.
         //fprintf(stderr, "No uniform '%s' in shader program '%u'\n", uniformName.c_str(), programId);
     }
 

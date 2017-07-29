@@ -17,7 +17,7 @@ Description:
     Will be 2x the size of uMaxCollidablePolygons.
 
     Identical in contents and concept to ParticleSortingDataBuffer, but OpenGL compute shaders 
-    must refer to buffers explicityly by name, so different buffers need differnet names.
+    must refer to buffers explicitly by name, so different buffers need differnet names.
 Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
 layout (std430, binding = COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_BINDING) buffer CollidableGeometrySortingDataBuffer

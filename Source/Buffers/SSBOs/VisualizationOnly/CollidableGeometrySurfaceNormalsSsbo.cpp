@@ -56,7 +56,7 @@ CollidableGeometrySurfaceNormalsSsbo::CollidableGeometrySurfaceNormalsSsbo(const
     _numVertices = (v.size() * sizeof(PolygonFace)) / sizeof(MyVertex);
 
     // now bind this new buffer to the dedicated buffer binding location
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_GEOMETRY_SURFACE_NORMAL_BUFFER_BINDING, _bufferId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_GEOMETRY_SURFACE_NORMAL_GEOMETRY_BUFFER_BINDING, _bufferId);
 
     // and fill it with new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);

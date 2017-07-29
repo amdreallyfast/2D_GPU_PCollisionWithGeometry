@@ -10,9 +10,6 @@
 #include "Include/Geometry/PolygonFace.h"
 #include <vector>
 
-//// comment out to remove the face normals from the polygon buffer
-//#define MAKE_LINES_OUT_OF_NORMALS
-
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -44,22 +41,6 @@ CollidableGeometrySsbo::CollidableGeometrySsbo(const std::string &blenderMeshFil
             polyItr++)
         {
             v.push_back(*polyItr);
-
-
-            // TODO: move to CollidableGeometryWithNormalsSsbo
-#ifdef MAKE_LINES_OUT_OF_NORMALS
-            // for the sake of visualization, make 2D polygons for the normals as well
-            // Note: Remove these before performing particle-geometry collision detection or 
-            // else the particles will try to bounce off these as well, and since they have dud 
-            // (zero) normals, the dot products and/or other calculations involved in the 
-            // collision detection and resolution will likely result in inf or nan.
-            v.push_back(PolygonFace(
-                MyVertex(polyItr->_start._position, glm::vec4()),
-                MyVertex(polyItr->_start._position + polyItr->_start._normal, glm::vec4())));
-            v.push_back(PolygonFace(
-                MyVertex(polyItr->_end._position, glm::vec4()),
-                MyVertex(polyItr->_end._position + polyItr->_end._normal, glm::vec4())));
-#endif
         }
     }
     _numPolygons = v.size();
