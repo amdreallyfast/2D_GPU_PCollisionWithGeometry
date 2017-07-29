@@ -11,13 +11,13 @@ Description:
     objects will considered part of the same object.
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-class CollidableGeometrySsbo : public VertexSsboBase
+class CollidablePolygonSsbo : public VertexSsboBase
 {
 public:
-    CollidableGeometrySsbo(const std::string &blenderMeshFilePath);
-    ~CollidableGeometrySsbo() = default;
-    using SharedPtr = std::shared_ptr<CollidableGeometrySsbo>;
-    using SharedConstPtr = std::shared_ptr<const CollidableGeometrySsbo>;
+    CollidablePolygonSsbo(const std::string &blenderMeshFilePath);
+    ~CollidablePolygonSsbo() = default;
+    using SharedPtr = std::shared_ptr<CollidablePolygonSsbo>;
+    using SharedConstPtr = std::shared_ptr<const CollidablePolygonSsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
     unsigned int NumPolygons() const;

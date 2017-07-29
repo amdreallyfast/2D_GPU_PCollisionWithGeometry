@@ -47,14 +47,14 @@
 
 #include "Include/Buffers/Particle.h"
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePropertiesSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticlePropertiesSsbo.h"
 #include "Include/Buffers/PersistentAtomicCounterBuffer.h"
 #include "Include/ShaderControllers/ParticleReset.h"
 #include "Include/ShaderControllers/ParticleUpdate.h"
-#include "Include/ShaderControllers/ParticleCollisions.h"
+#include "Include/ShaderControllers/ParticleParticleCollisions.h"
 #include "Include/ShaderControllers/RenderParticles.h"
 #include "Include/ShaderControllers/RenderGeometry.h"
-#include "Include/ShaderControllers/ParticleGeometryCollisions.h"
+#include "Include/ShaderControllers/ParticlePolygonCollisions.h"
 
 // for the frame rate counter (and other profiling)
 #include "Include/ShaderControllers/ProfilingWaitToFinish.h"
@@ -68,10 +68,10 @@ ParticleSsbo::SharedPtr particleBuffer = nullptr;
 ParticlePropertiesSsbo::SharedPtr particlePropertiesBuffer = nullptr;
 std::shared_ptr<ShaderControllers::ParticleReset> particleResetter = nullptr;
 std::shared_ptr<ShaderControllers::ParticleUpdate> particleUpdater = nullptr;
-std::shared_ptr<ShaderControllers::ParticleCollisions> particleCollisions = nullptr;
+std::shared_ptr<ShaderControllers::ParticleParticleCollisions> particleCollisions = nullptr;
 std::shared_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 std::shared_ptr<ShaderControllers::RenderGeometry> geometryRenderer = nullptr;
-std::shared_ptr<ShaderControllers::ParticleGeometryCollisions> particleGeometryCollisions = nullptr;
+std::shared_ptr<ShaderControllers::ParticlePolygonCollisions> particleGeometryCollisions = nullptr;
 
 const unsigned int MAX_PARTICLE_COUNT = 5000;
 
@@ -218,12 +218,12 @@ void Init()
     particleUpdater = std::make_shared<ShaderControllers::ParticleUpdate>(particleBuffer);
 
     // for sorting, detecting collisions between, and resolving said collisions between particles
-    particleCollisions = std::make_shared<ShaderControllers::ParticleCollisions>(particleBuffer, particlePropertiesBuffer);
+    particleCollisions = std::make_shared<ShaderControllers::ParticleParticleCollisions>(particleBuffer, particlePropertiesBuffer);
 
     // for drawing particles
     particleRenderer = std::make_shared<ShaderControllers::RenderParticles>();
 
-    particleGeometryCollisions = std::make_shared<ShaderControllers::ParticleGeometryCollisions>("Blender3DStuff/airfoil.obj", particleBuffer);
+    //particleGeometryCollisions = std::make_shared<ShaderControllers::ParticlePolygonCollisions>("Blender3DStuff/airfoil.obj", particleBuffer);
 
     //// for drawing non-particle things
     //geometryRenderer = std::make_shared<ShaderControllers::RenderGeometry>();

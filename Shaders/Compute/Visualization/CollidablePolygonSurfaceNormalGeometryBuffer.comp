@@ -8,7 +8,7 @@ uniform uint uCollidableGeometrySurfaceNormalGeometryBufferSize;
 /*-----------------------------------------------------------------------------------------------
 Description:
     This is a useful buffer to visualize where the collidable geometry's surfaces are pointing 
-    to see if particles are bouncing correctly.  It is not part of the CollidableGeometryBuffer 
+    to see if particles are bouncing correctly.  It is not part of the CollidablePolygonBuffer 
     or else particles would try to bounce off these as well.
 Creator:    John Cox, 7/2017
 -----------------------------------------------------------------------------------------------*/

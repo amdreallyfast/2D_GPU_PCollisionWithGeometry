@@ -2,8 +2,8 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometrySortingDataBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometryPrefixScanBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygonCollisions/Buffers/CollidablePolygonSortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygonCollisions/Buffers/CollidableGeometryPrefixScanBuffer.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -14,7 +14,7 @@ layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Like ParticleCollisions/ParticleSort/SortSortingDataWithPrefixSums.comp, but for the 
+    Like ParticleParticleCollisions/ParticleSort/SortSortingDataWithPrefixSums.comp, but for the 
     collidable geometry.
 Parameters: None
 Returns:    None
@@ -23,7 +23,7 @@ Creator:    John Cox, 7/2017
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex >= uMaxNumCollidableGeometrySortingData)
+    if (threadIndex >= uMaxNumCollidablePolygonSortingData)
     {
         // no Morton Code to sort
         return;
@@ -31,14 +31,14 @@ void main()
 
     uint prefixSumOfOnes = AllCollidableGeometryPrefixSums[threadIndex];
     uint offsetForZeros = threadIndex - prefixSumOfOnes;
-    uint totalNumberOfZeros = uMaxNumCollidableGeometrySortingData - totalNumberOfOnes;
+    uint totalNumberOfZeros = uMaxNumCollidablePolygonSortingData - totalNumberOfOnes;
 
     // determines if the value should go with the 0s or with the 1s on this sort step
-    uint sourceIndex = threadIndex + uCollidableGeometrySortingDataBufferReadOffset;
+    uint sourceIndex = threadIndex + uCollidablePolygonSortingDataBufferReadOffset;
     uint bitVal = (AllGeometrySortingData[sourceIndex]._sortingData >> uBitNumber) & 1;
 
     uint destinationIndex = (bitVal == 0) ? offsetForZeros : (totalNumberOfZeros + prefixSumOfOnes);
-    destinationIndex += uCollidableGeometrySortingDataBufferWriteOffset;
+    destinationIndex += uCollidablePolygonSortingDataBufferWriteOffset;
 
     // do the sort
     AllGeometrySortingData[destinationIndex] = AllGeometrySortingData[sourceIndex];

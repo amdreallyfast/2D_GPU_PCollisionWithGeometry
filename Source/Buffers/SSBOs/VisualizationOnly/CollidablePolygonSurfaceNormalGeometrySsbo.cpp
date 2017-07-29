@@ -1,5 +1,5 @@
 
-#include "Include/Buffers/SSBOs/VisualizationOnly/CollidableGeometrySurfaceNormalsSsbo.h"
+#include "Include/Buffers/SSBOs/VisualizationOnly/CollidablePolygonSurfaceNormalGeometrySsbo.h"
 #include "Include/Geometry/BlenderLoad.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
@@ -20,7 +20,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-CollidableGeometrySurfaceNormalsSsbo::CollidableGeometrySurfaceNormalsSsbo(const std::string &blenderMeshFilePath) :
+CollidablePolygonSurfaceNormalGeometrySsbo::CollidablePolygonSurfaceNormalGeometrySsbo(const std::string &blenderMeshFilePath) :
     VertexSsboBase(),  // generate buffers and configure VAO
     _numPolygons(0)
 {
@@ -72,7 +72,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-void CollidableGeometrySurfaceNormalsSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
+void CollidablePolygonSurfaceNormalGeometrySsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
     unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uCollidableGeometrySurfaceNormalGeometryBufferSize");
@@ -91,7 +91,7 @@ Returns:
     See Description.
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int CollidableGeometrySurfaceNormalsSsbo::NumPolygons() const
+unsigned int CollidablePolygonSurfaceNormalGeometrySsbo::NumPolygons() const
 {
     return _numPolygons;
 }

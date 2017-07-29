@@ -8,13 +8,13 @@ Description:
     Like ParticleSortingDataSsbo, but for the collidable geometry.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-class CollidableGeometrySortingDataSsbo: public SsboBase
+class CollidablePolygonSortingDataSsbo: public SsboBase
 {
 public:
-    CollidableGeometrySortingDataSsbo(unsigned int numPolygons);
-    ~CollidableGeometrySortingDataSsbo() = default;
-    using SharedPtr = std::shared_ptr<CollidableGeometrySortingDataSsbo>;
-    using SharedConstPtr = std::shared_ptr<const CollidableGeometrySortingDataSsbo>;
+    CollidablePolygonSortingDataSsbo(unsigned int numPolygons);
+    ~CollidablePolygonSortingDataSsbo() = default;
+    using SharedPtr = std::shared_ptr<CollidablePolygonSortingDataSsbo>;
+    using SharedConstPtr = std::shared_ptr<const CollidablePolygonSortingDataSsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
     unsigned int NumItems() const;

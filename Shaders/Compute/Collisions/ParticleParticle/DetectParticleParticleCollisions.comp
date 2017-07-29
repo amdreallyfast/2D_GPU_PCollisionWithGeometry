@@ -2,8 +2,8 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticleBvhNodeBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleCollisions/Buffers/PotentialParticleCollisionsBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/ParticleBvhNodeBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/PotentialParticleCollisionsBuffer.comp
 // REQUIRES Shaders/Compute/ParticleBuffer.comp
 
 // Y and Z work group sizes default to 1

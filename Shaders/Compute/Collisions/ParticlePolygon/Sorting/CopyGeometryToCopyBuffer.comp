@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/CollidableGeometryBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/CollidablePolygonBuffer.comp
 
 
 // Y and Z work group sizes default to 1
@@ -24,6 +24,6 @@ void main()
         return;
     }
 
-    AllCollidableGeometry[uMaxCollidablePolygons + threadIndex] = AllCollidableGeometry[threadIndex];
+    AllCollidablePolygons[uMaxCollidablePolygons + threadIndex] = AllCollidablePolygons[threadIndex];
 }
 

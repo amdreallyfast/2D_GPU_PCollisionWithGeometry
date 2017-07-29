@@ -1,4 +1,4 @@
-#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometryPrefixSumSsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonPrefixSumSsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 
@@ -20,7 +20,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-CollidableGeometryPrefixSumSsbo::CollidableGeometryPrefixSumSsbo(unsigned int numDataEntries) :
+CollidablePolygonPrefixSumSsbo::CollidablePolygonPrefixSumSsbo(unsigned int numDataEntries) :
     SsboBase(),  // generate buffers
     _numDataEntries(0)
 {
@@ -35,7 +35,7 @@ CollidableGeometryPrefixSumSsbo::CollidableGeometryPrefixSumSsbo(unsigned int nu
     std::vector<unsigned int> v(1 + _numDataEntries);
 
     // now bind this new buffer to the dedicated buffer binding location
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_GEOMETRY_PREFIX_SCAN_BUFFER_BINDING, _bufferId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_POLYGON_PREFIX_SCAN_BUFFER_BINDING, _bufferId);
 
     // and fill it with 0s
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
@@ -52,7 +52,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/  
-void CollidableGeometryPrefixSumSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
+void CollidablePolygonPrefixSumSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
     unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxGeometryPrefixSums");
@@ -72,7 +72,7 @@ Returns:
     See Description.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int CollidableGeometryPrefixSumSsbo::NumDataEntries() const
+unsigned int CollidablePolygonPrefixSumSsbo::NumDataEntries() const
 {
     return _numDataEntries;
 }
@@ -86,7 +86,7 @@ Returns:
     See Description.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int CollidableGeometryPrefixSumSsbo::TotalBufferEntries() const
+unsigned int CollidablePolygonPrefixSumSsbo::TotalBufferEntries() const
 {
     return _numDataEntries + 1;
 }

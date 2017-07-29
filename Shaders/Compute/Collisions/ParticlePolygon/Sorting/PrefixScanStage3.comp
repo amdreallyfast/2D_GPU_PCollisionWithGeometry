@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometryPrefixScanBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygonCollisions/Buffers/CollidableGeometryPrefixScanBuffer.comp
 
 
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -13,7 +13,7 @@ shared uint[DATA_SIZE] fastTempArr;
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Like ParticleCollisions/ParticleSort/PrefixScanStage2.comp, but for the collidable geometry 
+    Like ParticleParticleCollisions/ParticleSort/PrefixScanStage2.comp, but for the collidable geometry 
     buffer.
 Parameters: None
 Returns:    None

@@ -1,4 +1,4 @@
-#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometryBvhNodeSsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonBvhNodeSsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"
@@ -20,7 +20,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-CollidableGeometryBvhNodeSsbo::CollidableGeometryBvhNodeSsbo(unsigned int numPolygons) :
+CollidablePolygonBvhNodeSsbo::CollidablePolygonBvhNodeSsbo(unsigned int numPolygons) :
     SsboBase()
 {
     // binary trees with N leaves have N-1 branches
@@ -35,7 +35,7 @@ CollidableGeometryBvhNodeSsbo::CollidableGeometryBvhNodeSsbo(unsigned int numPol
     }
 
     // now bind this new buffer to the dedicated buffer binding location
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_GEOMETRY_BVH_NODE_BUFFER_BINDING, _bufferId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_POLYGON_BVH_NODE_BUFFER_BINDING, _bufferId);
 
     // and fill it with new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
@@ -52,7 +52,7 @@ Returns:
     See Description.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-void CollidableGeometryBvhNodeSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
+void CollidablePolygonBvhNodeSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
 
@@ -76,7 +76,7 @@ Returns:
     See Description.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int CollidableGeometryBvhNodeSsbo::NumLeafNodes() const
+unsigned int CollidablePolygonBvhNodeSsbo::NumLeafNodes() const
 {
     return _numLeaves;
 }
@@ -89,7 +89,7 @@ Returns:
     See Description.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int CollidableGeometryBvhNodeSsbo::NumTotalNodes() const
+unsigned int CollidablePolygonBvhNodeSsbo::NumTotalNodes() const
 {
     return _numTotalNodes;
 }

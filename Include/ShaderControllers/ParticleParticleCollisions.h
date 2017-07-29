@@ -4,11 +4,11 @@
 #include <string>
 
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleCollisions/ParticleBvhNodeSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePropertiesSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleCollisions/ParticleSortingDataSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePrefixSumSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePotentialCollisionsSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticleBvhNodeSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticlePropertiesSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticleSortingDataSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticlePrefixSumSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticlePotentialCollisionsSsbo.h"
 #include "Include/Buffers/SSBOs/VisualizationOnly/ParticleVelocityVectorGeometrySsbo.h"
 #include "Include/Buffers/SSBOs/VisualizationOnly/ParticleBoundingBoxGeometrySsbo.h"
 
@@ -21,11 +21,11 @@ namespace ShaderControllers
         then having each particle check for possible collisions and resolve as necessary.
     Creator:    John Cox, 3/2017
     --------------------------------------------------------------------------------------------*/
-    class ParticleCollisions
+    class ParticleParticleCollisions
     {
     public:
-        ParticleCollisions(const ParticleSsbo::SharedConstPtr particleSsbo, const ParticlePropertiesSsbo::SharedConstPtr particlePropertiesSsbo);
-        ~ParticleCollisions();
+        ParticleParticleCollisions(const ParticleSsbo::SharedConstPtr particleSsbo, const ParticlePropertiesSsbo::SharedConstPtr particlePropertiesSsbo);
+        ~ParticleParticleCollisions();
 
         void DetectAndResolve(bool withProfiling, bool generateGeometry) const;
         const VertexSsboBase &ParticleVelocityVectorSsbo() const;

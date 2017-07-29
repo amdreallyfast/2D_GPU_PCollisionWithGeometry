@@ -12,13 +12,13 @@ Description:
     geometry's bounding box geometry.  It bugs me, but I can't think of anything better.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-class CollidableGeometryBoundingBoxGeometrySsbo : public VertexSsboBase
+class CollidablePolygonBoundingBoxGeometrySsbo : public VertexSsboBase
 {
 public:
-    CollidableGeometryBoundingBoxGeometrySsbo(unsigned int numPolygons);
-    ~CollidableGeometryBoundingBoxGeometrySsbo() = default;
-    using SharedPtr = std::shared_ptr<CollidableGeometryBoundingBoxGeometrySsbo>;
-    using SharedConstPtr = std::shared_ptr<const CollidableGeometryBoundingBoxGeometrySsbo>;
+    CollidablePolygonBoundingBoxGeometrySsbo(unsigned int numPolygons);
+    ~CollidablePolygonBoundingBoxGeometrySsbo() = default;
+    using SharedPtr = std::shared_ptr<CollidablePolygonBoundingBoxGeometrySsbo>;
+    using SharedConstPtr = std::shared_ptr<const CollidablePolygonBoundingBoxGeometrySsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
 };

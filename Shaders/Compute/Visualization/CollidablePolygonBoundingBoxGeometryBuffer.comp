@@ -11,7 +11,7 @@ Description:
     polygon's collision box.
 Creator:    John Cox, 7/2017
 -----------------------------------------------------------------------------------------------*/
-layout (std430, binding = COLLIDABLE_GEOMETRY_BOUNDING_BOX_GEOMETRY_BUFFER_BINDING) buffer CollidableGeometryBoundingBoxGeometryBuffer
+layout (std430, binding = COLLIDABLE_POLYGON_BOUNDING_BOX_GEOMETRY_BUFFER_BINDING) buffer CollidableGeometryBoundingBoxGeometryBuffer
 {
     Box2D AllCollidableGeometryBoundingBoxes[];
 };

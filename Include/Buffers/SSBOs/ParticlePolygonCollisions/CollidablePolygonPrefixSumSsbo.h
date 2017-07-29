@@ -10,13 +10,13 @@ Description:
     Note: "Prefix scan", "prefix sum", same thing.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-class CollidableGeometryPrefixSumSsbo : public SsboBase
+class CollidablePolygonPrefixSumSsbo : public SsboBase
 {
 public:
-    CollidableGeometryPrefixSumSsbo(unsigned int numDataEntries);
-    ~CollidableGeometryPrefixSumSsbo() = default;
-    using SharedPtr = std::shared_ptr<CollidableGeometryPrefixSumSsbo>;
-    using SharedConstPtr = std::shared_ptr<const CollidableGeometryPrefixSumSsbo>;
+    CollidablePolygonPrefixSumSsbo(unsigned int numDataEntries);
+    ~CollidablePolygonPrefixSumSsbo() = default;
+    using SharedPtr = std::shared_ptr<CollidablePolygonPrefixSumSsbo>;
+    using SharedConstPtr = std::shared_ptr<const CollidablePolygonPrefixSumSsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
     unsigned int NumDataEntries() const;

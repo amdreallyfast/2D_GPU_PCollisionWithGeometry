@@ -4,11 +4,11 @@
 
 
 // expected to be the size of uMaxCollidablePolygons
-uniform uint uMaxNumCollidableGeometrySortingData;
+uniform uint uMaxNumCollidablePolygonSortingData;
 
 // these are swapped on each loop of the parallel sort routine
-layout(location = UNIFORM_LOCATION_COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_READ_OFFSET) uniform uint uCollidableGeometrySortingDataBufferReadOffset;
-layout(location = UNIFORM_LOCATION_COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_WRITE_OFFSET) uniform uint uCollidableGeometrySortingDataBufferWriteOffset;
+layout(location = UNIFORM_LOCATION_COLLIDABLE_POLYGON_SORTING_DATA_BUFFER_READ_OFFSET) uniform uint uCollidablePolygonSortingDataBufferReadOffset;
+layout(location = UNIFORM_LOCATION_COLLIDABLE_POLYGON_SORTING_DATA_BUFFER_WRITE_OFFSET) uniform uint uCollidablePolygonSortingDataBufferWriteOffset;
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -20,7 +20,7 @@ Description:
     must refer to buffers explicitly by name, so different buffers need differnet names.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-layout (std430, binding = COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_BINDING) buffer CollidableGeometrySortingDataBuffer
+layout (std430, binding = COLLIDABLE_POLYGON_SORTING_DATA_BUFFER_BINDING) buffer CollidablePolygonSortingDataBuffer
 {
     SortingData AllGeometrySortingData[];
 };

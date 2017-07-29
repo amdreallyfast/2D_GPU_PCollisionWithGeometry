@@ -1,4 +1,4 @@
-#include "Include/Buffers/SSBOs/VisualizationOnly/CollidableGeometryBoundingBoxGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/VisualizationOnly/CollidablePolygonBoundingBoxGeometrySsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"
@@ -19,14 +19,14 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-CollidableGeometryBoundingBoxGeometrySsbo::CollidableGeometryBoundingBoxGeometrySsbo(unsigned int numPolygons) :
+CollidablePolygonBoundingBoxGeometrySsbo::CollidablePolygonBoundingBoxGeometrySsbo(unsigned int numPolygons) :
     VertexSsboBase()  // generate buffers and configure VAO
 {
     std::vector<Box2D> v(numPolygons);
     _numVertices = (v.size() * sizeof(Box2D)) / sizeof(MyVertex);
 
     // now bind this new buffer to the dedicated buffer binding location
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_GEOMETRY_BOUNDING_BOX_GEOMETRY_BUFFER_BINDING, _bufferId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_POLYGON_BOUNDING_BOX_GEOMETRY_BUFFER_BINDING, _bufferId);
 
     // and fill it with new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
@@ -43,7 +43,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-void CollidableGeometryBoundingBoxGeometrySsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
+void CollidablePolygonBoundingBoxGeometrySsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
     unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uCollidableGeometryBoundingBoxGeometryBufferSize");

@@ -7,11 +7,11 @@ uniform uint uMaxCollidablePolygons;
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    See description in CollidableGeometrySsbo.h.
+    See description in CollidablePolygonSsbo.h.
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-layout (std430, binding = COLLIDABLE_GEOMETRY_BUFFER_BINDING) buffer CollidableGeometryBuffer
+layout (std430, binding = COLLIDABLE_POLYGON_BUFFER_BINDING) buffer CollidablePolygonBuffer
 {
-    PolygonFace AllCollidableGeometry[];
+    PolygonFace AllCollidablePolygons[];
 };
 

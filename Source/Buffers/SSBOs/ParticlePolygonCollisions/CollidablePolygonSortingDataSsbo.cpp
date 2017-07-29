@@ -1,4 +1,4 @@
-#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometrySortingDataSsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonSortingDataSsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"
@@ -19,7 +19,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-CollidableGeometrySortingDataSsbo::CollidableGeometrySortingDataSsbo(unsigned int numPolygons) :
+CollidablePolygonSortingDataSsbo::CollidablePolygonSortingDataSsbo(unsigned int numPolygons) :
     SsboBase(),  // generate buffers
     _numItems(numPolygons)
 {
@@ -28,7 +28,7 @@ CollidableGeometrySortingDataSsbo::CollidableGeometrySortingDataSsbo(unsigned in
     std::vector<SortingData> v(numPolygons * 2);
 
     // now bind this new buffer to the dedicated buffer binding location
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_BINDING, _bufferId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_POLYGON_SORTING_DATA_BUFFER_BINDING, _bufferId);
 
     // and fill it with new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
@@ -45,10 +45,10 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-void CollidableGeometrySortingDataSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
+void CollidablePolygonSortingDataSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
-    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxNumCollidableGeometrySortingData");
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxNumCollidablePolygonSortingData");
 
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
@@ -64,7 +64,7 @@ Returns:
     See Description.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int CollidableGeometrySortingDataSsbo::NumItems() const
+unsigned int CollidablePolygonSortingDataSsbo::NumItems() const
 {
     return _numItems;
 }

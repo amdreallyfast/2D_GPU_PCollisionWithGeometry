@@ -9,13 +9,13 @@ Description:
     ParticleBvhNodeSsbo for particle-geometry collision detection.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-class CollidableGeometryBvhNodeSsbo : public SsboBase
+class CollidablePolygonBvhNodeSsbo : public SsboBase
 {
 public:
-    CollidableGeometryBvhNodeSsbo(unsigned int numPolygons);
-    ~CollidableGeometryBvhNodeSsbo() = default;
-    using SharedPtr = std::shared_ptr<CollidableGeometryBvhNodeSsbo>;
-    using SharedConstPtr = std::shared_ptr<const CollidableGeometryBvhNodeSsbo>;
+    CollidablePolygonBvhNodeSsbo(unsigned int numPolygons);
+    ~CollidablePolygonBvhNodeSsbo() = default;
+    using SharedPtr = std::shared_ptr<CollidablePolygonBvhNodeSsbo>;
+    using SharedConstPtr = std::shared_ptr<const CollidablePolygonBvhNodeSsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
     unsigned int NumLeafNodes() const;

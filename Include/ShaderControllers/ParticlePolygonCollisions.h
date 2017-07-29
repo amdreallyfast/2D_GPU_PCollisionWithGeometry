@@ -3,13 +3,13 @@
 #include <string>
 
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometrySsbo.h"
-#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometryBvhNodeSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometrySortingDataSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometryPrefixSumSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePotentialCollisionsSsbo.h"
-#include "Include/Buffers/SSBOs/VisualizationOnly/CollidableGeometryBoundingBoxGeometrySsbo.h"
-#include "Include/Buffers/SSBOs/VisualizationOnly/CollidableGeometrySurfaceNormalsSsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonSsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonBvhNodeSsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonSortingDataSsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonPrefixSumSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticlePotentialCollisionsSsbo.h"
+#include "Include/Buffers/SSBOs/VisualizationOnly/CollidablePolygonBoundingBoxGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/VisualizationOnly/CollidablePolygonSurfaceNormalGeometrySsbo.h"
 
 
 namespace ShaderControllers
@@ -21,11 +21,11 @@ namespace ShaderControllers
         bounce off the geometry.
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    class ParticleGeometryCollisions
+    class ParticlePolygonCollisions
     {
     public:
-        ParticleGeometryCollisions(const std::string &blenderObjFilePath, const ParticleSsbo::SharedConstPtr particleSsbo);
-        ~ParticleGeometryCollisions();
+        ParticlePolygonCollisions(const std::string &blenderObjFilePath, const ParticleSsbo::SharedConstPtr particleSsbo);
+        ~ParticlePolygonCollisions();
 
         void DetectAndResolve(bool withProfiling) const;
         const VertexSsboBase &GetCollidableGeometrySsbo() const;
@@ -69,19 +69,19 @@ namespace ShaderControllers
         void MergeNodesIntoBvh(unsigned int numWorkGroupsX) const;
 
 
-        //// TODO: split into "detect" and "resolve", with "detect" checking for bounding box overlaps and putting PolygonFace indexes into the PotentialParticleCollisionsBuffer (move buffer out of the ParticleCollisions/Buffers/ folder and up to a folder that both particle collisions and particle-geometry collisions can access) and with "resolve" checking for boundary crossings and resolving per-particle
+        //// TODO: split into "detect" and "resolve", with "detect" checking for bounding box overlaps and putting PolygonFace indexes into the PotentialParticleCollisionsBuffer (move buffer out of the ParticleParticleCollisions/Buffers/ folder and up to a folder that both particle collisions and particle-geometry collisions can access) and with "resolve" checking for boundary crossings and resolving per-particle
         //void DetectAndResolveCollisions(unsigned int numWorkGroupsX) const;
 
         // buffers for all that jazz
-        CollidableGeometrySsbo _collideableGeometrySsbo;
-        CollidableGeometrySortingDataSsbo _sortingDataSsbo;
-        CollidableGeometryPrefixSumSsbo _prefixSumSsbo;
-        CollidableGeometryBvhNodeSsbo _bvhNodeSsbo;
+        CollidablePolygonSsbo _collideableGeometrySsbo;
+        CollidablePolygonSortingDataSsbo _sortingDataSsbo;
+        CollidablePolygonPrefixSumSsbo _prefixSumSsbo;
+        CollidablePolygonBvhNodeSsbo _bvhNodeSsbo;
         ParticlePotentialCollisionsSsbo _potentialCollisionsSsbo;
 
         // for visualization only
-        CollidableGeometryBoundingBoxGeometrySsbo _boundingBoxGeometrySsbo;
-        CollidableGeometrySurfaceNormalsSsbo _surfaceNormalGeometrySsbo;
+        CollidablePolygonBoundingBoxGeometrySsbo _boundingBoxGeometrySsbo;
+        CollidablePolygonSurfaceNormalGeometrySsbo _surfaceNormalGeometrySsbo;
 
         // for debugging
         ParticleSsbo::SharedConstPtr _originalParticleSsbo;

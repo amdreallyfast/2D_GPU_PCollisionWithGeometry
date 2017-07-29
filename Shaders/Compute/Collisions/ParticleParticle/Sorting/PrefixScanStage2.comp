@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleCollisions/Buffers/ParticlePrefixScanBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/ParticlePrefixScanBuffer.comp
 
 
 layout (local_size_x = WORK_GROUP_SIZE_X) in;

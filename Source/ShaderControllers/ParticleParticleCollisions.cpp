@@ -1,4 +1,4 @@
-#include "Include/ShaderControllers/ParticleCollisions.h"
+#include "Include/ShaderControllers/ParticleParticleCollisions.h"
 
 #include "Shaders/ShaderStorage.h"
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
@@ -39,7 +39,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 3/2017
     --------------------------------------------------------------------------------------------*/
-    ParticleCollisions::ParticleCollisions(const ParticleSsbo::SharedConstPtr particleSsbo,
+    ParticleParticleCollisions::ParticleParticleCollisions(const ParticleSsbo::SharedConstPtr particleSsbo,
         const ParticlePropertiesSsbo::SharedConstPtr particlePropertiesSsbo) :
         _numParticles(particleSsbo->NumParticles()),
 
@@ -147,7 +147,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 5/2017
     --------------------------------------------------------------------------------------------*/
-    ParticleCollisions::~ParticleCollisions()
+    ParticleParticleCollisions::~ParticleParticleCollisions()
     {
         glDeleteProgram(_programIdCopyParticlesToCopyBuffer);
         glDeleteProgram(_programIdGenerateSortingData);
@@ -221,7 +221,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::DetectAndResolve(bool withProfiling, bool generateGeometry) const
+    void ParticleParticleCollisions::DetectAndResolve(bool withProfiling, bool generateGeometry) const
     {
         // most shaders work on 1 item per thread
         int numWorkGroupsX = _numParticles / WORK_GROUP_SIZE_X;
@@ -265,7 +265,7 @@ namespace ShaderControllers
         A const reference to the particle velocity vector geometry SSBO.
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    const VertexSsboBase &ParticleCollisions::ParticleVelocityVectorSsbo() const
+    const VertexSsboBase &ParticleParticleCollisions::ParticleVelocityVectorSsbo() const
     {
         return _velocityVectorGeometrySsbo;
     }
@@ -280,7 +280,7 @@ namespace ShaderControllers
         A const reference to the particle bounding box geometry SSBO.
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    const VertexSsboBase &ParticleCollisions::ParticleBoundingBoxSsbo() const
+    const VertexSsboBase &ParticleParticleCollisions::ParticleBoundingBoxSsbo() const
     {
         return _boundingBoxGeometrySsbo;
     }
@@ -295,56 +295,56 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 7/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::AssembleSortingShaders()
+    void ParticleParticleCollisions::AssembleSortingShaders()
     {
         ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
         std::string shaderKey;
         std::string filePath;
 
         shaderKey = "copy particles to copy buffer";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleSort/CopyParticlesToCopyBuffer.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/Sorting/CopyParticlesToCopyBuffer.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdCopyParticlesToCopyBuffer = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "generate particle sorting data";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleSort/GenerateParticleSortingData.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/Sorting/GenerateParticleSortingData.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdGenerateSortingData = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "particle prefix scan stage 1";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleSort/PrefixScanStage1.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/Sorting/PrefixScanStage1.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdPrefixScanStage1 = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "particle prefix scan stage 2";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleSort/PrefixScanStage2.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/Sorting/PrefixScanStage2.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdPrefixScanStage2 = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "particle prefix scan stage 3";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleSort/PrefixScanStage3.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/Sorting/PrefixScanStage3.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdPrefixScanStage3 = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "sort particle sorting data with prefix sums";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleSort/SortSortingDataWithPrefixSums.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/Sorting/SortSortingDataWithPrefixSums.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdSortSortingDataWithPrefixSums = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "sort particles";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleSort/SortParticles.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/Sorting/SortParticles.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
@@ -361,35 +361,35 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 7/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::AssembleBvhShaders()
+    void ParticleParticleCollisions::AssembleBvhShaders()
     {
         ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
         std::string shaderKey;
         std::string filePath;
 
         shaderKey = "guarantee particle sorting data uniqueness";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleBvh/GuaranteeSortingDataUniqueness.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/BvhGeneration/GuaranteeSortingDataUniqueness.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdGuaranteeSortingDataUniqueness= shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "generate particle bounding boxes";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleBvh/GenerateLeafNodeBoundingBoxes.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/BvhGeneration/GenerateLeafNodeBoundingBoxes.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdGenerateLeafNodeBoundingBoxes = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "generate particle binary radix tree";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleBvh/GenerateBinaryRadixTree.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/BvhGeneration/GenerateBinaryRadixTree.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdGenerateBinaryRadixTree = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "merge particle bounding volumes";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ParticleBvh/MergeBoundingVolumes.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/BvhGeneration/MergeBoundingVolumes.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
@@ -406,21 +406,21 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 7/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::AssembleCollisionShaders()
+    void ParticleParticleCollisions::AssembleCollisionShaders()
     {
         ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
         std::string shaderKey;
         std::string filePath;
 
         shaderKey = "detect particle-particle collisions";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/DetectParticleParticleCollisions.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/DetectParticleParticleCollisions.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdDetectCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
 
         shaderKey = "resolve particle-particle collisions";
-        filePath = "Shaders/Compute/Collisions/ParticleCollisions/ResolveParticleParticleCollisions.comp";
+        filePath = "Shaders/Compute/Collisions/ParticleParticle/ResolveParticleParticleCollisions.comp";
         shaderStorageRef.NewShader(shaderKey);
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
@@ -437,7 +437,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::SortParticlesWithoutProfiling(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const
+    void ParticleParticleCollisions::SortParticlesWithoutProfiling(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const
     {
         PrepareToSortParticles(numWorkGroupsX);
 
@@ -485,7 +485,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::SortParticlesWithProfiling(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const
+    void ParticleParticleCollisions::SortParticlesWithProfiling(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const
     {
         cout << "sorting " << _numParticles << " particles" << endl;
         unsigned int totalBitCount = 32;
@@ -544,7 +544,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::GenerateBvhWithoutProfiling(unsigned int numWorkGroupsX) const
+    void ParticleParticleCollisions::GenerateBvhWithoutProfiling(unsigned int numWorkGroupsX) const
     {
         PrepareForBinaryTree(numWorkGroupsX);
         GenerateBinaryRadixTree(numWorkGroupsX);
@@ -564,7 +564,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::GenerateBvhWithProfiling(unsigned int numWorkGroupsX) const
+    void ParticleParticleCollisions::GenerateBvhWithProfiling(unsigned int numWorkGroupsX) const
     {
         cout << "generating BVH for " << _numParticles << " particles" << endl;
 
@@ -629,7 +629,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::DetectAndResolveCollisionsWithoutProfiling(
+    void ParticleParticleCollisions::DetectAndResolveCollisionsWithoutProfiling(
         unsigned int numWorkGroupsX) const
     {
         DetectCollisions(numWorkGroupsX);
@@ -651,7 +651,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::DetectAndResolveCollisionsWithProfiling(
+    void ParticleParticleCollisions::DetectAndResolveCollisionsWithProfiling(
         unsigned int numWorkGroupsX) const
     {
         cout << "detecting collisions for up to " << _numParticles << " particles" << endl;
@@ -727,7 +727,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::PrepareToSortParticles(unsigned int numWorkGroupsX) const
+    void ParticleParticleCollisions::PrepareToSortParticles(unsigned int numWorkGroupsX) const
     {
         glUseProgram(_programIdCopyParticlesToCopyBuffer);
         glDispatchCompute(numWorkGroupsX, 1, 1);
@@ -762,7 +762,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::PrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset) const
+    void ParticleParticleCollisions::PrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset) const
     {
         glUseProgram(_programIdPrefixScanStage1);
         glUniform1ui(UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET, sortingDataReadOffset);
@@ -825,7 +825,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::SortSortingDataWithPrefixScan(
+    void ParticleParticleCollisions::SortSortingDataWithPrefixScan(
         unsigned int numWorkGroupsX, unsigned int bitNumber, 
         unsigned int sortingDataReadOffset, unsigned int sortingDataWriteOffset) const
     {
@@ -867,7 +867,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::SortParticles(unsigned int numWorkGroupsX,
+    void ParticleParticleCollisions::SortParticles(unsigned int numWorkGroupsX,
         unsigned int sortingDataReadOffset) const
     {
         glUseProgram(_programIdSortParticles);
@@ -911,7 +911,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::PrepareForBinaryTree(unsigned int numWorkGroupsX) const
+    void ParticleParticleCollisions::PrepareForBinaryTree(unsigned int numWorkGroupsX) const
     {
         glUseProgram(_programIdGuaranteeSortingDataUniqueness);
         glDispatchCompute(numWorkGroupsX, 1, 1);
@@ -955,7 +955,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const
+    void ParticleParticleCollisions::GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const
     {
         glUseProgram(_programIdGenerateBinaryRadixTree);
         glDispatchCompute(numWorkGroupsX, 1, 1);
@@ -1021,7 +1021,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::MergeNodesIntoBvh(unsigned int numWorkGroupsX) const
+    void ParticleParticleCollisions::MergeNodesIntoBvh(unsigned int numWorkGroupsX) const
     {
         glUseProgram(_programIdMergeBoundingVolumes);
         glDispatchCompute(numWorkGroupsX, 1, 1);
@@ -1036,7 +1036,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::DetectCollisions(unsigned int numWorkGroupsX) const
+    void ParticleParticleCollisions::DetectCollisions(unsigned int numWorkGroupsX) const
     {
         glUseProgram(_programIdDetectCollisions);
         glDispatchCompute(numWorkGroupsX, 1, 1);
@@ -1052,7 +1052,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleCollisions::ResolveCollisions(unsigned int numWorkGroupsX) const
+    void ParticleParticleCollisions::ResolveCollisions(unsigned int numWorkGroupsX) const
     {
         glUseProgram(_programIdResolveCollisions);
         glDispatchCompute(numWorkGroupsX, 1, 1);
@@ -1067,7 +1067,7 @@ namespace ShaderControllers
     //Returns:    None
     //Creator:    John Cox, 6/2017
     //--------------------------------------------------------------------------------------------*/
-    //void ParticleCollisions::GenerateGeometry(unsigned int numWorkGroupsX) const
+    //void ParticleParticleCollisions::GenerateGeometry(unsigned int numWorkGroupsX) const
     //{
     //    glUseProgram(_programIdGenerateVerticesParticleVelocityVectors);
     //    glDispatchCompute(numWorkGroupsX, 1, 1);

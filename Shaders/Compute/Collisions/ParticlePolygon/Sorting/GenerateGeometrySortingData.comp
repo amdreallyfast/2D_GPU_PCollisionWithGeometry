@@ -3,8 +3,8 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/Collisions/PositionToMortonCode.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometrySortingDataBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/CollidableGeometryBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygonCollisions/Buffers/CollidablePolygonSortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/CollidablePolygonBuffer.comp
 
 
 // Y and Z work group sizes default to 1
@@ -20,14 +20,14 @@ Creator:    John Cox, 7/2017
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex >= uMaxCollidablePolygons) // or uMaxNumCollidableGeometrySortingData
+    if (threadIndex >= uMaxCollidablePolygons) // or uMaxNumCollidablePolygonSortingData
     {
         return;
     }
 
     // the position shall be the center of the polygon
-    vec4 p1 = AllCollidableGeometry[threadIndex]._start._pos;
-    vec4 p2 = AllCollidableGeometry[threadIndex]._end._pos;
+    vec4 p1 = AllCollidablePolygons[threadIndex]._start._pos;
+    vec4 p2 = AllCollidablePolygons[threadIndex]._end._pos;
     vec4 centerPos = (p1 + p2) * 0.5f;
 
     AllGeometrySortingData[threadIndex]._sortingData = PositionToMortonCode(centerPos);

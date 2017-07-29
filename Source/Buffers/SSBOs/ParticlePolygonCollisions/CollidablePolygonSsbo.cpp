@@ -1,5 +1,5 @@
 
-#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonSsbo.h"
 #include "Include/Geometry/BlenderLoad.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
@@ -20,7 +20,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-CollidableGeometrySsbo::CollidableGeometrySsbo(const std::string &blenderMeshFilePath) :
+CollidablePolygonSsbo::CollidablePolygonSsbo(const std::string &blenderMeshFilePath) :
     VertexSsboBase(),  // generate buffers and configure VAO
     _numPolygons(0)
 {
@@ -47,7 +47,7 @@ CollidableGeometrySsbo::CollidableGeometrySsbo(const std::string &blenderMeshFil
     _numVertices = (v.size() * sizeof(PolygonFace)) / sizeof(MyVertex);
 
     // now bind this new buffer to the dedicated buffer binding location
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_GEOMETRY_BUFFER_BINDING, _bufferId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_POLYGON_BUFFER_BINDING, _bufferId);
 
     // and fill it with new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
@@ -64,7 +64,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-void CollidableGeometrySsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
+void CollidablePolygonSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
     unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxCollidablePolygons");
@@ -83,7 +83,7 @@ Returns:
     See Description.
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int CollidableGeometrySsbo::NumPolygons() const
+unsigned int CollidablePolygonSsbo::NumPolygons() const
 {
     return _numPolygons;
 }
