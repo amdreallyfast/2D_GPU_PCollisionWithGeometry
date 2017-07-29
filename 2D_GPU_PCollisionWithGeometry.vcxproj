@@ -226,7 +226,6 @@
   <ItemGroup>
     <None Include="Shaders\Compute\Collisions\CollidableGeometryBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\MaxNumPotentialCollisions.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\BoundingBoxGeometryBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\ParticleBvhNodeBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\ParticlePrefixScanBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\ParticleSortingDataBuffer.comp" />
@@ -245,7 +244,6 @@
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\SortParticles.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\SortSortingDataWithPrefixSums.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ResolveParticleParticleCollisions.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\CollidableGeometryBoundingBoxGeometryBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\CollidableGeometryBvhNodeBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\CollidableGeometryPrefixScanBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\CollidableGeometrySortingDataBuffer.comp" />
@@ -274,9 +272,12 @@
     <None Include="Shaders\Compute\ParticleReset\ParticleResetPointEmitter.comp" />
     <None Include="Shaders\Compute\ParticleReset\Random.comp" />
     <None Include="Shaders\Compute\ParticleUpdate.comp" />
-    <None Include="Shaders\Compute\ParticleVisualization\GenerateVerticesParticleVelocityVectors.comp" />
-    <None Include="Shaders\Compute\ParticleVisualization\ParticleVelocityVectorGeometryBuffer.comp" />
     <None Include="Shaders\Compute\QuickNormalize.comp" />
+    <None Include="Shaders\Compute\Visualization\CollidableGeometryBoundingBoxGeometryBuffer.comp" />
+    <None Include="Shaders\Compute\Visualization\CollidableGeometrySurfaceNormalGeometryBuffer.comp" />
+    <None Include="Shaders\Compute\Visualization\GenerateVerticesParticleVelocityVectors.comp" />
+    <None Include="Shaders\Compute\Visualization\ParticleBoundingBoxGeometryBuffer.comp" />
+    <None Include="Shaders\Compute\Visualization\ParticleVelocityVectorGeometryBuffer.comp" />
     <None Include="Shaders\Render\FreeType.frag" />
     <None Include="Shaders\Render\FreeType.vert" />
     <None Include="Shaders\Render\Geometry.frag" />

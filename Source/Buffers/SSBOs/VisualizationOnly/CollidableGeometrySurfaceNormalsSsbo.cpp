@@ -75,7 +75,7 @@ Creator:    John Cox, 6/2017
 void CollidableGeometrySurfaceNormalsSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
-    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxSurfaceNormalPolygons");
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uCollidableGeometrySurfaceNormalGeometryBufferSize");
 
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);

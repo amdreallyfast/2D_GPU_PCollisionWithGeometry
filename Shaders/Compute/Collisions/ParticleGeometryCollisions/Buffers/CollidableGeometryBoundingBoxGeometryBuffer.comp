@@ -1,2 +1,0 @@
-// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
-// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations

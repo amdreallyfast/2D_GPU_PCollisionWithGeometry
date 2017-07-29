@@ -1,17 +1,17 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/GeometryStuff/BoundingBox.comp
+// REQUIRES Shaders/Compute/GeometryStuff/Box2D.comp
 
 
-uniform uint uParticleBoundingBoxGeometryBufferSize;
+uniform uint uCollidableGeometryBoundingBoxGeometryBufferSize;
 
 /*-----------------------------------------------------------------------------------------------
 Description:
     The SSBO that will contain all the vertices necessary to draw a bounding box for each 
-    particle's collision radius.
-Creator:    John Cox, 6/2017
+    polygon's collision box.
+Creator:    John Cox, 7/2017
 -----------------------------------------------------------------------------------------------*/
-layout (std430, binding = PARTICLE_BOUNDING_BOX_GEOMETRY_BUFFER_BINDING) buffer ParticleBoundingBoxGeometryBuffer
+layout (std430, binding = COLLIDABLE_GEOMETRY_BOUNDING_BOX_GEOMETRY_BUFFER_BINDING) buffer CollidableGeometryBoundingBoxGeometryBuffer
 {
-    BoundingBox AllParticleBoundingBoxes[];
+    Box2D AllCollidableGeometryBoundingBoxes[];
 };

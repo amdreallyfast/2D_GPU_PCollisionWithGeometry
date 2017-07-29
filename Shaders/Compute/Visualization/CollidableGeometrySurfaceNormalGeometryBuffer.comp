@@ -1,0 +1,18 @@
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/GeometryStuff/PolygonFace.comp
+
+
+uniform uint uCollidableGeometrySurfaceNormalGeometryBufferSize;
+
+/*-----------------------------------------------------------------------------------------------
+Description:
+    This is a useful buffer to visualize where the collidable geometry's surfaces are pointing 
+    to see if particles are bouncing correctly.  It is not part of the CollidableGeometryBuffer 
+    or else particles would try to bounce off these as well.
+Creator:    John Cox, 7/2017
+-----------------------------------------------------------------------------------------------*/
+layout (std430, binding = COLLIDABLE_GEOMETRY_SURFACE_NORMAL_GEOMETRY_BUFFER_BINDING) buffer CollidableGeometrySurfaceNormalGeometryBuffer
+{
+    PolygonFace AllCollidableGeometryBoundingBoxes[];
+};
