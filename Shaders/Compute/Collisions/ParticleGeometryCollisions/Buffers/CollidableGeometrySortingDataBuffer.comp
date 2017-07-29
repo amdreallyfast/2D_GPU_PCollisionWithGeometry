@@ -4,7 +4,7 @@
 
 
 // expected to be the size of uMaxCollidablePolygons
-uniform uint uMaxNumGeometrySortingData;
+uniform uint uMaxNumCollidableGeometrySortingData;
 
 // these are swapped on each loop of the parallel sort routine
 layout(location = UNIFORM_LOCATION_COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_READ_OFFSET) uniform uint uCollidableGeometrySortingDataBufferReadOffset;
@@ -18,7 +18,7 @@ Description:
 
     Identical in contents and concept to ParticleSortingDataBuffer, but OpenGL compute shaders 
     must refer to buffers explicitly by name, so different buffers need differnet names.
-Creator:    John Cox, 5/2017
+Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
 layout (std430, binding = COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_BINDING) buffer CollidableGeometrySortingDataBuffer
 {

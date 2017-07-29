@@ -11,7 +11,7 @@ Description:
         required to carry these values around at all times.
 
     Therefore make a buffer.  This is a single entry in such a buffer.  See 
-    ParticleSortingDataBuffer.comp and GeometrySortingDataBuffer.comp.
+    ParticleSortingDataBuffer.comp and CollidableGeometrySortingDataBuffer.comp.
 Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
 struct SortingData

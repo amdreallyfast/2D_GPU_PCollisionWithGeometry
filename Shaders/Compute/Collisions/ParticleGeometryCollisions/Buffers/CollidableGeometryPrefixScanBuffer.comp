@@ -13,9 +13,9 @@ Description:
     must refer to buffers explicitly by name, so different buffers need differnet names.
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
-layout (std430, binding = GEOMETRY_PREFIX_SCAN_BUFFER_BINDING) buffer GeometryPrefixScanBuffer
+layout (std430, binding = COLLIDABLE_GEOMETRY_PREFIX_SCAN_BUFFER_BINDING) buffer GeometryPrefixScanBuffer
 {
     uint totalNumberOfOnes;
-    uint AllGeometryPrefixSums[];
+    uint AllCollidableGeometryPrefixSums[];
 };
 

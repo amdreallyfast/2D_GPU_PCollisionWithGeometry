@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/GeometryPrefixScanBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometryPrefixScanBuffer.comp
 
 
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -33,11 +33,11 @@ void main()
     uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
     uint lesserSourceIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 1)) - 1;
     bool lesserSourceIndexValidRange = lesserSourceIndex < uMaxGeometryPrefixSums;
-    fastTempArr[doubleLocalIndex] = lesserSourceIndexValidRange ? AllGeometryPrefixSums[lesserSourceIndex] : 0;
+    fastTempArr[doubleLocalIndex] = lesserSourceIndexValidRange ? AllCollidableGeometryPrefixSums[lesserSourceIndex] : 0;
 
     uint greaterSourceIndex = (indexMultiplierDueToDepth * (doubleLocalIndex + 2)) - 1;
     bool greaterSourceIndexValidRange = greaterSourceIndex < uMaxGeometryPrefixSums;
-    fastTempArr[doubleLocalIndex + 1] = greaterSourceIndexValidRange ? AllGeometryPrefixSums[greaterSourceIndex] : 0;
+    fastTempArr[doubleLocalIndex + 1] = greaterSourceIndexValidRange ? AllCollidableGeometryPrefixSums[greaterSourceIndex] : 0;
 
     // keep going up
     uint localIndex = gl_LocalInvocationID.x;
@@ -82,10 +82,10 @@ void main()
 
     if (lesserSourceIndexValidRange)
     {
-        AllGeometryPrefixSums[lesserSourceIndex] = fastTempArr[doubleLocalIndex];
+        AllCollidableGeometryPrefixSums[lesserSourceIndex] = fastTempArr[doubleLocalIndex];
     }
     if (greaterSourceIndexValidRange)
     {
-        AllGeometryPrefixSums[greaterSourceIndex] = fastTempArr[doubleLocalIndex + 1];
+        AllCollidableGeometryPrefixSums[greaterSourceIndex] = fastTempArr[doubleLocalIndex + 1];
     }
 }

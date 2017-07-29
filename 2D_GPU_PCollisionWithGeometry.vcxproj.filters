@@ -449,9 +449,6 @@
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\CopyGeometryToCopyBuffer.comp">
       <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
     </None>
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortGeometry.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
-    </None>
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortSortingDataWithPrefixSums.comp">
       <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
     </None>
@@ -526,6 +523,9 @@
     </None>
     <None Include="Shaders\Compute\Visualization\ParticleVelocityVectorGeometryBuffer.comp">
       <Filter>Shaders\Compute\Visualization</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortCollidableGeometry.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

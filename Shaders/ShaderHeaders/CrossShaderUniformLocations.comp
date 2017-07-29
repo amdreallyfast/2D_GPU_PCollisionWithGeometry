@@ -21,9 +21,10 @@ Creator:    John Cox, 7/2017
 #define UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET 0
 #define UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_WRITE_OFFSET 1
 
-// GeometrySortingDataBuffer.comp
+// CollidableGeometrySortingDataBuffer.comp
 #define UNIFORM_LOCATION_COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_READ_OFFSET 2
 #define UNIFORM_LOCATION_COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_WRITE_OFFSET 3
 
-// PrefixScanStage1.comp, SortSortingDataWithPrefixSums.comp
+// /ParticleCollisions/PrefixScanStage1.comp, /ParticleCollisions/SortSortingDataWithPrefixSums.comp
+// /ParticleGeomeryCollisions/PrefixScanStage1.comp, /ParticleGeometryCollisions/SortSortingDataWithPrefixSums.comp
 #define UNIFORM_LOCATION_BIT_NUMBER 4

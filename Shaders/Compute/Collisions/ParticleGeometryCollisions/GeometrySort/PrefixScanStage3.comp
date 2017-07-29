@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/GeometryPrefixScanBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometryPrefixScanBuffer.comp
 
 
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -23,8 +23,8 @@ void main()
 {
     uint doubleThreadIndex = gl_GlobalInvocationID.x * 2;
     uint doubleLocalIndex = gl_LocalInvocationID.x * 2;
-    fastTempArr[doubleLocalIndex] = AllGeometryPrefixSums[doubleThreadIndex];
-    fastTempArr[doubleLocalIndex + 1] = AllGeometryPrefixSums[doubleThreadIndex + 1];
+    fastTempArr[doubleLocalIndex] = AllCollidableGeometryPrefixSums[doubleThreadIndex];
+    fastTempArr[doubleLocalIndex + 1] = AllCollidableGeometryPrefixSums[doubleThreadIndex + 1];
 
     // reproduce the end of the "up the tree" loop for a starting position
     uint indexMultiplierDueToDepth = 1;
@@ -55,6 +55,6 @@ void main()
 
     // wait for the last write
     barrier();
-    AllGeometryPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
-    AllGeometryPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+    AllCollidableGeometryPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    AllCollidableGeometryPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
 }

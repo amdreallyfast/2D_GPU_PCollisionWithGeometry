@@ -3,8 +3,8 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/Collisions/PositionToMortonCode.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/GeometrySortingDataBuffer.comp
-// REQUIRES Shaders/Compute/ParticleCollisions/CollidableGeometryBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometrySortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/CollidableGeometryBuffer.comp
 
 
 // Y and Z work group sizes default to 1
@@ -20,7 +20,7 @@ Creator:    John Cox, 7/2017
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex >= uMaxCollidablePolygons) // or uMaxNumGeometrySortingData
+    if (threadIndex >= uMaxCollidablePolygons) // or uMaxNumCollidableGeometrySortingData
     {
         return;
     }

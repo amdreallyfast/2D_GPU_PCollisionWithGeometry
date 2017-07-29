@@ -223,10 +223,11 @@ void Init()
     // for drawing particles
     particleRenderer = std::make_shared<ShaderControllers::RenderParticles>();
 
+    particleGeometryCollisions = std::make_shared<ShaderControllers::ParticleGeometryCollisions>("Blender3DStuff/airfoil.obj", particleBuffer);
+
     //// for drawing non-particle things
     //geometryRenderer = std::make_shared<ShaderControllers::RenderGeometry>();
 
-    //particleGeometryCollisions = std::make_shared<ShaderControllers::ParticleGeometryCollisions>("Blender3DStuff/airfoil.obj", particleBuffer);
 
     // the timer will be used for framerate calculations
     gTimer.Start();

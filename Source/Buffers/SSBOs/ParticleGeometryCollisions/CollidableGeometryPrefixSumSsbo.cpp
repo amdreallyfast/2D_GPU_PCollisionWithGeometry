@@ -65,7 +65,7 @@ void CollidableGeometryPrefixSumSsbo::ConfigureConstantUniforms(unsigned int com
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Returns the number of integers that have been allocated for the AllGeometryPrefixSums array.  The 
+    Returns the number of integers that have been allocated for the AllCollidableGeometryPrefixSums array.  The 
     constructor ensures that there are enough entries for every item to be part of a work group.  
 Parameters: None
 Returns:    

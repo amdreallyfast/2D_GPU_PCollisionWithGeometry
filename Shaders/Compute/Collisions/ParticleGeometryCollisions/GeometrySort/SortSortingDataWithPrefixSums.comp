@@ -2,8 +2,8 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/GeometrySortingDataBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/GeometryPrefixScanBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometrySortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometryPrefixScanBuffer.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -23,22 +23,22 @@ Creator:    John Cox, 7/2017
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex >= uMaxNumGeometrySortingData)
+    if (threadIndex >= uMaxNumCollidableGeometrySortingData)
     {
         // no Morton Code to sort
         return;
     }
 
-    uint prefixSumOfOnes = AllGeometryPrefixSums[threadIndex];
+    uint prefixSumOfOnes = AllCollidableGeometryPrefixSums[threadIndex];
     uint offsetForZeros = threadIndex - prefixSumOfOnes;
-    uint totalNumberOfZeros = uMaxNumGeometrySortingData - totalNumberOfOnes;
+    uint totalNumberOfZeros = uMaxNumCollidableGeometrySortingData - totalNumberOfOnes;
 
     // determines if the value should go with the 0s or with the 1s on this sort step
-    uint sourceIndex = threadIndex + uGeometrySortingDataBufferReadOffset;
+    uint sourceIndex = threadIndex + uCollidableGeometrySortingDataBufferReadOffset;
     uint bitVal = (AllGeometrySortingData[sourceIndex]._sortingData >> uBitNumber) & 1;
 
     uint destinationIndex = (bitVal == 0) ? offsetForZeros : (totalNumberOfZeros + prefixSumOfOnes);
-    destinationIndex += uGeometrySortingDataBufferWriteOffset;
+    destinationIndex += uCollidableGeometrySortingDataBufferWriteOffset;
 
     // do the sort
     AllGeometrySortingData[destinationIndex] = AllGeometrySortingData[sourceIndex];

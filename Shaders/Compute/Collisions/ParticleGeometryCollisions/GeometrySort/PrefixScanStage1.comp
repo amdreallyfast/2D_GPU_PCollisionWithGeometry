@@ -2,8 +2,8 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/GeometrySortingDataBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/GeometryPrefixScanBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometrySortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometryPrefixScanBuffer.comp
 
 
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -24,16 +24,16 @@ Creator:    John Cox, 7/2017
 void main()
 {
     uint doubleThreadIndex = gl_GlobalInvocationID.x * 2;
-    uint bitReadIndex = uGeometrySortingDataBufferReadOffset + doubleThreadIndex;
+    uint bitReadIndex = uCollidableGeometrySortingDataBufferReadOffset + doubleThreadIndex;
 
     uint bitVal1 = 0;
-    if (doubleThreadIndex < uMaxNumGeometrySortingData)
+    if (doubleThreadIndex < uMaxNumCollidableGeometrySortingData)
     {
         bitVal1 = (AllGeometrySortingData[bitReadIndex]._sortingData >> uBitNumber) & 1;
     }
 
     uint bitVal2 = 0;
-    if ((doubleThreadIndex + 1) < uMaxNumGeometrySortingData)
+    if ((doubleThreadIndex + 1) < uMaxNumCollidableGeometrySortingData)
     {
         bitVal2 = (AllGeometrySortingData[bitReadIndex + 1]._sortingData >> uBitNumber) & 1;
     }
@@ -60,7 +60,7 @@ void main()
     }
 
     // no out-of-bounds checking here because the prefix sum array's size is calculated to be a 
-    // multiple of work group size
-    AllGeometryPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
-    AllGeometryPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
+    // multiple of 2x the work group size
+    AllCollidableGeometryPrefixSums[doubleThreadIndex] = fastTempArr[doubleLocalIndex];
+    AllCollidableGeometryPrefixSums[doubleThreadIndex + 1] = fastTempArr[doubleLocalIndex + 1];
 }

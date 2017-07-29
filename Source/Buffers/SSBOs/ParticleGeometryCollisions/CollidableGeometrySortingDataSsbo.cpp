@@ -48,7 +48,7 @@ Creator:    John Cox, 7/2017
 void CollidableGeometrySortingDataSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
-    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxNumGeometrySortingData");
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxNumCollidableGeometrySortingData");
 
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);

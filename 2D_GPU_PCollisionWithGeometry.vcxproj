@@ -257,7 +257,7 @@
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\PrefixScanStage1.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\PrefixScanStage2.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\PrefixScanStage3.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortGeometry.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortCollidableGeometry.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\SortSortingDataWithPrefixSums.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\ResolveParticleGeometryCollisions.comp" />
     <None Include="Shaders\Compute\Collisions\PositionToMortonCode.comp" />
