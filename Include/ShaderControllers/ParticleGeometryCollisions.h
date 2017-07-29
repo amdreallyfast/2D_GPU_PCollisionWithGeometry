@@ -3,12 +3,11 @@
 #include <string>
 
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Buffers/SSBOs/CollideableGeometrySsbo.h"
-#include "Include/Buffers/SSBOs/Geometry/GeometryBvhNodeSsbo.h"
-#include "Include/Buffers/SSBOs/Geometry/GeometrySortingDataSsbo.h"
-#include "Include/Buffers/SSBOs/Geometry/GeometryPrefixSumSsbo.h"
-#include "Include/Buffers/SSBOs/Particles/PotentialParticleCollisionsSsbo.h"
-
+#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollideableGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometryBvhNodeSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometrySortingDataSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometryPrefixSumSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePotentialCollisionsSsbo.h"
 
 
 namespace ShaderControllers
@@ -60,9 +59,9 @@ namespace ShaderControllers
         //void DetectAndResolveCollisions(unsigned int numWorkGroupsX) const;
 
         // buffers for all that jazz
-        GeometrySortingDataSsbo _sortingDataSsbo;
-        GeometryPrefixSumSsbo _prefixSumSsbo;
-        GeometryBvhNodeSsbo _bvhNodeSsbo;
+        CollidableGeometrySortingDataSsbo _sortingDataSsbo;
+        CollidableGeometryPrefixSumSsbo _prefixSumSsbo;
+        CollidableGeometryBvhNodeSsbo _bvhNodeSsbo;
         ParticlePotentialCollisionsSsbo _potentialCollisionsSsbo;
         CollideableGeometrySsbo _collideableGeometrySsbo;
 

@@ -193,19 +193,19 @@
     <ClInclude Include="Include\Buffers\SSBOs\ParticleCollisions\ParticleSortingDataSsbo.h">
       <Filter>Include\Buffers\SSBOs\ParticleCollisions</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\CollidableGeometryBoundingBoxGeometrySsbo.h">
+      <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\CollidableGeometryBvhNodeSsbo.h">
+      <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\CollidableGeometryPrefixSumSsbo.h">
+      <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\CollidableGeometrySortingDataSsbo.h">
+      <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
+    </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\CollideableGeometrySsbo.h">
-      <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\GeometryBoundingBoxGeometrySsbo.h">
-      <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\GeometryBvhNodeSsbo.h">
-      <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\GeometryPrefixSumSsbo.h">
-      <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\GeometrySortingDataSsbo.h">
       <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
     </ClInclude>
   </ItemGroup>
