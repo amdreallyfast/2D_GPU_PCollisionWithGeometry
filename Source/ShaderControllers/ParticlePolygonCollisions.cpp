@@ -332,29 +332,7 @@ namespace ShaderControllers
         remainder = numItemsInPrefixScanBuffer % (WORK_GROUP_SIZE_X * 2);
         numWorkGroupsXForPrefixSum += (remainder == 0) ? 0 : 1;
 
-
-        {
-            unsigned int startingIndexBytes = 0;
-            std::vector<PolygonFace> checkCollidablePolygons(_collideablePolygonSsbo.NumPolygons());
-            unsigned int bufferSizeBytes = checkCollidablePolygons.size() * sizeof(PolygonFace);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideablePolygonSsbo.BufferId());
-            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-            memcpy(checkCollidablePolygons.data(), bufferPtr, bufferSizeBytes);
-            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-        }        
         SortCollidableGeometry(numWorkGroupsX, numWorkGroupsXForPrefixSum);
-        {
-            unsigned int startingIndexBytes = 0;
-            std::vector<PolygonFace> checkCollidablePolygons(_collideablePolygonSsbo.NumPolygons());
-            unsigned int bufferSizeBytes = checkCollidablePolygons.size() * sizeof(PolygonFace);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideablePolygonSsbo.BufferId());
-            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-            memcpy(checkCollidablePolygons.data(), bufferPtr, bufferSizeBytes);
-            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-        }
-
         GenerateBvh(numWorkGroupsX);
         printf("");
     }
@@ -371,27 +349,7 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParticlePolygonCollisions::SortCollidableGeometry(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const
     {
-        {
-            unsigned int startingIndexBytes = 0;
-            std::vector<PolygonFace> checkCollidablePolygons(_collideablePolygonSsbo.NumPolygons() * 2);
-            unsigned int bufferSizeBytes = checkCollidablePolygons.size() * sizeof(PolygonFace);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideablePolygonSsbo.BufferId());
-            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-            memcpy(checkCollidablePolygons.data(), bufferPtr, bufferSizeBytes);
-            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-        }
         PrepareToSortGeometry(numWorkGroupsX);
-        {
-            unsigned int startingIndexBytes = 0;
-            std::vector<PolygonFace> checkCollidablePolygons(_collideablePolygonSsbo.NumPolygons() * 2);
-            unsigned int bufferSizeBytes = checkCollidablePolygons.size() * sizeof(PolygonFace);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideablePolygonSsbo.BufferId());
-            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-            memcpy(checkCollidablePolygons.data(), bufferPtr, bufferSizeBytes);
-            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-        }
         
         // Morton Codes are 30bits
         unsigned int totalBitCount = 32;
