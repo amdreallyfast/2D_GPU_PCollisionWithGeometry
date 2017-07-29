@@ -2,6 +2,7 @@
 
 #include "Include/Buffers/SSBOs/SsboBase.h"
 
+
 /*------------------------------------------------------------------------------------------------
 Description:
     SortingData objects get sorted 1 bit at a time from the read part of the buffer to 
@@ -11,7 +12,7 @@ Description:
     of particles.
 Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
-class ParticleSortingDataSsbo: public SsboBase
+class ParticleSortingDataSsbo : public SsboBase
 {
 public:
     ParticleSortingDataSsbo(unsigned int numParticles);
