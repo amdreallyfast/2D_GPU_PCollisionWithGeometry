@@ -3,6 +3,9 @@
 #include "Shaders/ShaderStorage.h"
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 
+#include "Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp"
+#include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
+
 // for profiling and checking results
 #include "Include/ShaderControllers/ProfilingWaitToFinish.h"
 #include "Include/Buffers/SortingData.h"
@@ -11,9 +14,6 @@
 #include "Include/Buffers/Particle.h"
 #include "Include/Geometry/MyVertex.h"
 #include "Include/Buffers/ParticleProperties.h"
-
-#include "Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp"
-#include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
 
 #include <chrono>
 #include <fstream>
@@ -229,8 +229,8 @@ namespace ShaderControllers
         numWorkGroupsX += (remainder == 0) ? 0 : 1;
 
         // the prefix scan works on 2 items per thread
-        // Note: See description of PrefixScanSsbo for why the prefix scan algorithm needs its 
-        // own work group size calculation.
+        // Note: See description of the ParticlePrefixScanSsbo constructor for why the prefix 
+        // scan algorithm needs its own work group size calculation.
         unsigned int numItemsInPrefixScanBuffer = _prefixSumSsbo.NumDataEntries();
         int numWorkGroupsXForPrefixSum = numItemsInPrefixScanBuffer / (WORK_GROUP_SIZE_X * 2);
         remainder = numItemsInPrefixScanBuffer % (WORK_GROUP_SIZE_X * 2);
@@ -478,10 +478,7 @@ namespace ShaderControllers
         (1) std::chrono calls 
         (2) forced wait for shader to finish so that the std::chrono calls get an accurate 
             reading for how long the shader takes 
-        (3) verification that the sort resulted in smallest->largest values in 
-            ParticleSortingDataBuffer (can't check the ParticleBuffer itself for sorting because 
-            particles don't carry the sorting data with them)
-        (4) writing the output to a file (if desired)
+        (3) writing the output to a file (if desired)
     Parameters: 
         numWorkGroupsX  Expected to be the total particle count divided by work group size.
         numWorkGroupsXPrefixScan    See comment where this value was calculated.
@@ -526,7 +523,7 @@ namespace ShaderControllers
         // report results
         // Note: Write the results to a tab-delimited text file so that I can dump them into an 
         // Excel spreadsheet.
-        std::ofstream outFile("ParallelSortDurations.txt");
+        std::ofstream outFile("ParticleParallelSortDurations.txt");
         if (outFile.is_open())
         {
             cout << "total sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
@@ -737,7 +734,7 @@ namespace ShaderControllers
         glUseProgram(_programIdGenerateSortingData);
         glDispatchCompute(numWorkGroupsX, 1, 1);
 
-        // the two shaders worked on independent data, so only need one memory barrier at the end
+        // the two shaders worked on different buffers, so only need one memory barrier 
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         //unsigned int startingIndexBytes = 0;
@@ -751,8 +748,8 @@ namespace ShaderControllers
 
     /*--------------------------------------------------------------------------------------------
     Description:
-        Part of particle sorting.  This is where the main magic of sorting takes place through a 
-        parallel prefix sum (usually called a prefix "scan").  
+        Part of sorting.  This is where the main magic of sorting takes place through a parallel 
+        prefix sum (usually called a prefix "scan").  
 
         Note: The work group size is special here.  The algorithm calls for each thread to work 
         on two items, so the expected work group count is the number of particles divided by 2x 
@@ -862,7 +859,7 @@ namespace ShaderControllers
 
     /*--------------------------------------------------------------------------------------------
     Description:
-        Part of particle sorting.
+        The end of particle sorting.
     Parameters: 
         numWorkGroupsX          Expected to be number of particles divided by work group size.
         sortingDataReadOffset   Tells the shader which half of the ParticleSortingDataBuffer has 

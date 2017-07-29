@@ -5,12 +5,13 @@
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 
 #include "Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp"
+#include "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp"
 
 // for profiling and checking results
 #include "Include/ShaderControllers/ProfilingWaitToFinish.h"
+#include "Include/Buffers/SortingData.h"
 #include "Include/Buffers/Particle.h"
 #include "Include/Geometry/PolygonFace.h"
-#include <algorithm>
 
 #include <chrono>
 #include <fstream>
@@ -34,17 +35,37 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     ParticleGeometryCollisions::ParticleGeometryCollisions(
         const std::string &blenderObjFilePath, const ParticleSsbo::SharedConstPtr particleSsbo) :
-        _numParticles(particleSsbo->NumParticles()),
-        _programIdResolveCollisions(0),
+        _programIdCopyGeometryToCopyBuffer(0),
+        _programIdGenerateSortingData(0),
+        _programIdPrefixScanStage1(0),
+        _programIdPrefixScanStage2(0),
+        _programIdPrefixScanStage3(0),
+        _programIdSortSortingDataWithPrefixSums(0),
+        _programIdSortGeometry(0),
         _collideableGeometrySsbo(blenderObjFilePath),
-        _particleSsbo(particleSsbo)
+        _sortingDataSsbo(_collideableGeometrySsbo.NumPolygons()),
+        _prefixSumSsbo(_collideableGeometrySsbo.NumPolygons()),
+        _bvhNodeSsbo(_collideableGeometrySsbo.NumPolygons()),
+        _potentialCollisionsSsbo(particleSsbo->NumParticles()),
+        _boundingBoxGeometrySsbo(_collideableGeometrySsbo.NumPolygons()),
+        _surfaceNormalGeometrySsbo(blenderObjFilePath),
+        _originalParticleSsbo(particleSsbo)
     {
-        AssembleProgramResolveCollisions();
+        AssembleSortingShaders();
 
         // load the buffer size uniforms where the SSBOs will be used
-        particleSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
+        _collideableGeometrySsbo.ConfigureConstantUniforms(_programIdCopyGeometryToCopyBuffer);
+        _collideableGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
+        _collideableGeometrySsbo.ConfigureConstantUniforms(_programIdSortGeometry);
 
-        _collideableGeometrySsbo.ConfigureConstantUniforms(_programIdResolveCollisions);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdSortGeometry);
+
+        _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
+        _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage2);
+        _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage3);
+        _prefixSumSsbo.ConfigureConstantUniforms(_programIdSortSortingDataWithPrefixSums);
 
         printf("");
     }
@@ -59,7 +80,13 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     ParticleGeometryCollisions::~ParticleGeometryCollisions()
     {
-        glDeleteProgram(_programIdResolveCollisions);
+        glDeleteProgram(_programIdCopyGeometryToCopyBuffer);
+        glDeleteProgram(_programIdGenerateSortingData);
+        glDeleteProgram(_programIdPrefixScanStage1);
+        glDeleteProgram(_programIdPrefixScanStage2);
+        glDeleteProgram(_programIdPrefixScanStage3);
+        glDeleteProgram(_programIdSortSortingDataWithPrefixSums);
+        glDeleteProgram(_programIdSortGeometry);
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -83,17 +110,27 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParticleGeometryCollisions::DetectAndResolve(bool withProfiling) const
     {
-        int numWorkGroupsX = _numParticles / WORK_GROUP_SIZE_X;
-        int remainder = _numParticles % WORK_GROUP_SIZE_X;
+        int numWorkGroupsX = _collideableGeometrySsbo.NumPolygons() / WORK_GROUP_SIZE_X;
+        int remainder = _collideableGeometrySsbo.NumPolygons() % WORK_GROUP_SIZE_X;
         numWorkGroupsX += (remainder == 0) ? 0 : 1;
+
+        // the prefix scan works on 2 items per thread
+        // Note: See description of the ParticlePrefixScanSsbo constructor for why the prefix 
+        // scan algorithm needs its own work group size calculation.
+        unsigned int numItemsInPrefixScanBuffer = _prefixSumSsbo.NumDataEntries();
+        int numWorkGroupsXForPrefixSum = numItemsInPrefixScanBuffer / (WORK_GROUP_SIZE_X * 2);
+        remainder = numItemsInPrefixScanBuffer % (WORK_GROUP_SIZE_X * 2);
+        numWorkGroupsXForPrefixSum += (remainder == 0) ? 0 : 1;
 
         if (withProfiling)
         {
-            ResolveCollisionsWithProfiling(numWorkGroupsX);
+            SortGeometryWithProfiling(numWorkGroupsX, numWorkGroupsXForPrefixSum);
+            //ResolveCollisionsWithProfiling(numWorkGroupsX);
         }
         else
         {
-            ResolveCollisionsWithoutProfiling(numWorkGroupsX);
+            SortGeometryWithoutProfiling(numWorkGroupsX, numWorkGroupsXForPrefixSum);
+            //ResolveCollisionsWithoutProfiling(numWorkGroupsX);
         }
     }
 
@@ -103,168 +140,498 @@ namespace ShaderControllers
         particles are colliding with.
     Parameters: None
     Returns:    
-        A const reference to the SSBO that contains the collideable geometry's vertices.
+        The SSBO that contains the collideable geometry's vertices.
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    const VertexSsboBase &ParticleGeometryCollisions::GeometrySsbo() const
+    const VertexSsboBase &ParticleGeometryCollisions::GetCollidableGeometrySsbo() const
     {
         return _collideableGeometrySsbo;
     }
 
     /*--------------------------------------------------------------------------------------------
     Description:
-        The GLSL version declaration, compute shader work group sizes, 
-        cross-shader uniform locations, and SSBO buffer bindings are used in multiple compute 
-        shaders.  This function puts their assembly into one place.
-    Parameters: 
-        The key to the composite shader that is under construction.
-    Returns:    None
-    Creator:    John Cox, 6/2017
+        Used by the RenderGeometry shader controller to draw the collidable geometry's surface 
+        normals to see if particle collisions look right.
+    Parameters: None
+    Returns:    
+        The SSBO that contains the collideable geometry's surface normals.
+    Creator:    John Cox, 7/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleGeometryCollisions::AssembleProgramHeader(const std::string &shaderKey) const
+    const VertexSsboBase &ParticleGeometryCollisions::GetCollidableGeometryNormals() const
     {
-        //ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/Version.comp");
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp");
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/SsboBufferBindings.comp");
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ShaderHeaders/CrossShaderUniformLocations.comp");
+        return _surfaceNormalGeometrySsbo;
     }
 
     /*--------------------------------------------------------------------------------------------
     Description:
-        Assembles headers, buffers, and functional .comp files for the shader that has each 
-        particle checking if it crossed a 2D polygon face, and if it did, to redirect the 
-        particle around the surface's normal and set the new velocity in the bounce direction.
+        Used by the RenderGeometry shader controller to draw the collidable geometry's bounding 
+        boxes.  It is little more than a nice visualization.
+    Parameters: None
+    Returns:    
+        The SSBO that contains the collideable geometry's bounding box geometry.
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
+    const VertexSsboBase &ParticleGeometryCollisions::GetCollidableGeometryBoundingBoxesSsbo() const
+    {
+        return _boundingBoxGeometrySsbo;
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Primarily serves to clean up the constructor.
+
+        Assembles headers, buffers, and functional .comp files for the shaders that sort the 
+        collidable geometry by their position-generated Morton Codes.
     Parameters: None
     Returns:    None
-    Creator:    John Cox, 6/2017
+    Creator:    John Cox, 7/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleGeometryCollisions::AssembleProgramResolveCollisions()
+    void ParticleGeometryCollisions::AssembleSortingShaders()
     {
-        //ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+        ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+        std::string shaderKey;
+        std::string filePath;
 
-        //std::string shaderKey = "resolve particle-geometry collisions";
-        //shaderStorageRef.NewCompositeShader(shaderKey);
-        //AssembleProgramHeader(shaderKey);
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleBuffer.comp");
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/GeometryStuff/MyVertex.comp");
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/GeometryStuff/PolygonFace.comp");
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleGeometryCollisions/Buffers/CollidableGeometryBuffer.comp");
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Compute/ParticleGeometryCollisions/ResolveParticleGeometryCollisions.comp");
-        //shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
-        //shaderStorageRef.LinkShader(shaderKey);
-        //_programIdResolveCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
+        shaderKey = "copy geometry to copy buffer";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/GeometrySort/CopyGeometryToCopyBuffer.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdCopyGeometryToCopyBuffer = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "generate geometry sorting data";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/Geometry/GenerateGeometrySortingData.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdGenerateSortingData = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "geometry prefix scan stage 1";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/Geometry/PrefixScanStage1.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdPrefixScanStage1 = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "geometry prefix scan stage 2";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/Geometry/PrefixScanStage2.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdPrefixScanStage2 = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "geometry prefix scan stage 3";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/Geometry/PrefixScanStage3.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdPrefixScanStage3 = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "sort geometry sorting data with prefix sums";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/Geometry/SortSortingDataWithPrefixSums.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdSortSortingDataWithPrefixSums = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "sort geometry";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/Geometry/SortGeometry.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdSortGeometry = shaderStorageRef.GetShaderProgram(shaderKey);
     }
 
     /*--------------------------------------------------------------------------------------------
     Description:
-        This method governs the shader dispatches that will result in particles bouncing off any 
-        geometry that they collide with.
+        This method governs the shader dispatches that will result in sorting the 
+        CollidableGeometryBuffer and CollidableGeometrySortingDataBuffer.
     Parameters: 
-        numWorkGroupsX  Expected to be the total particle count divided by the work group size.
+        numWorkGroupsX  Expected to be the total particle count divided by work group size.
+        numWorkGroupsXPrefixScan    See comment where this value was calculated.
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleGeometryCollisions::ResolveCollisionsWithoutProfiling(unsigned int numWorkGroupsX) const
+    void ParticleGeometryCollisions::SortGeometryWithoutProfiling(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const
     {
-        DetectAndResolveCollisions(numWorkGroupsX);
+        PrepareToSortGeometry(numWorkGroupsX);
+        
+        // Morton Codes are 30bits
+        unsigned int totalBitCount = 30;
+
+        bool writeToSecondBuffer = true;
+        unsigned int sortingDataReadBufferOffset = 0;
+        unsigned int sortingDataWriteBufferOffset = 0;
+        for (unsigned int bitNumber = 0; bitNumber < totalBitCount; bitNumber++)
+        {
+            sortingDataReadBufferOffset = static_cast<unsigned int>(!writeToSecondBuffer) * _collideableGeometrySsbo.NumPolygons();
+            sortingDataWriteBufferOffset = static_cast<unsigned int>(writeToSecondBuffer) * _collideableGeometrySsbo.NumPolygons();
+
+            PrefixScan(numWorkGroupsXPrefixScan, bitNumber, sortingDataReadBufferOffset);
+            SortSortingDataWithPrefixScan(numWorkGroupsX, bitNumber, sortingDataReadBufferOffset, sortingDataWriteBufferOffset);
+
+            // swap read/write buffers and do it again
+            writeToSecondBuffer = !writeToSecondBuffer;
+        }
+
+        // the sorting data's final location is in the "write" half of the sorting data buffer
+        SortGeometry(numWorkGroupsX, sortingDataWriteBufferOffset);
     }
 
     /*--------------------------------------------------------------------------------------------
     Description:
-        Like ResolveCollisionsWithoutProfiling(...), but with 
+        Like SortGeometryWithoutProfiling(...), but with 
         (1) std::chrono calls 
         (2) forced wait for shader to finish so that the std::chrono calls get an accurate 
             reading for how long the shader takes 
         (3) writing the output to a file (if desired)
     Parameters: 
-        numWorkGroupsX  Expected to be the total particle count divided by the work group size.
+        numWorkGroupsX  Expected to be the total particle count divided by work group size.
+        numWorkGroupsXPrefixScan    See comment where this value was calculated.
     Returns:    None
-    Creator:    John Cox, 6/2017
+    Creator:    John Cox, 7/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleGeometryCollisions::ResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const
+    void ParticleGeometryCollisions::SortGeometryWithProfiling(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const
     {
-        cout << "detecting collisions for up to " << _numParticles << " particles with " << 
-            _collideableGeometrySsbo.NumPolygons() << " 2D polygon faces" << endl;
+        cout << "sorting " << _collideableGeometrySsbo.NumPolygons() << " polygons" << endl;
+        unsigned int totalBitCount = 30;
 
         // for profiling
         using namespace std::chrono;
         steady_clock::time_point start;
         steady_clock::time_point end;
-        long long durationDetectAndResolveCollisions = 0;
+        long long totalSortingTime = 0;
 
         start = high_resolution_clock::now();
-        DetectAndResolveCollisions(numWorkGroupsX);
-        WaitForComputeToFinish();
-        end = high_resolution_clock::now();
-        durationDetectAndResolveCollisions = duration_cast<microseconds>(end - start).count();
+        PrepareToSortGeometry(numWorkGroupsX);
 
-        // report the results to file
+        bool writeToSecondBuffer = true;
+        unsigned int sortingDataReadBufferOffset = 0;
+        unsigned int sortingDataWriteBufferOffset = 0;
+        for (unsigned int bitNumber = 0; bitNumber < totalBitCount; bitNumber++)
+        {
+            sortingDataReadBufferOffset = static_cast<unsigned int>(!writeToSecondBuffer) * _collideableGeometrySsbo.NumPolygons();
+            sortingDataWriteBufferOffset = static_cast<unsigned int>(writeToSecondBuffer) * _collideableGeometrySsbo.NumPolygons();
+
+            PrefixScan(numWorkGroupsXPrefixScan, bitNumber, sortingDataReadBufferOffset);
+            SortSortingDataWithPrefixScan(numWorkGroupsX, bitNumber, sortingDataReadBufferOffset, sortingDataWriteBufferOffset);
+
+            // swap read/write buffers and do it again
+            writeToSecondBuffer = !writeToSecondBuffer;
+        }
+
+        // wherever the sorting data ended up, that is where the shader should read from
+        SortGeometry(numWorkGroupsX, sortingDataWriteBufferOffset);
+
+        end = high_resolution_clock::now();
+        totalSortingTime = duration_cast<microseconds>(end - start).count();
+
+        // report results
         // Note: Write the results to a tab-delimited text file so that I can dump them into an 
         // Excel spreadsheet.
-        std::ofstream outFile("DetectAndResolveCollisionsDurations.txt");
+        std::ofstream outFile("GeometryParallelSortDurations.txt");
         if (outFile.is_open())
         {
-            long long totalSortingTime = durationDetectAndResolveCollisions;
-
-            cout << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
-            outFile << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
-
-            cout << "detect and resolve collisions: " << durationDetectAndResolveCollisions << "\tmicroseconds" << endl;
-            outFile << "detect and resolve collisions: " << durationDetectAndResolveCollisions << "\tmicroseconds" << endl;
+            cout << "total sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
+            outFile << "total sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
         }
         outFile.close();
+
+        // all done
+        glUseProgram(0);
     }
 
     /*--------------------------------------------------------------------------------------------
     Description:
-        This method performs the actual work of dispatching the shader that will detect and 
-        resolve the particle collisions with geometry.
+        Part of geometry sorting.
     Parameters: 
-        numWorkGroupsX  Expected to be the total particle count divided by the work group size.
+        numWorkGroupsX      Expected to be number of polygons divided by work group size.
     Returns:    None
-    Creator:    John Cox, 6/2017
+    Creator:    John Cox, 7/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleGeometryCollisions::DetectAndResolveCollisions(unsigned int numWorkGroupsX) const
+    void ParticleGeometryCollisions::PrepareToSortGeometry(unsigned int numWorkGroupsX) const
     {
-        glUseProgram(_programIdResolveCollisions);
+        glUseProgram(_programIdCopyGeometryToCopyBuffer);
         glDispatchCompute(numWorkGroupsX, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_SHADER_BIT);
+        glUseProgram(_programIdGenerateSortingData);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
 
+        // the two shaders worked on different buffers, so only need one memory barrier 
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        std::vector<PolygonFace> checkPolygons(_collideableGeometrySsbo.NumPolygons());
+        // for verifying/debugging
+        unsigned int startingIndexBytes = 0;
+        std::vector<SortingData> checkSortingData(_sortingDataSsbo.NumItems());
+        unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(SortingData);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _sortingDataSsbo.BufferId());
+        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Part of sorting.  This is where the main magic of sorting takes place through a parallel 
+        prefix sum (usually called a prefix "scan").  
+
+        Note: The work group size is special here.  The algorithm calls for each thread to work 
+        on two items, so the expected work group count is the number of polygons divided by 2x 
+        the work group size.  Sufficiant buffer size was allocated for this algorithm in 
+        GeometryPrefixSumSsbo.
+    Parameters: 
+        numWorkGroupsX          See Description
+        bitNumber               0 - 32
+        sortingDataReadOffset   The sorting data is read from this half of the buffer.
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleGeometryCollisions::PrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset) const
+    {
+        unsigned int startingIndexBytes = 0;
+        std::vector<unsigned int> checkPrefixScan(_prefixSumSsbo.TotalBufferEntries());
+        unsigned int bufferSizeBytes = checkPrefixScan.size() * sizeof(unsigned int);
+        void *bufferPtr = nullptr;
+
+        glUseProgram(_programIdPrefixScanStage1);
+        glUniform1ui(UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET, sortingDataReadOffset);
+        glUniform1ui(UNIFORM_LOCATION_BIT_NUMBER, bitNumber);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _prefixSumSsbo.BufferId());
+        //bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        glUseProgram(_programIdPrefixScanStage2);
+        glDispatchCompute(1, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _prefixSumSsbo.BufferId());
+        //bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        glUseProgram(_programIdPrefixScanStage3);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _prefixSumSsbo.BufferId());
+        bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        // verify the sum
+        // Note: Start +1 so the first pass can do "i-1", but index 0 is "total number of ones", 
+        // so start at 2.
+        for (size_t i = 2; i < checkPrefixScan.size(); i++)
         {
-            unsigned int startingIndexBytes = 0;
-            unsigned int bufferSizeBytes = checkPolygons.size() * sizeof(PolygonFace);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideableGeometrySsbo.BufferId());
-            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-            memcpy(checkPolygons.data(), bufferPtr, bufferSizeBytes);
-            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        }
-
-        std::vector<Particle> checkParticles(_particleSsbo->NumParticles());
-        {
-            unsigned int startingIndexBytes = 0;
-            unsigned int bufferSizeBytes = checkParticles.size() * sizeof(Particle);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSsbo->BufferId());
-            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-            memcpy(checkParticles.data(), bufferPtr, bufferSizeBytes);
-            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        }
-
-        int maxVal = 0;
-        for (size_t i = 0; i < checkParticles.size(); i++)
-        {
-            maxVal = std::max(maxVal, checkParticles[i]._numNearbyParticles);
-            if (checkParticles[i]._numNearbyParticles == 37)
+            // each successive value must be greater than or equal to the sum before it
+            if (checkPrefixScan[i] < checkPrefixScan[i - 1])
             {
                 printf("");
             }
-            else if (checkParticles[i]._isActive == 37)
+            //else if (checkPrefixScan[i] != 0)
+            //{
+            //    printf("");
+            //}
+        }
+        printf("");
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Part of particle sorting.  
+    Parameters: 
+        numWorkGroupsX          Expected to be number of polygons divided by work group size.
+        bitNumber               0 - 32
+        sortingDataReadOffset   The sorting data is read from this half of the buffer...
+        sortingDataWriteOffset  And sorted according to the prefix sums into this half.
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleGeometryCollisions::SortSortingDataWithPrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset, unsigned int sortingDataWriteOffset) const
+    {
+        glUseProgram(_programIdSortSortingDataWithPrefixSums);
+        glUniform1ui(UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET, sortingDataReadOffset);
+        glUniform1ui(UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_WRITE_OFFSET, sortingDataWriteOffset);
+        glUniform1ui(UNIFORM_LOCATION_BIT_NUMBER, bitNumber);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        //unsigned int startingIndexBytes = sortingDataWriteOffset * sizeof(SortingData);
+        //std::vector<SortingData> checkSortingData(_sortingDataSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(SortingData);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _sortingDataSsbo.BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        //std::vector<unsigned int> binaryBuffer(_sortingDataSsbo.NumItems());
+        //for (size_t i = 0; i < checkSortingData.size(); i++)
+        //{
+        //    unsigned int bitVal = (checkSortingData[i]._sortingData >> bitNumber) & 1;
+        //    binaryBuffer[i] = bitVal;
+        //    if (bitVal == 1)
+        //    {
+        //        printf("");
+        //    }
+        //}
+        //printf("");
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        The end of collidable geometry sorting.
+    Parameters: 
+        numWorkGroupsX          Expected to be number of polygons divided by work group size.
+        sortingDataReadOffset   Tells the shader which half of the 
+                                CollidableGeometrySortingDataBuffer has the latest sort values.
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleGeometryCollisions::SortGeometry(unsigned int numWorkGroupsX, unsigned int sortingDataReadOffset) const
+    {
+        glUseProgram(_programIdSortGeometry);
+        glUniform1ui(UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET, sortingDataReadOffset);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        // verify sorted data
+        // Note: Only need to copy the first half of the buffer.  This is where the last loop of 
+        // the radix sorting algorithm put the sorting data.
+        //start = high_resolution_clock::now();
+        unsigned int startingIndexBytes = sortingDataReadOffset;
+        std::vector<SortingData> checkSortingData(_sortingDataSsbo.NumItems());
+        unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(SortingData);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _sortingDataSsbo.BufferId());
+        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        for (unsigned int i = 1; i < checkSortingData.size(); i++)
+        {
+            // start at 1 so that prevIndex isn't out of bounds
+            unsigned int thisIndex = i;
+            unsigned int prevIndex = i - 1;
+            unsigned int val = checkSortingData[thisIndex]._sortingData;
+            unsigned int prevVal = checkSortingData[prevIndex]._sortingData;
+            if (val < prevVal)
             {
-                printf("");
+                printf("value %u at index %u is >= previous value %u and index %u\n", val, i, prevVal, i - 1);
             }
         }
         printf("");
     }
+
+    ///*--------------------------------------------------------------------------------------------
+    //Description:
+    //    This method governs the shader dispatches that will result in particles bouncing off any 
+    //    geometry that they collide with.
+    //Parameters: 
+    //    numWorkGroupsX  Expected to be the total particle count divided by the work group size.
+    //Returns:    None
+    //Creator:    John Cox, 6/2017
+    //--------------------------------------------------------------------------------------------*/
+    //void ParticleGeometryCollisions::ResolveCollisionsWithoutProfiling(unsigned int numWorkGroupsX) const
+    //{
+    //    DetectAndResolveCollisions(numWorkGroupsX);
+    //}
+
+    ///*--------------------------------------------------------------------------------------------
+    //Description:
+    //    Like ResolveCollisionsWithoutProfiling(...), but with 
+    //    (1) std::chrono calls 
+    //    (2) forced wait for shader to finish so that the std::chrono calls get an accurate 
+    //        reading for how long the shader takes 
+    //    (3) writing the output to a file (if desired)
+    //Parameters: 
+    //    numWorkGroupsX  Expected to be the total particle count divided by the work group size.
+    //Returns:    None
+    //Creator:    John Cox, 6/2017
+    //--------------------------------------------------------------------------------------------*/
+    //void ParticleGeometryCollisions::ResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const
+    //{
+    //    cout << "detecting collisions for up to " << _numParticles << " particles with " << 
+    //        _collideableGeometrySsbo.NumPolygons() << " 2D polygon faces" << endl;
+
+    //    // for profiling
+    //    using namespace std::chrono;
+    //    steady_clock::time_point start;
+    //    steady_clock::time_point end;
+    //    long long durationDetectAndResolveCollisions = 0;
+
+    //    start = high_resolution_clock::now();
+    //    DetectAndResolveCollisions(numWorkGroupsX);
+    //    WaitForComputeToFinish();
+    //    end = high_resolution_clock::now();
+    //    durationDetectAndResolveCollisions = duration_cast<microseconds>(end - start).count();
+
+    //    // report the results to file
+    //    // Note: Write the results to a tab-delimited text file so that I can dump them into an 
+    //    // Excel spreadsheet.
+    //    std::ofstream outFile("DetectAndResolveCollisionsDurations.txt");
+    //    if (outFile.is_open())
+    //    {
+    //        long long totalSortingTime = durationDetectAndResolveCollisions;
+
+    //        cout << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
+    //        outFile << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
+
+    //        cout << "detect and resolve collisions: " << durationDetectAndResolveCollisions << "\tmicroseconds" << endl;
+    //        outFile << "detect and resolve collisions: " << durationDetectAndResolveCollisions << "\tmicroseconds" << endl;
+    //    }
+    //    outFile.close();
+    //}
+
+    ///*--------------------------------------------------------------------------------------------
+    //Description:
+    //    This method performs the actual work of dispatching the shader that will detect and 
+    //    resolve the particle collisions with geometry.
+    //Parameters: 
+    //    numWorkGroupsX  Expected to be the total particle count divided by the work group size.
+    //Returns:    None
+    //Creator:    John Cox, 6/2017
+    //--------------------------------------------------------------------------------------------*/
+    //void ParticleGeometryCollisions::DetectAndResolveCollisions(unsigned int numWorkGroupsX) const
+    //{
+    //    glUseProgram(_programIdResolveCollisions);
+    //    glDispatchCompute(numWorkGroupsX, 1, 1);
+    //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_SHADER_BIT);
+
+
+    //    std::vector<PolygonFace> checkPolygons(_collideableGeometrySsbo.NumPolygons());
+    //    {
+    //        unsigned int startingIndexBytes = 0;
+    //        unsigned int bufferSizeBytes = checkPolygons.size() * sizeof(PolygonFace);
+    //        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideableGeometrySsbo.BufferId());
+    //        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+    //        memcpy(checkPolygons.data(), bufferPtr, bufferSizeBytes);
+    //        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    //    }
+
+    //    std::vector<Particle> checkParticles(_particleSsbo->NumParticles());
+    //    {
+    //        unsigned int startingIndexBytes = 0;
+    //        unsigned int bufferSizeBytes = checkParticles.size() * sizeof(Particle);
+    //        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSsbo->BufferId());
+    //        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+    //        memcpy(checkParticles.data(), bufferPtr, bufferSizeBytes);
+    //        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    //    }
+
+    //    int maxVal = 0;
+    //    for (size_t i = 0; i < checkParticles.size(); i++)
+    //    {
+    //        maxVal = std::max(maxVal, checkParticles[i]._numNearbyParticles);
+    //        if (checkParticles[i]._numNearbyParticles == 37)
+    //        {
+    //            printf("");
+    //        }
+    //        else if (checkParticles[i]._isActive == 37)
+    //        {
+    //            printf("");
+    //        }
+    //    }
+    //    printf("");
+    //}
 }

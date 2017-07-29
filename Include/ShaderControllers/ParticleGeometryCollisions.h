@@ -8,6 +8,8 @@
 #include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometrySortingDataSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometryPrefixSumSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePotentialCollisionsSsbo.h"
+#include "Include/Buffers/SSBOs/VisualizationOnly/CollidableGeometryBoundingBoxGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/VisualizationOnly/CollidableGeometrySurfaceNormalsSsbo.h"
 
 
 namespace ShaderControllers
@@ -26,14 +28,11 @@ namespace ShaderControllers
         ~ParticleGeometryCollisions();
 
         void DetectAndResolve(bool withProfiling) const;
-        const VertexSsboBase &GeometrySsbo() const;
-        const VertexSsboBase &GeometryWithNormals() const;
-        const VertexSsboBase &GeometryBoundingBoxSsbo() const;
+        const VertexSsboBase &GetCollidableGeometrySsbo() const;
+        const VertexSsboBase &GetCollidableGeometryNormals() const;
+        const VertexSsboBase &GetCollidableGeometryBoundingBoxesSsbo() const;
 
     private:
-        // the number of work groups will be based on the number of particles (one thread for each particle)
-        unsigned int _numParticles;
-
         // sorting
         void AssembleSortingShaders();
         unsigned int _programIdCopyGeometryToCopyBuffer;
@@ -60,14 +59,15 @@ namespace ShaderControllers
         //void DetectAndResolveCollisions(unsigned int numWorkGroupsX) const;
 
         // buffers for all that jazz
+        CollidableGeometrySsbo _collideableGeometrySsbo;
         CollidableGeometrySortingDataSsbo _sortingDataSsbo;
         CollidableGeometryPrefixSumSsbo _prefixSumSsbo;
         CollidableGeometryBvhNodeSsbo _bvhNodeSsbo;
         ParticlePotentialCollisionsSsbo _potentialCollisionsSsbo;
-        CollidableGeometrySsbo _collideableGeometrySsbo;
 
         // for visualization only
-        CollidableGeometry
+        CollidableGeometryBoundingBoxGeometrySsbo _boundingBoxGeometrySsbo;
+        CollidableGeometrySurfaceNormalsSsbo _surfaceNormalGeometrySsbo;
 
         // for debugging
         ParticleSsbo::SharedConstPtr _originalParticleSsbo;

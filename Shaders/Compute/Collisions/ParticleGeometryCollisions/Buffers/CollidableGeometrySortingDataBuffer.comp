@@ -7,8 +7,8 @@
 uniform uint uMaxNumGeometrySortingData;
 
 // these are swapped on each loop of the parallel sort routine
-layout(location = UNIFORM_LOCATION_GEOMETRY_SORTING_DATA_BUFFER_READ_OFFSET) uniform uint uGeometrySortingDataBufferReadOffset;
-layout(location = UNIFORM_LOCATION_GEOMETRY_SORTING_DATA_BUFFER_WRITE_OFFSET) uniform uint uGeometrySortingDataBufferWriteOffset;
+layout(location = UNIFORM_LOCATION_COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_READ_OFFSET) uniform uint uCollidableGeometrySortingDataBufferReadOffset;
+layout(location = UNIFORM_LOCATION_COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_WRITE_OFFSET) uniform uint uCollidableGeometrySortingDataBufferWriteOffset;
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -20,7 +20,7 @@ Description:
     must refer to buffers explicityly by name, so different buffers need differnet names.
 Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
-layout (std430, binding = GEOMETRY_SORTING_DATA_BUFFER_BINDING) buffer GeometrySortingDataBuffer
+layout (std430, binding = COLLIDABLE_GEOMETRY_SORTING_DATA_BUFFER_BINDING) buffer CollidableGeometrySortingDataBuffer
 {
     SortingData AllGeometrySortingData[];
 };

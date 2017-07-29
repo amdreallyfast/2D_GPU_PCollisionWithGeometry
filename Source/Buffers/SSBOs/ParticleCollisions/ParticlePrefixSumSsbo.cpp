@@ -1,4 +1,4 @@
-#include "Include/Buffers/SSBOs/ParticlePrefixSumSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePrefixSumSsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 

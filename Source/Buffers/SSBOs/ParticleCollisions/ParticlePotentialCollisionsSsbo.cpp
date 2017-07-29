@@ -1,4 +1,4 @@
-#include "Include/Buffers/SSBOs/ParticlePotentialCollisionsSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePotentialCollisionsSsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"

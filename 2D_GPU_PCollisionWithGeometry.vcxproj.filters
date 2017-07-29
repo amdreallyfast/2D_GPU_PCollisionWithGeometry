@@ -440,18 +440,6 @@
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\ParticleSort\SortSortingDataWithPrefixSums.comp">
       <Filter>Shaders\Compute\Collisions\ParticleCollisions\ParticleSort</Filter>
     </None>
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\BoundingBoxGeometryBuffer.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
-    </None>
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\GeometryBvhNodeBuffer.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
-    </None>
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\GeometryPrefixScanBuffer.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
-    </None>
-    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\GeometrySortingDataBuffer.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
-    </None>
     <None Include="Shaders\Compute\Collisions\ParticleCollisions\Buffers\BoundingBoxGeometryBuffer.comp">
       <Filter>Shaders\Compute\Collisions\ParticleCollisions\Buffers</Filter>
     </None>
@@ -523,6 +511,18 @@
     </None>
     <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort\GenerateGeometrySortingData.comp">
       <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\GeometrySort</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\CollidableGeometryBoundingBoxGeometryBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\CollidableGeometryBvhNodeBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\CollidableGeometryPrefixScanBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
+    </None>
+    <None Include="Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers\CollidableGeometrySortingDataBuffer.comp">
+      <Filter>Shaders\Compute\Collisions\ParticleGeometryCollisions\Buffers</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
