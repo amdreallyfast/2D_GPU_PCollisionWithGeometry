@@ -43,7 +43,7 @@ Description:
     the tree), but the actual value is NOT important once the data is sorted.  The only thing 
     that is important when constructing the tree is that the data is sorted.
 
-    Alo Note: This CANNOT be performed in GenerateSortingData.comp.  Things aren't sorted yet at 
+    Also Note: This CANNOT be performed in GenerateSortingData.comp.  Things aren't sorted yet at 
     that time, and this guarantee of uniqueness only works when everything is already sorted.
 
 Parameters: None
@@ -53,9 +53,8 @@ Creator:    John Cox, 7/2017
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex >= uMaxNumParticleSortingData)
+    if (threadIndex >= uMaxNumParticleSortingData)  // or uMaxNumParticles
     {
-        // uMaxNumParticles would work too; they should be identical
         return;
     }
 

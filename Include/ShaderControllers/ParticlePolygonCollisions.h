@@ -43,8 +43,18 @@ namespace ShaderControllers
         unsigned int _programIdSortSortingDataWithPrefixSums;
         unsigned int _programIdSortGeometry;
 
+        // organization
+        void AssembleBvhShaders();
+        unsigned int _programIdGuaranteeSortingDataUniqueness;
+        unsigned int _programIdGenerateLeafNodeBoundingBoxes;
+        unsigned int _programIdGenerateBinaryRadixTree;
+        unsigned int _programIdMergeBoundingVolumes;
+
+        // all that for the coup de grace
+
         void GenerateCollidableGeometryBvh() const;
         void SortCollidableGeometry(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const;
+        void GenerateBvh(unsigned int numWorkGroupsX);
 
         //void ResolveCollisionsWithoutProfiling(unsigned int numWorkGroupsX) const;
         //void ResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const;
@@ -53,6 +63,11 @@ namespace ShaderControllers
         void PrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset) const;
         void SortSortingDataWithPrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset, unsigned int sortingDataWriteOffset) const;
         void SortGeometryWithSortingData(unsigned int numWorkGroupsX, unsigned int sortingDataReadOffset) const;
+        
+        void PrepareForBinaryTree(unsigned int numWorkGroupsX) const;
+        void GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const;
+        void MergeNodesIntoBvh(unsigned int numWorkGroupsX) const;
+
 
         //// TODO: split into "detect" and "resolve", with "detect" checking for bounding box overlaps and putting PolygonFace indexes into the PotentialParticleCollisionsBuffer (move buffer out of the ParticleCollisions/Buffers/ folder and up to a folder that both particle collisions and particle-geometry collisions can access) and with "resolve" checking for boundary crossings and resolving per-particle
         //void DetectAndResolveCollisions(unsigned int numWorkGroupsX) const;

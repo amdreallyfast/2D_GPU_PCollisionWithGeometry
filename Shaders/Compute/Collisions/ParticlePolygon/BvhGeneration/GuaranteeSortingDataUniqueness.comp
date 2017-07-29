@@ -1,0 +1,34 @@
+// REQUIRES Shaders/ShaderHeaders/Version.comp
+// REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleGeometryCollisions/Buffers/CollidableGeometrySortingDataBuffer.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Like /ParticleCollisions/ParticlePvh/GuaranteeSortingDataUniqueness.comp, but for the 
+    collidable geometry.
+
+    Unlike the particle version, the polygons do not have an _isActive flag because the polygons 
+    are always present.  As such, the collidable geometry sorting data never created a maximum 
+    integer value, so this shader will guarantee uniqueness by simply adding the thread ID.
+
+    Note: This CANNOT be performed in GenerateSortingData.comp.  Things aren't sorted yet at 
+    that time, and this guarantee of uniqueness only works when everything is already sorted.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uMaxNumCollidableGeometrySortingData)    // or uMaxCollidablePolygons
+    {
+        return;
+    }
+
+    AllGeometrySortingData[threadIndex]._sortingData += threadIndex;
+}

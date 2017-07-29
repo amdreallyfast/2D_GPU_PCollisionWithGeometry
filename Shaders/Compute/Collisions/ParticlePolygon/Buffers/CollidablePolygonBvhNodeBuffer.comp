@@ -20,7 +20,7 @@ Creator:    John Cox, 7/2017
 layout (std430, binding = GEOMETRY_BVH_NODE_BUFFER_BINDING) buffer GeometryBvhNodeBuffer
 {
     // leaf nodes first, then internal nodes 
-    BvhNode AllBvhNodes[];
+    BvhNode AllCollidablePolygonBvhNodes[];
 };
 
 

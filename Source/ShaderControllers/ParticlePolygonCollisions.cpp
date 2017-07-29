@@ -42,6 +42,11 @@ namespace ShaderControllers
         _programIdPrefixScanStage3(0),
         _programIdSortSortingDataWithPrefixSums(0),
         _programIdSortGeometry(0),
+        _programIdGuaranteeSortingDataUniqueness(0),
+        _programIdGenerateLeafNodeBoundingBoxes(0),
+        _programIdGenerateBinaryRadixTree(0),
+        _programIdMergeBoundingVolumes(0),
+
         _collideableGeometrySsbo(blenderObjFilePath),
         _sortingDataSsbo(_collideableGeometrySsbo.NumPolygons()),
         _prefixSumSsbo(_collideableGeometrySsbo.NumPolygons()),
@@ -92,6 +97,11 @@ namespace ShaderControllers
         glDeleteProgram(_programIdPrefixScanStage3);
         glDeleteProgram(_programIdSortSortingDataWithPrefixSums);
         glDeleteProgram(_programIdSortGeometry);
+
+        glDeleteProgram(_programIdGuaranteeSortingDataUniqueness);
+        glDeleteProgram(_programIdGenerateLeafNodeBoundingBoxes);
+        glDeleteProgram(_programIdGenerateBinaryRadixTree);
+        glDeleteProgram(_programIdMergeBoundingVolumes);
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -237,6 +247,52 @@ namespace ShaderControllers
         _programIdSortGeometry = shaderStorageRef.GetShaderProgram(shaderKey);
 
         printf("");
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Primarily serves to clean up the constructor.
+
+        Assembles headers, buffers, and functional .comp files for the shaders that generate the 
+        bounding volume hierarchy. 
+    Parameters: None
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleGeometryCollisions::AssembleBvhShaders()
+    {
+        ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+        std::string shaderKey;
+        std::string filePath;
+
+        shaderKey = "guarantee collidable geometry sorting data uniqueness";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/GeometryBvh/GuaranteeSortingDataUniqueness.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdGuaranteeSortingDataUniqueness = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "generate collidable geometry bounding boxes";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/GeometryBvh/GenerateLeafNodeBoundingBoxes.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdGenerateLeafNodeBoundingBoxes = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "generate collidable geometry binary radix tree";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/GeometryBvh/GenerateBinaryRadixTree.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdGenerateBinaryRadixTree = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "merge collidable geometry bounding volumes";
+        filePath = "Shaders/Compute/Collisions/ParticleGeometryCollisions/GeometryBvh/MergeBoundingVolumes.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdMergeBoundingVolumes = shaderStorageRef.GetShaderProgram(shaderKey);
+
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -497,6 +553,64 @@ namespace ShaderControllers
         }
         printf("");
     }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Modifies the CollidableGeometrySortingDataBuffer so that the resulting tree won't have 
+        depth spikes due to duplicate entries, then gives each leaf node in the 
+        CollidableGeometryBvhNodeBuffer a bounding box based on the polygon that it is 
+        associated with.
+    Parameters: 
+        numWorkGroupsX      Expected to be number of polygons divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleGeometryCollisions::PrepareForBinaryTree(unsigned int numWorkGroupsX) const
+    {
+        glUseProgram(_programIdGuaranteeSortingDataUniqueness);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glUseProgram(_programIdGenerateLeafNodeBoundingBoxes);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+
+        // the two shaders worked on independent data, so only need one memory barrier at the end
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<SortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(SortingData);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+        //// check for duplicate elements
+        //// Note: This is an array of sorted elements, but the elements themselves are not on the 
+        //// range [0,n-1], so I can't do the fanciest and most efficient checks.  I also don't 
+        //// want to bother using a hash approach (std::map<...>), and this is just a debugging 
+        //// thing anyway, so go brute force.
+        //for (size_t i = 0; i < checkSortingData.size(); i++)
+        //{
+        //    for (size_t j = i + 1; j < checkSortingData.size(); j++)
+        //    {
+        //        if (checkSortingData[i]._sortingData == checkSortingData[j]._sortingData)
+        //        {
+        //            printf("");
+        //        }
+        //    }
+        //}
+        //printf("");
+    }
+
+    void ParticleGeometryCollisions::GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const
+    {
+
+    }
+
+    void ParticleGeometryCollisions::MergeNodesIntoBvh(unsigned int numWorkGroupsX) const
+    {
+
+    }
+
 
     ///*--------------------------------------------------------------------------------------------
     //Description:
