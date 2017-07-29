@@ -1,5 +1,5 @@
 
-#include "Include/Buffers/SSBOs/CollideableGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollideableGeometrySsbo.h"
 #include "Include/Geometry/BlenderLoad.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"

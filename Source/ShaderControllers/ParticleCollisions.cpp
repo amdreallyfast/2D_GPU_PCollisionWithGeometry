@@ -60,7 +60,7 @@ namespace ShaderControllers
         _programIdGenerateVerticesParticleBoundingBoxes(0),
 
         // generate buffers
-        _particleSortingDataSsbo(particleSsbo->NumParticles()),
+        _sortingDataSsbo(particleSsbo->NumParticles()),
         _prefixSumSsbo(particleSsbo->NumParticles()),
         _bvhNodeSsbo(particleSsbo->NumParticles()),
         
@@ -68,7 +68,7 @@ namespace ShaderControllers
         //// node's bounding box has 4 faces.  
         //_bvhGeometrySsbo(((particleSsbo->NumParticles() * 2) - 1) * 4),
 
-        _particlePotentialCollisionsSsbo(particleSsbo->NumParticles()),
+        _potentialCollisionsSsbo(particleSsbo->NumParticles()),
 
         _velocityVectorGeometrySsbo(particleSsbo->NumParticles()),
         _boundingBoxGeometrySsbo(particleSsbo->NumParticles()),
@@ -94,12 +94,12 @@ namespace ShaderControllers
         particlePropertiesSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
         //particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
 
-        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
-        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
-        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdSortSortingDataWithPrefixSums);
-        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdSortParticles);
-        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdGuaranteeSortingDataUniqueness);
-        _particleSortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdSortSortingDataWithPrefixSums);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdSortParticles);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdGuaranteeSortingDataUniqueness);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
 
         _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
         _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage2);
@@ -111,8 +111,8 @@ namespace ShaderControllers
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdMergeBoundingVolumes);
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
 
-        _particlePotentialCollisionsSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
-        _particlePotentialCollisionsSsbo.ConfigureConstantUniforms(_programIdResolveCollisions);
+        _potentialCollisionsSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
+        _potentialCollisionsSsbo.ConfigureConstantUniforms(_programIdResolveCollisions);
 
         //_velocityVectorGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
 

@@ -4,13 +4,13 @@
 #include <string>
 
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleVelocityVectorGeometrySsbo.h"
 #include "Include/Buffers/SSBOs/ParticleCollisions/ParticleBvhNodeSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePropertiesSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleCollisions/ParticleSortingDataSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePrefixSumSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePotentialCollisionsSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleCollisions/ParticleBoundingBoxGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/VisualizationOnly/ParticleVelocityVectorGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/VisualizationOnly/ParticleBoundingBoxGeometrySsbo.h"
 
 
 namespace ShaderControllers

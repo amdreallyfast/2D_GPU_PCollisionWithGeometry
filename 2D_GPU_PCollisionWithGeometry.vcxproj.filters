@@ -26,12 +26,6 @@
     <ClCompile Include="Source\ShaderControllers\RenderParticles.cpp">
       <Filter>Source\ShaderControllers</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\ParticleSsbo.cpp">
-      <Filter>Source\Buffers\SSBOs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\SsboBase.cpp">
-      <Filter>Source\Buffers\SSBOs</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Buffers\PersistentAtomicCounterBuffer.cpp">
       <Filter>Source\Buffers</Filter>
     </ClCompile>
@@ -43,27 +37,6 @@
     </ClCompile>
     <ClCompile Include="Source\ShaderControllers\ParticleCollisions.cpp">
       <Filter>Source\ShaderControllers</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\ParticleSortingDataSsbo.cpp">
-      <Filter>Source\Buffers\SSBOs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\ParticlePropertiesSsbo.cpp">
-      <Filter>Source\Buffers\SSBOs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\ParticlePotentialCollisionsSsbo.cpp">
-      <Filter>Source\Buffers\SSBOs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\ParticleVelocityVectorGeometrySsbo.cpp">
-      <Filter>Source\Buffers\SSBOs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\VertexSsboBase.cpp">
-      <Filter>Source\Buffers\SSBOs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\ParticleBoundingBoxGeometrySsbo.cpp">
-      <Filter>Source\Buffers\SSBOs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\CollideableGeometrySsbo.cpp">
-      <Filter>Source\Buffers\SSBOs</Filter>
     </ClCompile>
     <ClCompile Include="Source\Geometry\BlenderLoad.cpp">
       <Filter>Source\Geometry</Filter>
@@ -77,11 +50,53 @@
     <ClCompile Include="Source\ParticleEmitters\ParticleEmitterPoint.cpp">
       <Filter>Source\ParticleEmitters</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\ParticleBvhNodeSsbo.cpp">
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleCollisions\ParticleBvhNodeSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\ParticleCollisions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleCollisions\ParticlePotentialCollisionsSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\ParticleCollisions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleCollisions\ParticlePrefixSumSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\ParticleCollisions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleCollisions\ParticlePropertiesSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\ParticleCollisions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleCollisions\ParticleSortingDataSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\ParticleCollisions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleGeometryCollisions\CollidableGeometryBvhNodeSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleGeometryCollisions\CollidableGeometryPrefixSumSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleGeometryCollisions\CollidableGeometrySortingDataSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleGeometryCollisions\CollideableGeometrySsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleSsbo.cpp">
       <Filter>Source\Buffers\SSBOs</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\ParticlePrefixSumSsbo.cpp">
+    <ClCompile Include="Source\Buffers\SSBOs\SsboBase.cpp">
       <Filter>Source\Buffers\SSBOs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\VertexSsboBase.cpp">
+      <Filter>Source\Buffers\SSBOs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\VisualizationOnly\CollidableGeometryBoundingBoxGeometrySsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\VisualizationOnly</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\VisualizationOnly\CollidableGeometryWithNormalsSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\VisualizationOnly</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\VisualizationOnly\ParticleBoundingBoxGeometrySsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\VisualizationOnly</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\VisualizationOnly\ParticleVelocityVectorGeometrySsbo.cpp">
+      <Filter>Source\Buffers\SSBOs\VisualizationOnly</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,13 +157,7 @@
     <ClInclude Include="Include\Buffers\ParticlePotentialCollisions.h">
       <Filter>Include\Buffers</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Buffers\SSBOs\ParticleVelocityVectorGeometrySsbo.h">
-      <Filter>Include\Buffers\SSBOs</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\VertexSsboBase.h">
-      <Filter>Include\Buffers\SSBOs</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Buffers\SSBOs\CollideableGeometrySsbo.h">
       <Filter>Include\Buffers\SSBOs</Filter>
     </ClInclude>
     <ClInclude Include="Include\Geometry\BlenderLoad.h">
@@ -175,9 +184,6 @@
     <ClInclude Include="Include\Buffers\SortingData.h">
       <Filter>Include\Buffers</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Buffers\SSBOs\ParticleCollisions\ParticleBoundingBoxGeometrySsbo.h">
-      <Filter>Include\Buffers\SSBOs\ParticleCollisions</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\ParticleCollisions\ParticleBvhNodeSsbo.h">
       <Filter>Include\Buffers\SSBOs\ParticleCollisions</Filter>
     </ClInclude>
@@ -193,9 +199,6 @@
     <ClInclude Include="Include\Buffers\SSBOs\ParticleCollisions\ParticleSortingDataSsbo.h">
       <Filter>Include\Buffers\SSBOs\ParticleCollisions</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\CollidableGeometryBoundingBoxGeometrySsbo.h">
-      <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\CollidableGeometryBvhNodeSsbo.h">
       <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
     </ClInclude>
@@ -207,6 +210,18 @@
     </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\ParticleGeometryCollisions\CollideableGeometrySsbo.h">
       <Filter>Include\Buffers\SSBOs\ParticleGeometryCollisions</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\VisualizationOnly\CollidableGeometryBoundingBoxGeometrySsbo.h">
+      <Filter>Include\Buffers\SSBOs\VisualizationOnly</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\VisualizationOnly\CollidableGeometryWithNormals.h">
+      <Filter>Include\Buffers\SSBOs\VisualizationOnly</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\VisualizationOnly\ParticleBoundingBoxGeometrySsbo.h">
+      <Filter>Include\Buffers\SSBOs\VisualizationOnly</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\VisualizationOnly\ParticleVelocityVectorGeometrySsbo.h">
+      <Filter>Include\Buffers\SSBOs\VisualizationOnly</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -305,6 +320,18 @@
     </Filter>
     <Filter Include="Include\Buffers\SSBOs\ParticleGeometryCollisions">
       <UniqueIdentifier>{2d495700-e21b-479c-9964-5feed6f3b5a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Buffers\SSBOs\ParticleCollisions">
+      <UniqueIdentifier>{00fb9f7a-e3d7-406f-aa81-4ad03f7b9dc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Buffers\SSBOs\ParticleGeometryCollisions">
+      <UniqueIdentifier>{a3e6c72c-8832-42df-ae88-bd4bd54e3d3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Buffers\SSBOs\VisualizationOnly">
+      <UniqueIdentifier>{6878508a-5465-4540-8df4-3aadac96364e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Buffers\SSBOs\VisualizationOnly">
+      <UniqueIdentifier>{a244f40f-9920-4aec-9d4a-fee4ae03b9b7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
