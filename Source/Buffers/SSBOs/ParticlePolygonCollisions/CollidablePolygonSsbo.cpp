@@ -46,6 +46,9 @@ CollidablePolygonSsbo::CollidablePolygonSsbo(const std::string &blenderMeshFileP
     _numPolygons = v.size();
     _numVertices = (v.size() * sizeof(PolygonFace)) / sizeof(MyVertex);
 
+    // the second half has no need for initial data
+    v.resize(_numPolygons * 2);
+
     // now bind this new buffer to the dedicated buffer binding location
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, COLLIDABLE_POLYGON_BUFFER_BINDING, _bufferId);
 

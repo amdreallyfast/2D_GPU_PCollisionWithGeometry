@@ -54,7 +54,7 @@ namespace ShaderControllers
 
         void GenerateCollidableGeometryBvh() const;
         void SortCollidableGeometry(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const;
-        void GenerateBvh(unsigned int numWorkGroupsX);
+        void GenerateBvh(unsigned int numWorkGroupsX) const;
 
         //void ResolveCollisionsWithoutProfiling(unsigned int numWorkGroupsX) const;
         //void ResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const;
@@ -62,7 +62,7 @@ namespace ShaderControllers
         void PrepareToSortGeometry(unsigned int numWorkGroupsX) const;
         void PrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset) const;
         void SortSortingDataWithPrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset, unsigned int sortingDataWriteOffset) const;
-        void SortGeometryWithSortingData(unsigned int numWorkGroupsX, unsigned int sortingDataReadOffset) const;
+        void SortCollidablePolygonsUsingSortingData(unsigned int numWorkGroupsX, unsigned int sortingDataReadOffset) const;
         
         void PrepareForBinaryTree(unsigned int numWorkGroupsX) const;
         void GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const;
@@ -73,7 +73,7 @@ namespace ShaderControllers
         //void DetectAndResolveCollisions(unsigned int numWorkGroupsX) const;
 
         // buffers for all that jazz
-        CollidablePolygonSsbo _collideableGeometrySsbo;
+        CollidablePolygonSsbo _collideablePolygonSsbo;
         CollidablePolygonSortingDataSsbo _sortingDataSsbo;
         CollidablePolygonPrefixSumSsbo _prefixSumSsbo;
         CollidablePolygonBvhNodeSsbo _bvhNodeSsbo;

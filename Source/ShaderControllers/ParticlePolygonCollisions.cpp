@@ -11,6 +11,7 @@
 #include "Include/ShaderControllers/ProfilingWaitToFinish.h"
 #include "Include/Buffers/SortingData.h"
 #include "Include/Buffers/Particle.h"
+#include "Include/Buffers/BvhNode.h"
 #include "Include/Geometry/PolygonFace.h"
 
 #include <chrono>
@@ -45,12 +46,12 @@ namespace ShaderControllers
         _programIdGenerateBinaryRadixTree(0),
         _programIdMergeBoundingVolumes(0),
 
-        _collideableGeometrySsbo(blenderObjFilePath),
-        _sortingDataSsbo(_collideableGeometrySsbo.NumPolygons()),
-        _prefixSumSsbo(_collideableGeometrySsbo.NumPolygons()),
-        _bvhNodeSsbo(_collideableGeometrySsbo.NumPolygons()),
+        _collideablePolygonSsbo(blenderObjFilePath),
+        _sortingDataSsbo(_collideablePolygonSsbo.NumPolygons()),
+        _prefixSumSsbo(_collideablePolygonSsbo.NumPolygons()),
+        _bvhNodeSsbo(_collideablePolygonSsbo.NumPolygons()),
         _potentialCollisionsSsbo(particleSsbo->NumParticles()),
-        _boundingBoxGeometrySsbo(_collideableGeometrySsbo.NumPolygons()),
+        _boundingBoxGeometrySsbo(_collideablePolygonSsbo.NumPolygons()),
         _surfaceNormalGeometrySsbo(blenderObjFilePath),
         _originalParticleSsbo(particleSsbo)
     {
@@ -58,19 +59,26 @@ namespace ShaderControllers
         AssembleBvhShaders();
 
         // load the buffer size uniforms where the SSBOs will be used
-        _collideableGeometrySsbo.ConfigureConstantUniforms(_programIdCopyGeometryToCopyBuffer);
-        _collideableGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
-        _collideableGeometrySsbo.ConfigureConstantUniforms(_programIdSortGeometry);
+        _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdCopyGeometryToCopyBuffer);
+        _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
+        _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdSortGeometry);
+        _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
 
         _sortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
         _sortingDataSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
         _sortingDataSsbo.ConfigureConstantUniforms(_programIdSortSortingDataWithPrefixSums);
         _sortingDataSsbo.ConfigureConstantUniforms(_programIdSortGeometry);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdGuaranteeSortingDataUniqueness);
+        _sortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
 
         _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
         _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage2);
         _prefixSumSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage3);
         _prefixSumSsbo.ConfigureConstantUniforms(_programIdSortSortingDataWithPrefixSums);
+
+        _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
+        _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
+        _bvhNodeSsbo.ConfigureConstantUniforms(_programIdMergeBoundingVolumes);
 
         // geometry doesn't move, so its BVH will be static through the life of the program
         GenerateCollidableGeometryBvh();
@@ -124,8 +132,8 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParticlePolygonCollisions::DetectAndResolve(bool withProfiling) const
     {
-        int numWorkGroupsX = _collideableGeometrySsbo.NumPolygons() / WORK_GROUP_SIZE_X;
-        int remainder = _collideableGeometrySsbo.NumPolygons() % WORK_GROUP_SIZE_X;
+        int numWorkGroupsX = _collideablePolygonSsbo.NumPolygons() / WORK_GROUP_SIZE_X;
+        int remainder = _collideablePolygonSsbo.NumPolygons() % WORK_GROUP_SIZE_X;
         numWorkGroupsX += (remainder == 0) ? 0 : 1;
 
         if (withProfiling)
@@ -149,7 +157,7 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     const VertexSsboBase &ParticlePolygonCollisions::GetCollidableGeometrySsbo() const
     {
-        return _collideableGeometrySsbo;
+        return _collideablePolygonSsbo;
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -312,8 +320,8 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParticlePolygonCollisions::GenerateCollidableGeometryBvh() const
     {
-        int numWorkGroupsX = _collideableGeometrySsbo.NumPolygons() / WORK_GROUP_SIZE_X;
-        int remainder = _collideableGeometrySsbo.NumPolygons() % WORK_GROUP_SIZE_X;
+        int numWorkGroupsX = _collideablePolygonSsbo.NumPolygons() / WORK_GROUP_SIZE_X;
+        int remainder = _collideablePolygonSsbo.NumPolygons() % WORK_GROUP_SIZE_X;
         numWorkGroupsX += (remainder == 0) ? 0 : 1;
 
         // the prefix scan works on 2 items per thread
@@ -324,7 +332,30 @@ namespace ShaderControllers
         remainder = numItemsInPrefixScanBuffer % (WORK_GROUP_SIZE_X * 2);
         numWorkGroupsXForPrefixSum += (remainder == 0) ? 0 : 1;
 
+
+        {
+            unsigned int startingIndexBytes = 0;
+            std::vector<PolygonFace> checkCollidablePolygons(_collideablePolygonSsbo.NumPolygons());
+            unsigned int bufferSizeBytes = checkCollidablePolygons.size() * sizeof(PolygonFace);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideablePolygonSsbo.BufferId());
+            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+            memcpy(checkCollidablePolygons.data(), bufferPtr, bufferSizeBytes);
+            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        }        
         SortCollidableGeometry(numWorkGroupsX, numWorkGroupsXForPrefixSum);
+        {
+            unsigned int startingIndexBytes = 0;
+            std::vector<PolygonFace> checkCollidablePolygons(_collideablePolygonSsbo.NumPolygons());
+            unsigned int bufferSizeBytes = checkCollidablePolygons.size() * sizeof(PolygonFace);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideablePolygonSsbo.BufferId());
+            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+            memcpy(checkCollidablePolygons.data(), bufferPtr, bufferSizeBytes);
+            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        }
+
+        GenerateBvh(numWorkGroupsX);
         printf("");
     }
 
@@ -340,7 +371,27 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParticlePolygonCollisions::SortCollidableGeometry(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const
     {
+        {
+            unsigned int startingIndexBytes = 0;
+            std::vector<PolygonFace> checkCollidablePolygons(_collideablePolygonSsbo.NumPolygons() * 2);
+            unsigned int bufferSizeBytes = checkCollidablePolygons.size() * sizeof(PolygonFace);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideablePolygonSsbo.BufferId());
+            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+            memcpy(checkCollidablePolygons.data(), bufferPtr, bufferSizeBytes);
+            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        }
         PrepareToSortGeometry(numWorkGroupsX);
+        {
+            unsigned int startingIndexBytes = 0;
+            std::vector<PolygonFace> checkCollidablePolygons(_collideablePolygonSsbo.NumPolygons() * 2);
+            unsigned int bufferSizeBytes = checkCollidablePolygons.size() * sizeof(PolygonFace);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideablePolygonSsbo.BufferId());
+            void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+            memcpy(checkCollidablePolygons.data(), bufferPtr, bufferSizeBytes);
+            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        }
         
         // Morton Codes are 30bits
         unsigned int totalBitCount = 32;
@@ -350,8 +401,8 @@ namespace ShaderControllers
         unsigned int sortingDataWriteBufferOffset = 0;
         for (unsigned int bitNumber = 0; bitNumber < totalBitCount; bitNumber++)
         {
-            sortingDataReadBufferOffset = static_cast<unsigned int>(!writeToSecondBuffer) * _collideableGeometrySsbo.NumPolygons();
-            sortingDataWriteBufferOffset = static_cast<unsigned int>(writeToSecondBuffer) * _collideableGeometrySsbo.NumPolygons();
+            sortingDataReadBufferOffset = static_cast<unsigned int>(!writeToSecondBuffer) * _collideablePolygonSsbo.NumPolygons();
+            sortingDataWriteBufferOffset = static_cast<unsigned int>(writeToSecondBuffer) * _collideablePolygonSsbo.NumPolygons();
 
             PrefixScan(numWorkGroupsXPrefixScan, bitNumber, sortingDataReadBufferOffset);
             SortSortingDataWithPrefixScan(numWorkGroupsX, bitNumber, sortingDataReadBufferOffset, sortingDataWriteBufferOffset);
@@ -361,7 +412,24 @@ namespace ShaderControllers
         }
 
         // the sorting data's final location is in the "write" half of the sorting data buffer
-        SortGeometryWithSortingData(numWorkGroupsX, sortingDataWriteBufferOffset);
+        SortCollidablePolygonsUsingSortingData(numWorkGroupsX, sortingDataWriteBufferOffset);
+        printf("");
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        This method governs the shader dispatches that will result in a balanced binary tree of 
+        bounding boxes from the leaves (collidable polygons) up to the root of the tree.
+    Parameters: 
+        numWorkGroupsX  Expected to be the total polygon count divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticlePolygonCollisions::GenerateBvh(unsigned int numWorkGroupsX) const
+    {
+        PrepareForBinaryTree(numWorkGroupsX);
+        GenerateBinaryRadixTree(numWorkGroupsX);
+        MergeNodesIntoBvh(numWorkGroupsX);
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -390,6 +458,7 @@ namespace ShaderControllers
         void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -425,6 +494,7 @@ namespace ShaderControllers
         bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         glUseProgram(_programIdPrefixScanStage2);
         glDispatchCompute(1, 1, 1);
@@ -434,6 +504,7 @@ namespace ShaderControllers
         bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         glUseProgram(_programIdPrefixScanStage3);
         glDispatchCompute(numWorkGroupsX, 1, 1);
@@ -443,6 +514,7 @@ namespace ShaderControllers
         bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         // verify the sum
         // Note: Start +1 so the first pass can do "i-1", but index 0 is "total number of ones", 
@@ -485,6 +557,7 @@ namespace ShaderControllers
         bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         glUseProgram(_programIdSortSortingDataWithPrefixSums);
         glUniform1ui(UNIFORM_LOCATION_COLLIDABLE_POLYGON_SORTING_DATA_BUFFER_READ_OFFSET, sortingDataReadOffset);
@@ -497,6 +570,7 @@ namespace ShaderControllers
         bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         //std::vector<unsigned int> binaryBuffer(checkSortingData.size());
         //for (size_t i = 0; i < checkSortingData.size(); i++)
@@ -521,13 +595,8 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 7/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticlePolygonCollisions::SortGeometryWithSortingData(unsigned int numWorkGroupsX, unsigned int sortingDataReadOffset) const
+    void ParticlePolygonCollisions::SortCollidablePolygonsUsingSortingData(unsigned int numWorkGroupsX, unsigned int sortingDataReadOffset) const
     {
-        glUseProgram(_programIdSortGeometry);
-        glUniform1ui(UNIFORM_LOCATION_COLLIDABLE_POLYGON_SORTING_DATA_BUFFER_READ_OFFSET, sortingDataReadOffset);
-        glDispatchCompute(numWorkGroupsX, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
         // verify sorted data
         // Note: Only need to copy the first half of the buffer.  This is where the last loop of 
         // the radix sorting algorithm put the sorting data.
@@ -539,6 +608,7 @@ namespace ShaderControllers
         void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
         for (unsigned int i = 1; i < checkSortingData.size(); i++)
         {
             // start at 1 so that prevIndex isn't out of bounds
@@ -552,6 +622,11 @@ namespace ShaderControllers
             }
         }
         printf("");
+
+        glUseProgram(_programIdSortGeometry);
+        glUniform1ui(UNIFORM_LOCATION_COLLIDABLE_POLYGON_SORTING_DATA_BUFFER_READ_OFFSET, sortingDataReadOffset);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -575,40 +650,148 @@ namespace ShaderControllers
         // the two shaders worked on independent data, so only need one memory barrier at the end
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        //unsigned int startingIndexBytes = 0;
-        //std::vector<SortingData> checkSortingData(_particleSortingDataSsbo.NumItems());
-        //unsigned int bufferSizeBytes = checkSortingData.size() * sizeof(SortingData);
-        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSortingDataSsbo.BufferId());
-        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-        //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
-        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        unsigned int startingIndexBytes = 0;
+        unsigned int bufferSizeBytes = 0;
+        void *bufferPtr = nullptr;
 
-        //// check for duplicate elements
-        //// Note: This is an array of sorted elements, but the elements themselves are not on the 
-        //// range [0,n-1], so I can't do the fanciest and most efficient checks.  I also don't 
-        //// want to bother using a hash approach (std::map<...>), and this is just a debugging 
-        //// thing anyway, so go brute force.
-        //for (size_t i = 0; i < checkSortingData.size(); i++)
-        //{
-        //    for (size_t j = i + 1; j < checkSortingData.size(); j++)
-        //    {
-        //        if (checkSortingData[i]._sortingData == checkSortingData[j]._sortingData)
-        //        {
-        //            printf("");
-        //        }
-        //    }
-        //}
-        //printf("");
+        startingIndexBytes = 0;
+        std::vector<BvhNode> checkBinaryTree(_bvhNodeSsbo.NumTotalNodes());
+        bufferSizeBytes = checkBinaryTree.size() * sizeof(BvhNode);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bvhNodeSsbo.BufferId());
+        bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkBinaryTree.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+        // for verifying/debugging
+        startingIndexBytes = 0;
+        std::vector<PolygonFace> checkCollidablePolygons(_collideablePolygonSsbo.NumPolygons());
+        bufferSizeBytes = checkCollidablePolygons.size() * sizeof(PolygonFace);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideablePolygonSsbo.BufferId());
+        bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkCollidablePolygons.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+        startingIndexBytes = 0;
+        std::vector<SortingData> checkSortingData(_sortingDataSsbo.NumItems());
+        bufferSizeBytes = checkSortingData.size() * sizeof(SortingData);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _sortingDataSsbo.BufferId());
+        bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+        // check for duplicate elements
+        // Note: This is an array of sorted elements, but the elements themselves are not on the 
+        // range [0,n-1], so I can't do the fanciest and most efficient checks.  I also don't 
+        // want to bother using a hash approach (std::map<...>), and this is just a debugging 
+        // thing anyway, so go brute force.
+        for (size_t i = 0; i < checkSortingData.size(); i++)
+        {
+            for (size_t j = i + 1; j < checkSortingData.size(); j++)
+            {
+                if (checkSortingData[i]._sortingData == checkSortingData[j]._sortingData)
+                {
+                    printf("");
+                }
+            }
+        }
+        printf("");
     }
 
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        All that sorting to get to here.
+    Parameters: 
+        numWorkGroupsX      Expected to be the number of polygons divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
     void ParticlePolygonCollisions::GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const
     {
+        glUseProgram(_programIdGenerateBinaryRadixTree);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+        // verify that the binary tree is valid by checking that all parent-child relationships 
+        // are reciprocated 
+        // Note: By virtue of being a binary tree, every node except the root has a parent, and 
+        // that parent also specifies that node as a child exactly once.
+        unsigned int startingIndexBytes = 0;
+        std::vector<BvhNode> checkBinaryTree(_bvhNodeSsbo.NumTotalNodes());
+        unsigned int bufferSizeBytes = checkBinaryTree.size() * sizeof(BvhNode);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bvhNodeSsbo.BufferId());
+        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkBinaryTree.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+        // check the root node (no parent, only children)
+        int rootnodeindex = _bvhNodeSsbo.NumLeafNodes();
+        const BvhNode &rootnode = checkBinaryTree[rootnodeindex];
+        if ((rootnodeindex != checkBinaryTree[rootnode._leftChildIndex]._parentIndex) &&
+            (rootnodeindex != checkBinaryTree[rootnode._rightChildIndex]._parentIndex))
+        {
+            // root-child relationship not reciprocated
+            printf("");
+        }
+
+        // check all the other nodes (have parents, leaves don't have children)
+        for (size_t thisNodeIndex = 0; thisNodeIndex < checkBinaryTree.size(); thisNodeIndex++)
+        {
+            const BvhNode &thisNode = checkBinaryTree[thisNodeIndex];
+
+            if (thisNode._parentIndex == -1)
+            {
+                // skip if it is the root; everyone else should have a parent
+                if (thisNodeIndex != _bvhNodeSsbo.NumLeafNodes())
+                {
+                    // bad: non-root node has a -1 parent
+                    printf("");
+                }
+            }
+            else
+            {
+                // this node is only one of the parent's childre, so the parent-child 
+                // relationship is only a problem if neither of the parent's child are this one
+                if ((thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._leftChildIndex) &&
+                    (thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._rightChildIndex))
+                {
+                    // parent-child relationship not reciprocated
+                    printf("");
+                }
+            }
+        }
+
+        printf("");
     }
 
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        And finally the binary radix tree blooms with beautiful bounding boxes into a Bounding 
+        Volume Hierarchy.  I'm tired and am thinking of nice "tree in spring" analogy.  The 
+        analogy starts to fall apart when I think of creating the tree anew ~60x/sec.  
+    Parameters: 
+        numWorkGroupsX      Expected to be number of polygons divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
     void ParticlePolygonCollisions::MergeNodesIntoBvh(unsigned int numWorkGroupsX) const
     {
+        glUseProgram(_programIdMergeBoundingVolumes);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+        // for debugging
+        unsigned int startingIndexBytes = 0;
+        std::vector<BvhNode> checkBinaryTree(_bvhNodeSsbo.NumTotalNodes());
+        unsigned int bufferSizeBytes = checkBinaryTree.size() * sizeof(BvhNode);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bvhNodeSsbo.BufferId());
+        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        memcpy(checkBinaryTree.data(), bufferPtr, bufferSizeBytes);
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 
 
@@ -641,7 +824,7 @@ namespace ShaderControllers
     //void ParticlePolygonCollisions::ResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const
     //{
     //    cout << "detecting collisions for up to " << _numParticles << " particles with " << 
-    //        _collideableGeometrySsbo.NumPolygons() << " 2D polygon faces" << endl;
+    //        _collideablePolygonSsbo.NumPolygons() << " 2D polygon faces" << endl;
 
     //    // for profiling
     //    using namespace std::chrono;
@@ -688,14 +871,15 @@ namespace ShaderControllers
     //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_SHADER_BIT);
 
 
-    //    std::vector<PolygonFace> checkPolygons(_collideableGeometrySsbo.NumPolygons());
+    //    std::vector<PolygonFace> checkPolygons(_collideablePolygonSsbo.NumPolygons());
     //    {
     //        unsigned int startingIndexBytes = 0;
     //        unsigned int bufferSizeBytes = checkPolygons.size() * sizeof(PolygonFace);
-    //        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideableGeometrySsbo.BufferId());
+    //        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _collideablePolygonSsbo.BufferId());
     //        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
     //        memcpy(checkPolygons.data(), bufferPtr, bufferSizeBytes);
     //        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    //        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     //    }
 
     //    std::vector<Particle> checkParticles(_particleSsbo->NumParticles());
@@ -706,6 +890,7 @@ namespace ShaderControllers
     //        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
     //        memcpy(checkParticles.data(), bufferPtr, bufferSizeBytes);
     //        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    //        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     //    }
 
     //    int maxVal = 0;

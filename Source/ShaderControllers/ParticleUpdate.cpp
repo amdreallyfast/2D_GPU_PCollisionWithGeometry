@@ -113,6 +113,7 @@ namespace ShaderControllers
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkUpdateParticles.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         //for (size_t i = 0; i < checkUpdateParticles.size(); i++)
         //{

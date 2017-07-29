@@ -126,6 +126,7 @@ namespace ShaderControllers
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkParticlePropertiesBuffer.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 
         //unsigned int startingIndexBytes = 0;
@@ -135,6 +136,7 @@ namespace ShaderControllers
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkParticleBuffer.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         printf("");
     }
@@ -466,7 +468,7 @@ namespace ShaderControllers
         }
 
         // the sorting data's final location is in the "write" half of the sorting data buffer
-        SortParticles(numWorkGroupsX, sortingDataWriteBufferOffset);
+        SortParticlesUsingSortingData(numWorkGroupsX, sortingDataWriteBufferOffset);
 
         // all done
         glUseProgram(0);
@@ -515,7 +517,7 @@ namespace ShaderControllers
         }
 
         // wherever the sorting data ended up, that is where the shader should read from
-        SortParticles(numWorkGroupsX, sortingDataWriteBufferOffset);
+        SortParticlesUsingSortingData(numWorkGroupsX, sortingDataWriteBufferOffset);
 
         end = high_resolution_clock::now();
         totalSortingTime = duration_cast<microseconds>(end - start).count();
@@ -682,6 +684,7 @@ namespace ShaderControllers
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkPotentialCollisions.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         //unsigned int startingIndexBytes = 0;
         //std::vector<Particle> checkPostCollisionParticles(_originalParticleSsbo->NumParticles());
@@ -690,6 +693,7 @@ namespace ShaderControllers
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkPostCollisionParticles.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         //for (size_t i = 0; i < checkPostCollisionParticles.size(); i++)
         //{
@@ -744,6 +748,7 @@ namespace ShaderControllers
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -777,6 +782,7 @@ namespace ShaderControllers
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         glUseProgram(_programIdPrefixScanStage2);
         glDispatchCompute(1, 1, 1);
@@ -786,6 +792,7 @@ namespace ShaderControllers
         //bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         glUseProgram(_programIdPrefixScanStage3);
         glDispatchCompute(numWorkGroupsX, 1, 1);
@@ -795,6 +802,7 @@ namespace ShaderControllers
         //bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkPrefixScan.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         //// verify the sum
         //// Note: Start +1 so the first pass can do "i-1", but index 0 is "total number of ones", 
@@ -843,6 +851,7 @@ namespace ShaderControllers
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         //std::vector<unsigned int> binaryBuffer(_particleSortingDataSsbo.NumItems());
         //for (size_t i = 0; i < checkSortingData.size(); i++)
@@ -867,14 +876,9 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticleParticleCollisions::SortParticles(unsigned int numWorkGroupsX,
+    void ParticleParticleCollisions::SortParticlesUsingSortingData(unsigned int numWorkGroupsX,
         unsigned int sortingDataReadOffset) const
     {
-        glUseProgram(_programIdSortParticles);
-        glUniform1ui(UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET, sortingDataReadOffset);
-        glDispatchCompute(numWorkGroupsX, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
         //// verify sorted data
         //// Note: Only need to copy the first half of the buffer.  This is where the last loop of 
         //// the radix sorting algorithm put the sorting data.
@@ -886,6 +890,7 @@ namespace ShaderControllers
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
         //for (unsigned int i = 1; i < checkSortingData.size(); i++)
         //{
         //    // start at 1 so that prevIndex isn't out of bounds
@@ -899,6 +904,11 @@ namespace ShaderControllers
         //    }
         //}
         //printf("");
+
+        glUseProgram(_programIdSortParticles);
+        glUniform1ui(UNIFORM_LOCATION_PARTICLE_SORTING_DATA_BUFFER_READ_OFFSET, sortingDataReadOffset);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -907,7 +917,7 @@ namespace ShaderControllers
         spikes due to duplicate entries, then gives each leaf node in the ParticleBvhNodeBuffer a 
         bounding box based on the particle that it is associated with.
     Parameters: 
-        numWorkGroupsX      Expected to be number of particles divided by work group size.
+        numWorkGroupsX      Expected to be the number of particles divided by work group size.
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
@@ -928,6 +938,7 @@ namespace ShaderControllers
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkSortingData.data(), bufferPtr, bufferSizeBytes);
         //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         //// check for duplicate elements
         //// Note: This is an array of sorted elements, but the elements themselves are not on the 
@@ -951,7 +962,7 @@ namespace ShaderControllers
     Description:
         All that sorting to get to here.
     Parameters: 
-        numWorkGroupsX      Expected to be number of particles divided by work group size.
+        numWorkGroupsX      Expected to be the number of particles divided by work group size.
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
@@ -972,6 +983,7 @@ namespace ShaderControllers
         void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         memcpy(checkBinaryTree.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         // check the root node (no parent, only children)
         int rootnodeindex = _bvhNodeSsbo.NumLeafNodes();
@@ -999,6 +1011,8 @@ namespace ShaderControllers
             }
             else
             {
+                // this node is only one of the parent's childre, so the parent-child 
+                // relationship is only a problem if neither of the parent's child are this one
                 if ((thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._leftChildIndex) &&
                     (thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._rightChildIndex))
                 {
@@ -1088,6 +1102,7 @@ namespace ShaderControllers
     //    //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
     //    //memcpy(checkResultantGeometry.data(), bufferPtr, bufferSizeBytes);
     //    //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    //    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     //}
 
 }

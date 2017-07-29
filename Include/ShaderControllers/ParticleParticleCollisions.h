@@ -73,7 +73,7 @@ namespace ShaderControllers
         void PrepareToSortParticles(unsigned int numWorkGroupsX) const;
         void PrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset) const;
         void SortSortingDataWithPrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset, unsigned int sortingDataWriteOffset) const;
-        void SortParticles(unsigned int numWorkGroupsX, unsigned int sortingDataReadOffset) const;
+        void SortParticlesUsingSortingData(unsigned int numWorkGroupsX, unsigned int sortingDataReadOffset) const;
 
         void PrepareForBinaryTree(unsigned int numWorkGroupsX) const;
         void GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const;

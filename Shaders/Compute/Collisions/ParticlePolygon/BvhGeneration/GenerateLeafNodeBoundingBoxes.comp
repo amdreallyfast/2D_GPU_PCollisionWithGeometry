@@ -32,10 +32,14 @@ void main()
     vec4 p2 = AllCollidablePolygons[threadIndex]._end._pos;
 
     BoundingBox bb;
-    bb._left = min(p1.x, p2.x);
-    bb._right = max(p1.x, p2.x);
-    bb._bottom = min(p1.y, p2.y);
-    bb._top = max(p1.y, p2.y);
+//    bb._left = min(p1.x, p2.x);
+//    bb._right = max(p1.x, p2.x);
+//    bb._bottom = min(p1.y, p2.y);
+//    bb._top = max(p1.y, p2.y);
+    bb._left = -p1.x;//-5.0f;
+    bb._right = +p1.x;//+5.0f;
+    bb._bottom = -p1.y;//-7.0f;
+    bb._top = +p1.y;//+7.0f;
     AllCollidablePolygonBvhNodes[threadIndex]._boundingBox = bb;
 }
     
