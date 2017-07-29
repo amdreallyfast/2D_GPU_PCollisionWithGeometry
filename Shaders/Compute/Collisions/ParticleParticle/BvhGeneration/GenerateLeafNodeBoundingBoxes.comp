@@ -26,12 +26,12 @@ void main()
     
     if (AllParticles[threadIndex]._isActive == 0)
     {
-        AllBvhNodes[threadIndex]._isNull = 1;
+        AllParticleBvhNodes[threadIndex]._isNull = 1;
         return;
     }
     else
     {
-        AllBvhNodes[threadIndex]._isNull = 0;
+        AllParticleBvhNodes[threadIndex]._isNull = 0;
     }
     
     // create the bounding box for the bounding volume hierarchy
@@ -44,6 +44,6 @@ void main()
     bb._right = pos.x + r;
     bb._bottom = pos.y - r;
     bb._top = pos.y + r;
-    AllBvhNodes[threadIndex]._boundingBox = bb;
+    AllParticleBvhNodes[threadIndex]._boundingBox = bb;
 }
     

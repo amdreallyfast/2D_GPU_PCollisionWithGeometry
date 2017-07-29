@@ -3,7 +3,7 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/Collisions/PositionToMortonCode.comp
-// REQUIRES Shaders/Compute/Collisions/ParticlePolygonCollisions/Buffers/CollidablePolygonSortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonSortingDataBuffer.comp
 // REQUIRES Shaders/Compute/Collisions/CollidablePolygonBuffer.comp
 
 
@@ -30,6 +30,6 @@ void main()
     vec4 p2 = AllCollidablePolygons[threadIndex]._end._pos;
     vec4 centerPos = (p1 + p2) * 0.5f;
 
-    AllGeometrySortingData[threadIndex]._sortingData = PositionToMortonCode(centerPos);
-    AllGeometrySortingData[threadIndex]._preSortedIndex = int(threadIndex);
+    AllCollidablePolygonSortingData[threadIndex]._sortingData = PositionToMortonCode(centerPos);
+    AllCollidablePolygonSortingData[threadIndex]._preSortedIndex = int(threadIndex);
 }

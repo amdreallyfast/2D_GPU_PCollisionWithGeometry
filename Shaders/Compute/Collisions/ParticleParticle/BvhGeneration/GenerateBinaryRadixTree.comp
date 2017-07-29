@@ -51,8 +51,8 @@ Description:
     values are equal.
 
 Parameters: 
-    indexA  An index into the "leaf" section of AllBvhNodes.  Expected to be thread ID.
-    indexB  Another index into the "leaf" section of AllBvhNodes.
+    indexA  An index into the "leaf" section of AllParticleBvhNodes.  Expected to be thread ID.
+    indexB  Another index into the "leaf" section of AllParticleBvhNodes.
 Returns:    
     See Description.
 Creator:    John Cox, 5/2017
@@ -224,7 +224,7 @@ void main()
     int rootInternalNodeIndex = int(uParticleBvhNumberLeaves);
 
     // prep for next stage (MergeBoundingVolumes.comp)
-    AllBvhNodes[thisInternalNodeIndex]._threadEntranceCounter = 0;
+    AllParticleBvhNodes[thisInternalNodeIndex]._threadEntranceCounter = 0;
 
     // build the tree
 
@@ -253,7 +253,7 @@ void main()
         // left child is an internal node
         leftChildIndex = rootInternalNodeIndex + splitIndex;
     }
-    AllBvhNodes[thisInternalNodeIndex]._leftChildIndex = leftChildIndex;
+    AllParticleBvhNodes[thisInternalNodeIndex]._leftChildIndex = leftChildIndex;
 
     int rightChildIndex = -12;
     if (max(thisLeafIndex, otherEndIndex) == (splitIndex + 1))
@@ -266,14 +266,14 @@ void main()
         // right child is an internal node
         rightChildIndex = rootInternalNodeIndex + splitIndex + 1;
     }
-    AllBvhNodes[thisInternalNodeIndex]._rightChildIndex = rightChildIndex;
+    AllParticleBvhNodes[thisInternalNodeIndex]._rightChildIndex = rightChildIndex;
 
     // in the next stage (constructing the bounding volumes out of this new tree's hierarchy), 
     // both nodes need the option of traversing up to their parent
     // Note: This should set both leaf node and internal parent indices.
     // Also Note: If this algorithm is working correctly, then all internal nodes should have 
     // exactly 2 children, so there should be no need for an "index is -1" check.
-    AllBvhNodes[leftChildIndex]._parentIndex = thisInternalNodeIndex;
-    AllBvhNodes[rightChildIndex]._parentIndex = thisInternalNodeIndex;
+    AllParticleBvhNodes[leftChildIndex]._parentIndex = thisInternalNodeIndex;
+    AllParticleBvhNodes[rightChildIndex]._parentIndex = thisInternalNodeIndex;
 }
 

@@ -3,7 +3,7 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/Collisions/CollidablePolygonBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticlePolygonCollisions/Buffers/CollidableGeometryBvhNodeBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidableGeometryBvhNodeBuffer.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -13,7 +13,7 @@ Description:
     The binary radix tree (framework of the BVH) is created by analyzing the data over which the 
     leaf nodes are organized.  In this demo, leaves are the bounding box containers for 
     collidable polygons and share indices with their corresponding polygon.
-Creator:    John Cox, 5/2017
+Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
 void main()
 {
@@ -23,26 +23,19 @@ void main()
         return;
     }
     
-    if (AllParticles[threadIndex]._isActive == 0)
-    {
-        AllBvhNodes[threadIndex]._isNull = 1;
-        return;
-    }
-    else
-    {
-        AllBvhNodes[threadIndex]._isNull = 0;
-    }
+    // unlike particles, which can deactivate when out of bounds, the geometry will always be 
+    // present
+    AllCollidablePolygonBvhNodes._isNull = 0;
     
     // create the bounding box for the bounding volume hierarchy
-    vec4 pos = AllParticles[threadIndex]._currPos;
-    int particleTypeIndex = AllParticles[threadIndex]._particleTypeIndex;
-    float r = AllParticleProperties[particleTypeIndex]._collisionRadius;
+    vec4 p1 = AllCollidablePolygons[threadIndex]._start._pos;
+    vec4 p2 = AllCollidablePolygons[threadIndex]._start._end;
 
     BoundingBox bb;
-    bb._left = pos.x - r;
-    bb._right = pos.x + r;
-    bb._bottom = pos.y - r;
-    bb._top = pos.y + r;
-    AllBvhNodes[threadIndex]._boundingBox = bb;
+    bb._left = min(p1.x, p2.x);
+    bb._right = max(p1.x, p2.x);
+    bb._bottom = min(p1.y, p2.y);
+    bb._top = max(p1.y, p2.y);
+    AllCollidablePolygonBvhNodes[threadIndex]._boundingBox = bb;
 }
     

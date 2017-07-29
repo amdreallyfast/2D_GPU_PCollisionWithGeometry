@@ -37,7 +37,7 @@ void main()
 
     // start at the leaves and merge bounding boxes up through the root
     // Note: The parent index should only be -1 at the root node.
-    int nodeIndex = AllBvhNodes[threadIndex]._parentIndex;
+    int nodeIndex = AllParticleBvhNodes[threadIndex]._parentIndex;
     while(nodeIndex != -1)
     {
         // prevent race conditions to the parent node
@@ -51,25 +51,25 @@ void main()
         // node.  A third increment, or a fourth, or more would mean that the node has more than 
         // two other nodes referencing it as their parent.  This is problem with tree 
         // construction, not bounding box merging.
-        if (atomicAdd(AllBvhNodes[nodeIndex]._threadEntranceCounter, 1) == 0)
+        if (atomicAdd(AllParticleBvhNodes[nodeIndex]._threadEntranceCounter, 1) == 0)
         {
             return;
         }
         
-        int leftChildIndex = AllBvhNodes[nodeIndex]._leftChildIndex;
-        int rightChildIndex = AllBvhNodes[nodeIndex]._rightChildIndex;
-        BoundingBox leftBb = AllBvhNodes[leftChildIndex]._boundingBox;
-        BoundingBox rightBb = AllBvhNodes[rightChildIndex]._boundingBox;
+        int leftChildIndex = AllParticleBvhNodes[nodeIndex]._leftChildIndex;
+        int rightChildIndex = AllParticleBvhNodes[nodeIndex]._rightChildIndex;
+        BoundingBox leftBb = AllParticleBvhNodes[leftChildIndex]._boundingBox;
+        BoundingBox rightBb = AllParticleBvhNodes[rightChildIndex]._boundingBox;
 
         BoundingBox thisBb;
         thisBb._left = min(leftBb._left, rightBb._left);
         thisBb._right = max(leftBb._right, rightBb._right);
         thisBb._bottom = min(leftBb._bottom, rightBb._bottom);
         thisBb._top = max(leftBb._top, rightBb._top);
-        AllBvhNodes[nodeIndex]._boundingBox = thisBb;
+        AllParticleBvhNodes[nodeIndex]._boundingBox = thisBb;
 
         // next
-        nodeIndex = AllBvhNodes[nodeIndex]._parentIndex;
+        nodeIndex = AllParticleBvhNodes[nodeIndex]._parentIndex;
     }
 }
 

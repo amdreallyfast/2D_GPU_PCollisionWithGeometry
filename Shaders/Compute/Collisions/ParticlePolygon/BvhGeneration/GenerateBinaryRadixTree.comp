@@ -1,0 +1,187 @@
+// REQUIRES Shaders/ShaderHeaders/Version.comp
+// REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonSortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonBvhNodeBuffer.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    See /Collisions/ParticleParticle/BvhGeneration/GenerateBinaryRadixTree.comp for explanation.
+Parameters: 
+    indexA  An index into the "leaf" section of CollidablePolygonBvhNodeBuffer (thread ID).
+    indexB  Another index into the "leaf" section of CollidablePolygonBvhNodeBuffer.
+Returns:    
+    See Description.
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+int LengthOfCommonPrefix(int indexA, int indexB)
+{
+    // don't need to check 'a' because the thread ID should always be in bounds
+    // Note: It seems that a >= comparison between int and uint is ok, no cast required.
+    if (indexB < 0 || indexB >= uCollidablePolygonBvhNumberLeaves)
+    {
+        return -1;
+    }
+    
+    uint valueA = AllCollidablePolygonSortingData[indexA]._sortingData;
+    uint valueB = AllCollidablePolygonSortingData[indexB]._sortingData;
+
+    return (32 - findMSB(valueA ^ valueB));
+}
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    See /Collisions/ParticleParticle/BvhGeneration/GenerateBinaryRadixTree.comp for explanation.
+Parameters: 
+    startNodeIndex  An index into the internal node section of CollidablePolygonBvhNodeBuffer.
+    direction       -1 or +1.  If it is 0, something has gone terribly wrong.
+Returns:    
+    See Description.
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+int DetermineRange(int startNodeIndex, int direction)
+{
+    // determine how many leaves this internal node covers ("range") 
+    int minimumCommonPrefixLength = LengthOfCommonPrefix(startNodeIndex, startNodeIndex - direction);
+    
+    int maxPossibleLength = 2;
+    int secondNodeIndex = startNodeIndex + (maxPossibleLength * direction);
+    while (LengthOfCommonPrefix(startNodeIndex, secondNodeIndex) > minimumCommonPrefixLength)
+    {
+        maxPossibleLength *= 2;
+        secondNodeIndex = startNodeIndex + (maxPossibleLength * direction);
+    }
+
+    // find actual length using a binary search on the max possible length
+    int actualLengthSans1 = 0;
+    for (int rangeIncrement = maxPossibleLength >> 1; rangeIncrement >= 1; rangeIncrement >>= 1)
+    {
+        secondNodeIndex = startNodeIndex + ((actualLengthSans1 + rangeIncrement) * direction);
+        if (LengthOfCommonPrefix(startNodeIndex, secondNodeIndex) > minimumCommonPrefixLength)
+        {
+            actualLengthSans1 += rangeIncrement;
+        }
+    }
+
+    return actualLengthSans1;
+}
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    See /Collisions/ParticleParticle/BvhGeneration/GenerateBinaryRadixTree.comp for explanation.
+Parameters: 
+    startNodeIndex  An index into the internal node section of CollidablePolygonBvhNodeBuffer.
+    length          See DetermineRange(...) Description.
+    direction       -1 or +1.  If it is 0, something has gone terribly wrong.
+Returns:    
+    The number of leaf nodes that are below this internal node in the hierarchy.
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+int FindSplitPosition(int startNodeIndex, int length, int direction)
+{
+    int otherEndIndex = startNodeIndex + (length * direction);
+    int commonPrefixLengthBetweenBeginAndEnd = LengthOfCommonPrefix(startNodeIndex, otherEndIndex);
+    int splitOffset = 0;
+
+    // Note: The loop should run through rangeIncrement == 1, dividing in half each time (log2 
+    // ranging search), but calling ceil(...) with anything on the range [0,1] will return 1.  
+    // A do-while(...) loop will work nicely here and avoid an infinite loop.
+    float rangeIncrement = length;
+    do
+    {
+        // cut the increment in half on each loop
+        rangeIncrement = ceil(rangeIncrement * 0.5f);
+        int rangeIncrementInteger = int(rangeIncrement);
+        int secondNodeIndex = startNodeIndex + ((splitOffset + rangeIncrementInteger) * direction);
+        if (LengthOfCommonPrefix(startNodeIndex, secondNodeIndex) > commonPrefixLengthBetweenBeginAndEnd)
+        {
+            splitOffset += rangeIncrementInteger;
+        }
+    } while (rangeIncrement > 1.0f);
+
+    int splitIndex = startNodeIndex + (splitOffset * direction) + min(direction, 0);
+
+    return splitIndex;
+}
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Performs a parallel construction of a binary radix tree.
+    See /Collisions/ParticleParticle/BvhGeneration/GenerateBinaryRadixTree.comp for explanation.
+Creator:    John Cox, 5/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uCollidablePolygonBvhNumberInternalNodes)
+    {
+        return;
+    }
+
+    // cast a few unsigned values to signed
+    // Note: This algorithm invloves lots of index calculations that must be allowed to go 
+    // negative.  For example, the function LengthOfCommonPrefix(...) will return -1 if the 
+    // second index is out of range.  That is an important part of the range calculation.
+    int thisLeafIndex = int(threadIndex);
+    int thisInternalNodeIndex = int(uCollidablePolygonBvhNumberLeaves + threadIndex);
+    int rootInternalNodeIndex = int(uCollidablePolygonBvhNumberLeaves);
+
+    // prep for next stage (MergeBoundingVolumes.comp)
+    AllCollidablePolygonBvhNodes[thisInternalNodeIndex]._threadEntranceCounter = 0;
+
+    // build the tree
+
+    // Note: If I made LengthOfCommonPrefix(...) correctly and all the sorted data that this 
+    // tree is being built over is unique, then the common prefixes between a value and its 
+    // two neighbors will never be identical and thus the direction will never be 0.  If it is, 
+    // then something has gone terribly wrong with the data set.
+    int commonPrefixLengthBefore = LengthOfCommonPrefix(thisLeafIndex, thisLeafIndex - 1);
+    int commonPrefixLengthAfter = LengthOfCommonPrefix(thisLeafIndex, thisLeafIndex + 1);
+    int d = sign(commonPrefixLengthAfter - commonPrefixLengthBefore);
+    int range = DetermineRange(thisLeafIndex, d);
+    int splitIndex = FindSplitPosition(thisLeafIndex, range, d);
+    
+    // already calculated in FindSplitPosition(...), but it's already returning a value and this 
+    // calculation is cheap and it's needed, so do it again
+    int otherEndIndex = thisLeafIndex + (range * d);
+
+    int leftChildIndex = -12;
+    if (min(thisLeafIndex, otherEndIndex) == splitIndex)
+    {
+        // left child is a leaf node
+        leftChildIndex = splitIndex;
+    }
+    else
+    {
+        // left child is an internal node
+        leftChildIndex = rootInternalNodeIndex + splitIndex;
+    }
+    AllCollidablePolygonBvhNodes[thisInternalNodeIndex]._leftChildIndex = leftChildIndex;
+
+    int rightChildIndex = -12;
+    if (max(thisLeafIndex, otherEndIndex) == (splitIndex + 1))
+    {
+        // right child is a leaf node
+        rightChildIndex = splitIndex + 1;
+    }
+    else
+    {
+        // right child is an internal node
+        rightChildIndex = rootInternalNodeIndex + splitIndex + 1;
+    }
+    AllCollidablePolygonBvhNodes[thisInternalNodeIndex]._rightChildIndex = rightChildIndex;
+
+    // in the next stage (constructing the bounding volumes out of this new tree's hierarchy), 
+    // both nodes need the option of traversing up to their parent
+    // Note: This should set both leaf node and internal parent indices.
+    // Also Note: If this algorithm is working correctly, then all internal nodes should have 
+    // exactly 2 children, so there should be no need for an "index is -1" check.
+    AllCollidablePolygonBvhNodes[leftChildIndex]._parentIndex = thisInternalNodeIndex;
+    AllCollidablePolygonBvhNodes[rightChildIndex]._parentIndex = thisInternalNodeIndex;
+}
+

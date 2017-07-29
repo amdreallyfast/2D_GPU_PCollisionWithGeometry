@@ -20,7 +20,7 @@ Creator:    John Cox, 5/2017
 layout (std430, binding = PARTICLE_BVH_NODE_BUFFER_BINDING) buffer ParticleBvhNodeBuffer
 {
     // leaf nodes first, then internal nodes 
-    BvhNode AllBvhNodes[];
+    BvhNode AllParticleBvhNodes[];
 };
 
 

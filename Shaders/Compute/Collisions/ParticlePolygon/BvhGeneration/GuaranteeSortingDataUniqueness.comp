@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticlePolygonCollisions/Buffers/CollidablePolygonSortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonSortingDataBuffer.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
@@ -30,5 +30,5 @@ void main()
         return;
     }
 
-    AllGeometrySortingData[threadIndex]._sortingData += threadIndex;
+    AllCollidablePolygonSortingData[threadIndex]._sortingData += threadIndex;
 }

@@ -3,9 +3,9 @@
 // REQUIRES Shaders/Compute/Collisions/BvhNode.comp
 
 
-uniform uint uGeometryBvhNumberLeaves;
-uniform uint uGeometryBvhNumberInternalNodes;
-uniform uint uGeometryBvhNodeBufferSize;
+uniform uint uCollidablePolygonBvhNumberLeaves;
+uniform uint uCollidablePolygonBvhNumberInternalNodes;
+uniform uint uCollidablePolygonBvhNodeBufferSize;
 
 /*-----------------------------------------------------------------------------------------------
 Description:
@@ -17,7 +17,7 @@ Description:
     only difference is their size and data.
 Creator:    John Cox, 7/2017
 -----------------------------------------------------------------------------------------------*/
-layout (std430, binding = GEOMETRY_BVH_NODE_BUFFER_BINDING) buffer GeometryBvhNodeBuffer
+layout (std430, binding = COLLIDABLE_POLYGON_BVH_NODE_BUFFER_BINDING) buffer CollidablePolygonBvhNodeBuffer
 {
     // leaf nodes first, then internal nodes 
     BvhNode AllCollidablePolygonBvhNodes[];

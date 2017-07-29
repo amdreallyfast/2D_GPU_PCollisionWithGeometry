@@ -58,9 +58,9 @@ void CollidablePolygonBvhNodeSsbo::ConfigureConstantUniforms(unsigned int comput
 
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    unsigned int numLeavesUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uGeometryBvhNumberLeaves");
-    unsigned int numInternalNodesUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uGeometryBvhNumberInternalNodes");
-    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uGeometryBvhNodeBufferSize");
+    unsigned int numLeavesUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uCollidablePolygonBvhNumberLeaves");
+    unsigned int numInternalNodesUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uCollidablePolygonBvhNumberInternalNodes");
+    unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uCollidablePolygonBvhNodeBufferSize");
 
     glUniform1ui(numLeavesUnifLoc, _numLeaves);
     glUniform1ui(numInternalNodesUnifLoc, _numInternalNodes);

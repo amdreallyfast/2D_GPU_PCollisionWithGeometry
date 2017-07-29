@@ -223,7 +223,7 @@ void Init()
     // for drawing particles
     particleRenderer = std::make_shared<ShaderControllers::RenderParticles>();
 
-    //particleGeometryCollisions = std::make_shared<ShaderControllers::ParticlePolygonCollisions>("Blender3DStuff/airfoil.obj", particleBuffer);
+    particleGeometryCollisions = std::make_shared<ShaderControllers::ParticlePolygonCollisions>("Blender3DStuff/airfoil.obj", particleBuffer);
 
     //// for drawing non-particle things
     //geometryRenderer = std::make_shared<ShaderControllers::RenderGeometry>();

@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticlePolygonCollisions/Buffers/CollidablePolygonSortingDataBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonSortingDataBuffer.comp
 // REQUIRES Shaders/Compute/Collisions/CollidablePolygonBuffer.comp
 
 // Y and Z work group sizes default to 1
@@ -25,7 +25,7 @@ void main()
     }
 
     uint sortedDataIndex = threadIndex + uCollidablePolygonSortingDataBufferReadOffset;
-    uint sourceIndex = AllGeometrySortingData[sortedDataIndex]._preSortedIndex;
+    uint sourceIndex = AllCollidablePolygonSortingData[sortedDataIndex]._preSortedIndex;
 
     // the unsorted particles are in the second half of the buffer
     sourceIndex += uMaxCollidablePolygons;

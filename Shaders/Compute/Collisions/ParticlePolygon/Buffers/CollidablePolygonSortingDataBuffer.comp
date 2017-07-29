@@ -22,5 +22,5 @@ Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
 layout (std430, binding = COLLIDABLE_POLYGON_SORTING_DATA_BUFFER_BINDING) buffer CollidablePolygonSortingDataBuffer
 {
-    SortingData AllGeometrySortingData[];
+    SortingData AllCollidablePolygonSortingData[];
 };
