@@ -3,7 +3,7 @@
 #include <string>
 
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollideableGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometrySsbo.h"
 #include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometryBvhNodeSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometrySortingDataSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometryPrefixSumSsbo.h"
@@ -27,6 +27,7 @@ namespace ShaderControllers
 
         void DetectAndResolve(bool withProfiling) const;
         const VertexSsboBase &GeometrySsbo() const;
+        const VertexSsboBase &GeometryWithNormals() const;
         const VertexSsboBase &GeometryBoundingBoxSsbo() const;
 
     private:
@@ -63,7 +64,10 @@ namespace ShaderControllers
         CollidableGeometryPrefixSumSsbo _prefixSumSsbo;
         CollidableGeometryBvhNodeSsbo _bvhNodeSsbo;
         ParticlePotentialCollisionsSsbo _potentialCollisionsSsbo;
-        CollideableGeometrySsbo _collideableGeometrySsbo;
+        CollidableGeometrySsbo _collideableGeometrySsbo;
+
+        // for visualization only
+        CollidableGeometry
 
         // for debugging
         ParticleSsbo::SharedConstPtr _originalParticleSsbo;

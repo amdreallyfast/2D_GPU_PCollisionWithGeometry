@@ -47,7 +47,7 @@
 
 #include "Include/Buffers/Particle.h"
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Buffers/SSBOs/ParticlePropertiesSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleCollisions/ParticlePropertiesSsbo.h"
 #include "Include/Buffers/PersistentAtomicCounterBuffer.h"
 #include "Include/ShaderControllers/ParticleReset.h"
 #include "Include/ShaderControllers/ParticleUpdate.h"

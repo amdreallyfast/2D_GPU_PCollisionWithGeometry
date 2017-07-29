@@ -1,4 +1,4 @@
-#include "Include/Buffers/SSBOs/ParticleBoundingBoxGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/VisualizationOnly/ParticleBoundingBoxGeometrySsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ShaderHeaders/SsboBufferBindings.comp"

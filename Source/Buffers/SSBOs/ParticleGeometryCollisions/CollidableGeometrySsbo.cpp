@@ -1,5 +1,5 @@
 
-#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollideableGeometrySsbo.h"
+#include "Include/Buffers/SSBOs/ParticleGeometryCollisions/CollidableGeometrySsbo.h"
 #include "Include/Geometry/BlenderLoad.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
@@ -23,7 +23,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-CollideableGeometrySsbo::CollideableGeometrySsbo(const std::string &blenderMeshFilePath) :
+CollidableGeometrySsbo::CollidableGeometrySsbo(const std::string &blenderMeshFilePath) :
     VertexSsboBase(),  // generate buffers and configure VAO
     _numPolygons(0)
 {
@@ -45,6 +45,8 @@ CollideableGeometrySsbo::CollideableGeometrySsbo(const std::string &blenderMeshF
         {
             v.push_back(*polyItr);
 
+
+            // TODO: move to CollidableGeometryWithNormalsSsbo
 #ifdef MAKE_LINES_OUT_OF_NORMALS
             // for the sake of visualization, make 2D polygons for the normals as well
             // Note: Remove these before performing particle-geometry collision detection or 
@@ -81,7 +83,7 @@ Parameters:
 Returns:    None
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-void CollideableGeometrySsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
+void CollidableGeometrySsbo::ConfigureConstantUniforms(unsigned int computeProgramId) const
 {
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
     unsigned int bufferSizeUnifLoc = shaderStorageRef.GetUniformLocation(computeProgramId, "uMaxCollidablePolygons");
@@ -100,7 +102,7 @@ Returns:
     See Description.
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int CollideableGeometrySsbo::NumPolygons() const
+unsigned int CollidableGeometrySsbo::NumPolygons() const
 {
     return _numPolygons;
 }

@@ -30,11 +30,11 @@ protected:
     // can't be private because the derived classes need them
     virtual void ConfigureRender();
 
-    // save on the large header inclusion of OpenGL and write out these primitive types instead 
-    // of using the OpenGL typedefs
+    // the only reason these are in SsboBase and not in VertexSsboBase is because ParticleSsbo 
+    // is composed of points, not MyVertex objects, but it still needs to set up a VAO and draw 
+    // style in order to draw as points.
     // Note: IDs are GLuint (unsigned int), draw style is GLenum (unsigned int), GLushort is 
     // unsigned short.
-    
     unsigned int _vaoId;
     unsigned int _bufferId;
     unsigned int _drawStyle;    // GL_TRIANGLES, GL_LINES, etc.
