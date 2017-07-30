@@ -43,7 +43,7 @@ bool BoundingBoxesOverlap(BoundingBox otherNodeBoundingBox)
     float overlapBoxBottom = max(particleBoundingBox._bottom, otherNodeBoundingBox._bottom);
     float overlapBoxTop = min(particleBoundingBox._top, otherNodeBoundingBox._top);
 
-    bool horizontalIntersection = true;//(overlapBoxRight - overlapBoxLeft) > 0.0f;
+    bool horizontalIntersection = (overlapBoxRight - overlapBoxLeft) > 0.0f;
     bool verticalIntersection = (overlapBoxTop - overlapBoxBottom) > 0.0f;
     return horizontalIntersection && verticalIntersection;
 }
@@ -67,11 +67,12 @@ void main()
         return;
     }
 
+    // at least clear the counter
+    AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 0;
+
     BvhNode particleLeafNode = AllParticleBvhNodes[threadIndex];
     if (particleLeafNode._isNull == 1)
     {
-        // at least clear the counter
-        AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 0;
         return;
     }
 
@@ -101,6 +102,7 @@ void main()
     if (!BoundingBoxesOverlap(root))
     {
         // nothing else to do
+        //AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 0;
         return;
     }
 

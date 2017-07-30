@@ -302,8 +302,8 @@ void Display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     particleRenderer->Render(particleBuffer);
-    //geometryRenderer->Render(particleCollisions->ParticleVelocityVectorSsbo());
-    geometryRenderer->Render(particleCollisions->GetParticleBoundingBoxSsbo());
+    //geometryRenderer->Render(particleCollisions->GetParticleVelocityVectorSsbo());
+    //geometryRenderer->Render(particleCollisions->GetParticleBoundingBoxSsbo());
     geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometrySsbo());
     //geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometryBoundingBoxesSsbo());
 
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
     glutInitContextProfile(GLUT_CORE_PROFILE);
 
     // enable this for automatic message reporting (see OpenGlErrorHandling.cpp)
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
     glutInitContextFlags(GLUT_DEBUG);
 #endif
