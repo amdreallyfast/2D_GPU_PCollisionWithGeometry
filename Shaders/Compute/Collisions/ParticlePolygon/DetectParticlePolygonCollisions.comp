@@ -1,1 +1,166 @@
+// REQUIRES Shaders/ShaderHeaders/Version.comp
+// REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/ParticleBvhNodeBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/CollidablePolygonBvhNodeBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/PotentialParticlePolygonCollisionsBuffer.comp
+
+// this is a bit dirty, but it works
+// Note: The particles' BVH node buffer is contained in the ParticleParticleCollisions shader controller, but it is needed here.  The ParticlePolygonCollisions shader controller does not have access to it, but fortunately, by design, I know that the BVH node buffer's leaf count is equivalent to the particle count, and the particle buffer IS available to the ParticlePolygonCollisions shader.  So include that and use its buffer size as the thread count check.
+// REQUIRES Shaders/Compute/ParticleBuffer.comp
+
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
+
+
+// this is a thread-specific global so that it doesn't have to be copied (arguments are passed 
+// by copy in GLSL) into BoundingBoxesOverlap(...) umpteen times as this shader runs
+BoundingBox particleBoundingBox;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Self-explanatory.
+
+    Note: This is only a potential collision.  Bounding boxes are just boxes, but particles have 
+    a circular radius and a direction of travel (previous pos and current position) while 
+    collidable polygons are lines (p1 and p2).  This function merely determines if the 
+    particle-polygon bounding boxes overlap, and if they do, 
+    ResolveParticlePolygonCollisions.comp will perform a more in-depth check.
+Parameters: 
+    otherNodeBoundBox   A copy of the bounding box of the node to compare 
+                        particleBoundingBox against.
+Returns:    
+    True if they bounding boxes overlap, otherwise false.
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+bool BoundingBoxesOverlap(BoundingBox otherNodeBoundingBox)
+{
+    float overlapBoxLeft = max(particleBoundingBox._left, otherNodeBoundingBox._left);
+    float overlapBoxRight = min(particleBoundingBox._right, otherNodeBoundingBox._right);
+    float overlapBoxBottom = max(particleBoundingBox._bottom, otherNodeBoundingBox._bottom);
+    float overlapBoxTop = min(particleBoundingBox._top, otherNodeBoundingBox._top);
+
+    bool horizontalIntersection = (overlapBoxRight - overlapBoxLeft) > 0.0f;
+    bool verticalIntersection = (overlapBoxTop - overlapBoxBottom) > 0.0f;
+    return horizontalIntersection && verticalIntersection;
+}
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Navigates the collidable polygons' Bounding Volume Hierarchy (BVH) with particle bounding 
+    boxes and finds which ones overlap.  These are dumped into the 
+    PotentialParticlePolygonCollisionsBuffer.
+
+    Influence for the tree traversal is the same as for DetectParticleParticleCollisions.comp.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uMaxNumParticles)
+    {
+        return;
+    }
+
+    BvhNode particleLeafNode = AllParticleBvhNodes[threadIndex];
+    if (particleLeafNode._isNull == 1)
+    {
+        // at least clear the counter
+        AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 0;
+        return;
+    }
+
+    // set the global
+    particleBoundingBox = particleLeafNode._boundingBox;
+
+    // work with a local copy (fast memory), then write that to the buffer when finished
+    int numPotentialCollisions = 0;
+    int collidablePolygonIndexes[MAX_NUM_POTENTIAL_COLLISIONS] = int[MAX_NUM_POTENTIAL_COLLISIONS](-1);
+
+    // because indices in the BVH nodes are all signed integers
+    int thisLeafNodeIndex = int(threadIndex);
+
+    // iterative traversal of the tree requires keeping track of the depth yourself
+    int topOfStackIndex = 0;
+    const int MAX_STACK_SIZE = 64;
+    int nodeStack[MAX_STACK_SIZE];
+    nodeStack[topOfStackIndex++] = -1;  // "top of stack"
+
+    // start at root internal node and dive through the internal nodes in the tree to find leaf 
+    // nodes that intersect with the bounding box for this thread's particle
+    int currentPolygonNodeIndex = int(uCollidablePolygonBvhNumberLeaves);
+    
+    // Note: Unlike the particle-particle collision detection, the collidable polygon BVH is not 
+    // the same size as the particle BVH, so it can't skip the root node check.
+    BoundingBox root = AllCollidablePolygonBvhNodes[currentPolygonNodeIndex]._boundingBox;
+    if (!BoundingBoxesOverlap(root))
+    {
+        // nothing else to do
+        return;
+    }
+
+    AllPotentialParticlePolygonCollisions[0]._numPotentialCollisions = 13;
+
+    // there is an 
+    do
+    {
+        // check for overlap with node on the left
+        // Note: Unlike the particle BVH, all nodes in the collidable polygon BVH are available 
+        // (that is, non are null).
+        int leftChildIndex = AllCollidablePolygonBvhNodes[currentPolygonNodeIndex]._leftChildIndex;
+        BvhNode leftChild = AllCollidablePolygonBvhNodes[leftChildIndex];
+        bool leftChildIsLeaf = (leftChild._isLeaf == 1);
+        bool leftOverlap = BoundingBoxesOverlap(leftChild._boundingBox);
+        if (leftChildIsLeaf && leftOverlap)
+        {
+            // if there are too many collisions, run over the last entry
+            numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
+            collidablePolygonIndexes[numPotentialCollisions++] = leftChildIndex;
+        }
+
+        // repeat for the right branch
+        int rightChildIndex = AllCollidablePolygonBvhNodes[currentPolygonNodeIndex]._rightChildIndex;
+        BvhNode rightChild = AllCollidablePolygonBvhNodes[rightChildIndex];
+        bool rightChildIsLeaf = (rightChild._isLeaf == 1);
+        bool rightOverlap = BoundingBoxesOverlap(rightChild._boundingBox);
+        if (rightChildIsLeaf && rightOverlap )
+        {
+            // if there are too many collisions, run over the last entry
+            numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
+            collidablePolygonIndexes[numPotentialCollisions++] = rightChildIndex;
+        }
+
+        // next node
+        bool traverseLeft = (leftOverlap && !leftChildIsLeaf);
+        bool traverseRight = (rightOverlap && !rightChildIsLeaf);
+        if (!traverseLeft && !traverseRight)
+        {
+            // both children children must be leaves, non-overlapping, or both, so pop the top 
+            // of the stack
+            currentPolygonNodeIndex = nodeStack[--topOfStackIndex];
+        }
+        else 
+        {
+            // at least one of the nodes is not a leaf (internal node) and there is an overlap 
+            // with its bounding box
+            currentPolygonNodeIndex = traverseLeft ? leftChildIndex : rightChildIndex;
+            if (traverseLeft && traverseRight)
+            {
+                // neither is a leaf and there is an overlap with both; already traversing left, 
+                // so push the right index
+                nodeStack[topOfStackIndex++] = rightChildIndex;
+            }
+        }
+    } while (currentPolygonNodeIndex != -1 && topOfStackIndex < MAX_STACK_SIZE);
+
+    // copy the local version to global memory
+    // Note: GLSL is nice to treat arrays as objects.  It makes copying easier.
+    AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 13;//numPotentialCollisions;
+    AllPotentialParticlePolygonCollisions[threadIndex]._objectIndexes = collidablePolygonIndexes;
+}
 

@@ -225,8 +225,8 @@ void Init()
 
     particleGeometryCollisions = std::make_shared<ShaderControllers::ParticlePolygonCollisions>("Blender3DStuff/airfoil.obj", particleBuffer);
 
-    //// for drawing non-particle things
-    //geometryRenderer = std::make_shared<ShaderControllers::RenderGeometry>();
+    // for drawing non-particle things
+    geometryRenderer = std::make_shared<ShaderControllers::RenderGeometry>();
 
 
     // the timer will be used for framerate calculations
@@ -256,7 +256,7 @@ void UpdateAllTheThings()
     bool withProfiling = false;
     bool generateGeometry = false;
     particleCollisions->DetectAndResolve(withProfiling, generateGeometry);
-    //particleGeometryCollisions->DetectAndResolve(false);
+    particleGeometryCollisions->DetectAndResolve(true);
 
 
     ShaderControllers::WaitOnQueuedSynchronization();
@@ -304,7 +304,7 @@ void Display()
     particleRenderer->Render(particleBuffer);
     //geometryRenderer->Render(particleCollisions->ParticleVelocityVectorSsbo());
     //geometryRenderer->Render(particleCollisions->ParticleBoundingBoxSsbo());
-    //geometryRenderer->Render(particleGeometryCollisions->GeometrySsbo());
+    geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometrySsbo());
 
     // draw the frame rate once per second in the lower left corner
     glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));

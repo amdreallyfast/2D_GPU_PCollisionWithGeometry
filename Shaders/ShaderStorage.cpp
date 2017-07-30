@@ -404,19 +404,19 @@ Creator:    John Cox, 7/2017
 GLint ShaderStorage::GetUniformLocation(GLuint programId, const std::string &uniformName) const
 {
     GLint uniformLocation = glGetUniformLocation(programId, uniformName.c_str());
-    if (uniformLocation < 0)
-    {
-        // uncomment if you want to be told when a uniform is not being used
-        // Note: If the program is not 0, then it compiled and linked just fine, so if the 
-        // uniform can't be found, then the program creation found that the uniform was not 
-        // being used and therefore optimized it out.  This is not a problem and doesn't need to 
-        // be reported unless the user wants to find unused uniforms.
-        // Also Note: According to the OpenGL spec, if the location is -1, "the data passed to 
-        // glUniform*(...) will be silently ignored and the specified uniform variable will not 
-        // be changed."
-        // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml
-        fprintf(stderr, "No uniform '%s' in shader program '%u'\n", uniformName.c_str(), programId);
-    }
+    //if (uniformLocation < 0)
+    //{
+    //    // uncomment if you want to be told when a uniform is not being used
+    //    // Note: If the program is not 0, then it compiled and linked just fine, so if the 
+    //    // uniform can't be found, then the program creation found that the uniform was not 
+    //    // being used and therefore optimized it out.  This is not a problem and doesn't need to 
+    //    // be reported unless the user wants to find unused uniforms.
+    //    // Also Note: According to the OpenGL spec, if the location is -1, "the data passed to 
+    //    // glUniform*(...) will be silently ignored and the specified uniform variable will not 
+    //    // be changed."
+    //    // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml
+    //    fprintf(stderr, "No uniform '%s' in shader program '%u'\n", uniformName.c_str(), programId);
+    //}
 
     return uniformLocation;
 }

@@ -54,7 +54,7 @@ void main()
         particleIndexCounter < collisionCandidates._numPotentialCollisions; 
         particleIndexCounter++)
     {
-        int p2Index = collisionCandidates._particleIndexes[particleIndexCounter];
+        int p2Index = collisionCandidates._objectIndexes[particleIndexCounter];
         Particle p2 = AllParticles[p2Index];
         ParticleProperties p2Properties = AllParticleProperties[p2._particleTypeIndex];
 

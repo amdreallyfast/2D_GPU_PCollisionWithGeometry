@@ -67,6 +67,7 @@ namespace ShaderControllers
         _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
         _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdSortGeometry);
         _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
+        _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
 
         _sortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
         _sortingDataSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
@@ -83,6 +84,10 @@ namespace ShaderControllers
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdMergeBoundingVolumes);
+
+        _potentialCollisionsSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
+
+        particleSsbo->ConfigureConstantUniforms(_programIdDetectCollisions);
 
         // geometry doesn't move, so its BVH will be static through the life of the program
         GenerateCollidableGeometryBvh();
@@ -165,7 +170,7 @@ namespace ShaderControllers
             durationDetectCollisions = duration_cast<microseconds>(end - start).count();
 
             start = high_resolution_clock::now();
-            ResolveCollisions(numWorkGroupsX);
+            //ResolveCollisions(numWorkGroupsX);
             WaitForComputeToFinish();
             end = high_resolution_clock::now();
             durationResolveCollisions = duration_cast<microseconds>(end - start).count();
@@ -376,12 +381,12 @@ namespace ShaderControllers
         shaderStorageRef.LinkShader(shaderKey);
         _programIdDetectCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
 
-        shaderKey = "resolve particle-polygon collisions";
-        filePath = "Shaders/Compute/Collisions/ParticlePolygon/ResolveParticlePolygonCollisions.comp";
-        shaderStorageRef.NewShader(shaderKey);
-        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
-        shaderStorageRef.LinkShader(shaderKey);
-        _programIdResolveCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
+        //shaderKey = "resolve particle-polygon collisions";
+        //filePath = "Shaders/Compute/Collisions/ParticlePolygon/ResolveParticlePolygonCollisions.comp";
+        //shaderStorageRef.NewShader(shaderKey);
+        //shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        //shaderStorageRef.LinkShader(shaderKey);
+        //_programIdResolveCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
     }
 
     /*--------------------------------------------------------------------------------------------

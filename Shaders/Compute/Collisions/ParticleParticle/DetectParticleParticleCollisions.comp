@@ -10,8 +10,8 @@
 layout (local_size_x = WORK_GROUP_SIZE_X) in;
 
 
-// this is a thread-specific global so that it doesn't have to be copied into 
-// BoundingBoxesOverlap(...) umpteen times as this shader runs
+// this is a thread-specific global so that it doesn't have to be copied (arguments are passed 
+// by copy in GLSL) into BoundingBoxesOverlap(...) umpteen times as this shader runs
 BoundingBox thisThreadNodeBoundingBox;
 
 
@@ -77,7 +77,8 @@ void main()
     }
     else if (AllParticleBvhNodes[threadIndex]._isNull == 1)
     {
-        // this is a node for an inactive particle
+        // this is a node for an inactive particle, but at least clear the counter
+        AllPotentialParticleParticleCollisions[threadIndex]._numPotentialCollisions = 0;
         return;
     }
 
@@ -100,15 +101,16 @@ void main()
 
     // start at root internal node and dive through the internal nodes in the tree to find leaf 
     // nodes that intersect with the bounding box for this thread's particle
-    // Note: By definition of the BVH's construction, all bounding boxes are contained within 
-    // the root node's bounding box, so don't bother checking for overlap with the root.
-    int currentNodeIndex = int(uParticleBvhNumberLeaves);
+    // Note: By definition of the particle BVH's construction, all particle bounding boxes are 
+    // contained within the root node's bounding box, so don't bother checking for overlap with 
+    // the root.
+    int currentParticleNodeIndex = int(uParticleBvhNumberLeaves);
     do
     {
         // check for overlap with node on the left
         // Note: Even inactive particles have valid bounding boxes.  Ignore other results if 
         // the node is for an inactive particle.
-        int leftChildIndex = AllParticleBvhNodes[currentNodeIndex]._leftChildIndex;
+        int leftChildIndex = AllParticleBvhNodes[currentParticleNodeIndex]._leftChildIndex;
         BvhNode leftChild = AllParticleBvhNodes[leftChildIndex];
         bool leftIsNotNull = (leftChild._isNull == 0);
         bool leftChildIsNotSelf = (leftChildIndex != thisLeafNodeIndex);
@@ -122,7 +124,7 @@ void main()
         }
 
         // repeat for the right branch
-        int rightChildIndex = AllParticleBvhNodes[currentNodeIndex]._rightChildIndex;
+        int rightChildIndex = AllParticleBvhNodes[currentParticleNodeIndex]._rightChildIndex;
         BvhNode rightChild = AllParticleBvhNodes[rightChildIndex];
         bool rightIsNotNull = (rightChild._isNull == 0);
         bool rightChildIsNotSelf = (rightChildIndex != thisLeafNodeIndex);
@@ -142,13 +144,13 @@ void main()
         {
             // both children children must be leaves, non-overlapping, or both, so pop the top 
             // of the stack
-            currentNodeIndex = nodeStack[--topOfStackIndex];
+            currentParticleNodeIndex = nodeStack[--topOfStackIndex];
         }
         else 
         {
             // at least one of the nodes is not a leaf (internal node) and there is an overlap 
             // with its bounding box
-            currentNodeIndex = traverseLeft ? leftChildIndex : rightChildIndex;
+            currentParticleNodeIndex = traverseLeft ? leftChildIndex : rightChildIndex;
             if (traverseLeft && traverseRight)
             {
                 // neither is a leaf and there is an overlap with both; already traversing left, 
@@ -156,12 +158,12 @@ void main()
                 nodeStack[topOfStackIndex++] = rightChildIndex;
             }
         }
-    } while (currentNodeIndex != -1 && topOfStackIndex < MAX_STACK_SIZE);
+    } while (currentParticleNodeIndex != -1 && topOfStackIndex < MAX_STACK_SIZE);
 
     // copy the local version to global memory
     // Note: GLSL is nice to treat arrays as objects.  It makes copying easier.
     AllPotentialParticleParticleCollisions[threadIndex]._numPotentialCollisions = numPotentialCollisions;
-    AllPotentialParticleParticleCollisions[threadIndex]._particleIndexes = particleIndexes;
+    AllPotentialParticleParticleCollisions[threadIndex]._objectIndexes = particleIndexes;
 
     // for color
     AllParticles[threadIndex]._numNearbyParticles = numPotentialCollisions;

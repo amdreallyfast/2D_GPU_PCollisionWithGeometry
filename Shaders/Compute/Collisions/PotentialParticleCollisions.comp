@@ -10,5 +10,8 @@ Creator:    John Cox, 6/2017
 struct PotentialParticleCollisions
 {
     int _numPotentialCollisions;
-    int _particleIndexes[MAX_NUM_POTENTIAL_COLLISIONS];
+
+    // particle indexes for particle-particle collisions, polygon indexes for particle-polygon 
+    // collisions
+    int _objectIndexes[MAX_NUM_POTENTIAL_COLLISIONS];
 };

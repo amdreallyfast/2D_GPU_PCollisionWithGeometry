@@ -34,11 +34,11 @@ struct PotentialParticleCollisions
     {
         for (size_t i = 0; i < MAX_NUM_POTENTIAL_COLLISIONS; i++)
         {
-            _particleIndexes[i] = -1;
+            _objectIndexes[i] = -1;
         }
     }
 
     int _numPotentialCollisions;
-    int _particleIndexes[MAX_NUM_POTENTIAL_COLLISIONS];
+    int _objectIndexes[MAX_NUM_POTENTIAL_COLLISIONS];
 };
 
