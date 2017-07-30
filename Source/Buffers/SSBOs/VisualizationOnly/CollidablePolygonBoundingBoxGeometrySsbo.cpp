@@ -23,7 +23,10 @@ CollidablePolygonBoundingBoxGeometrySsbo::CollidablePolygonBoundingBoxGeometrySs
     VertexSsboBase(),  // generate buffers and configure VAO
     _numBoxes(0)
 {
-    std::vector<Box2D> v(numPolygons);
+    // for n leaves, the BVH has n-1 internal nodes
+    unsigned int numLeafNodes = numPolygons;
+    unsigned int numInternalNodes = numPolygons - 1;
+    std::vector<Box2D> v(numLeafNodes + numInternalNodes);
     _numBoxes = numPolygons;
     _numVertices = (v.size() * sizeof(Box2D)) / sizeof(MyVertex);
 

@@ -22,5 +22,3 @@ layout (std430, binding = COLLIDABLE_POLYGON_BVH_NODE_BUFFER_BINDING) buffer Col
     // leaf nodes first, then internal nodes 
     BvhNode AllCollidablePolygonBvhNodes[];
 };
-
-
