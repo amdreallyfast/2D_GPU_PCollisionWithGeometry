@@ -256,7 +256,7 @@ void UpdateAllTheThings()
     bool withProfiling = false;
     bool generateGeometry = false;
     particleCollisions->DetectAndResolve(withProfiling, generateGeometry);
-    //particleGeometryCollisions->DetectAndResolve(true);
+    particleGeometryCollisions->DetectAndResolve(true);
 
 
     ShaderControllers::WaitOnQueuedSynchronization();

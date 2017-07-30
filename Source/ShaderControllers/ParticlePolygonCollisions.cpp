@@ -525,6 +525,18 @@ namespace ShaderControllers
         glDispatchCompute(numWorkGroupsX, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+        //{
+        //    unsigned int startingIndexBytes = 0;
+        //    std::vector<BvhNode> checkParticleBvhNodes(_originalParticleSsbo->NumParticles());
+        //    unsigned int bufferSizeBytes = checkParticleBvhNodes.size() * sizeof(BvhNode);
+        //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 5);
+        //    void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //    memcpy(checkParticleBvhNodes.data(), bufferPtr, bufferSizeBytes);
+        //    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        //}
+
+
         // for verifying/debugging
         unsigned int startingIndexBytes = 0;
         std::vector<PotentialParticleCollisions> checkPotentialCollisions(_potentialCollisionsSsbo.NumItems());
