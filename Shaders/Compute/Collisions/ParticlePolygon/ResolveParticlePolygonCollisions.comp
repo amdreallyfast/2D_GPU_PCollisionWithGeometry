@@ -1,14 +1,13 @@
-// REQUIRES Version.comp
-// REQUIRES ComputeShaderWorkGroupSizes.comp
-// REQUIRES SsboBufferBindings.comp
-// REQUIRES CrossShaderUniformLocations.comp
-// REQUIRES ParticleBuffer.comp
-//// REQUIRES ParticleBoundingBoxesBuffer.comp
-// REQUIRES CollidablePolygonBuffer.comp
+// REQUIRES Shaders/ShaderHeaders/Version.comp
+// REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/ParticlePolygon/Buffers/PotentialParticlePolygonCollisionsBuffer.comp
+// REQUIRES Shaders/Compute/ParticleBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/CollidablePolygonBuffer.comp
 
 // Y and Z work group sizes default to 1
-//layout (local_size_x = WORK_GROUP_SIZE_X) in;
-layout (local_size_x = 512) in;
+layout (local_size_x = WORK_GROUP_SIZE_X) in;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -31,8 +30,8 @@ Creator:    John Cox, 6/2017
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Each particle examines all the polygon faces in the CollidablePolygonBuffer and bounces 
-    off them if necessary.
+    For each potential polygon collision, each particle examines that polygon's faces in the 
+    CollidablePolygonBuffer and bounces off them if the particle has traveled through it.
 
     Consider two line segments "a" and "b".  Each are defined by a position vector + travel 
     vector.  Their intersection will occur at some fraction t (I could have chosen another 
@@ -84,60 +83,75 @@ void main()
         return;
     }
     
+    // make local copies for easier access
     Particle p = AllParticles[threadIndex];
+    PotentialParticleCollisions collisionCandidates = AllPotentialParticlePolygonCollisions[threadIndex];
 
-    for(uint polyCounter = 0; polyCounter < uMaxCollidablePolygons; polyCounter++)
+    if (collisionCandidates._numPotentialCollisions > 0)
     {
-        PolygonFace polyFace = AllCollidablePolygons[polyCounter];
-
-        // figure out where it crossed the line
-        // Note: In this function, "a" will be the particle travel vector and "b" will be the 
-        // line along the polygon face.
-        vec4 a = (p._currPos - p._prevPos);
-        vec4 b = (polyFace._end._pos - polyFace._start._pos);
-        vec4 c = (p._prevPos - polyFace._start._pos);   
-        float s = PerpDot(a, c) / PerpDot(a, b);
-        float t = PerpDot(b, c) / PerpDot(a, b);
-
-        bool sIsBad = s < 0.0f || s > 1.0f || isinf(s) || isnan(s);
-        bool tIsBad = t < 0.0f || t > 1.0f || isinf(t) || isnan(t);
-        if (sIsBad || tIsBad)
-        {
-            // no intersection
-            // Note: No intersection can happen a few ways:
-            // - inf -> parallel
-            // - t < 0 or t > 0 -> no intersection
-            // - nan -> ??can this happen??
-            continue;
-        }
-
-        // the particle crossed the line; bounce it
-        // Note: Work out this equation on paper and it will hopefully make visual sense.  It 
-        // did for me.
-        // Also Note: The line segment remaining after the point of intersection is traveling in 
-        // the same direction as the incident vector.  This algorithm to reflect a vector around 
-        // a normal applies the magnitude of the incident vector to the reflection vector, so by 
-        // using the line segment after the intersection as the incident line segment, the 
-        // reflection vector will adopt its magnitude.  This will make the particle's resulting 
-        // position only travel as far as necessary after the bounce.
-        vec4 pointOfIntersection = p._prevPos + (t * a);
-        vec4 posIncidentVector = p._currPos - pointOfIntersection;
-
-        // reflect the position and velocity around the surface normal
-        // Note: Both vertices normals are the same for any given PolygonFace, so either vertices' normal will work
-        // Also Note: The velocity vector is just a direction, so it doesn't need to be altered 
-        // at the point of intersection like position does.  Just reflect it as is.
-        vec4 n = polyFace._start._normal;
-        vec4 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
-        vec4 reflectedVelVector = p._vel - ((2 * dot(p._vel, n)) * n);
-    
-        AllParticles[threadIndex]._prevPos = pointOfIntersection + (n * 0.005f);    //??bump it out from the surface a bit? will this stop particles from sneaking through the geometry??
-        AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
-        AllParticles[threadIndex]._vel = reflectedVelVector;
-    
-        // it should only collide with 1 piece of geometry, so if the particle has already 
-        // bounced off something, then this thread is done
-        break;
+        AllParticles[threadIndex]._vel = AllParticles[threadIndex]._vel * (-1.0f);
     }
+
+//    // go through all the collision candidates, and if necessary calculate collision results
+//    for (int polygonIndexCounter = 0; 
+//        polygonIndexCounter < collisionCandidates._numPotentialCollisions; 
+//        polygonIndexCounter++)
+//    {
+//        AllParticles[threadIndex]._vel = AllParticles[threadIndex]._vel * (-1.0f);
+//    }
+
+//    for(uint polyCounter = 0; polyCounter < uMaxCollidablePolygons; polyCounter++)
+//    {
+//        PolygonFace polyFace = AllCollidablePolygons[polyCounter];
+//
+//        // figure out where it crossed the line
+//        // Note: In this function, "a" will be the particle travel vector and "b" will be the 
+//        // line along the polygon face.
+//        vec4 a = (p._currPos - p._prevPos);
+//        vec4 b = (polyFace._end._pos - polyFace._start._pos);
+//        vec4 c = (p._prevPos - polyFace._start._pos);   
+//        float s = PerpDot(a, c) / PerpDot(a, b);
+//        float t = PerpDot(b, c) / PerpDot(a, b);
+//
+//        bool sIsBad = s < 0.0f || s > 1.0f || isinf(s) || isnan(s);
+//        bool tIsBad = t < 0.0f || t > 1.0f || isinf(t) || isnan(t);
+//        if (sIsBad || tIsBad)
+//        {
+//            // no intersection
+//            // Note: No intersection can happen a few ways:
+//            // - inf -> parallel
+//            // - t < 0 or t > 0 -> no intersection
+//            // - nan -> ??can this happen??
+//            continue;
+//        }
+//
+//        // the particle crossed the line; bounce it
+//        // Note: Work out this equation on paper and it will hopefully make visual sense.  It 
+//        // did for me.
+//        // Also Note: The line segment remaining after the point of intersection is traveling in 
+//        // the same direction as the incident vector.  This algorithm to reflect a vector around 
+//        // a normal applies the magnitude of the incident vector to the reflection vector, so by 
+//        // using the line segment after the intersection as the incident line segment, the 
+//        // reflection vector will adopt its magnitude.  This will make the particle's resulting 
+//        // position only travel as far as necessary after the bounce.
+//        vec4 pointOfIntersection = p._prevPos + (t * a);
+//        vec4 posIncidentVector = p._currPos - pointOfIntersection;
+//
+//        // reflect the position and velocity around the surface normal
+//        // Note: Both vertices normals are the same for any given PolygonFace, so either vertices' normal will work
+//        // Also Note: The velocity vector is just a direction, so it doesn't need to be altered 
+//        // at the point of intersection like position does.  Just reflect it as is.
+//        vec4 n = polyFace._start._normal;
+//        vec4 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
+//        vec4 reflectedVelVector = p._vel - ((2 * dot(p._vel, n)) * n);
+//    
+//        AllParticles[threadIndex]._prevPos = pointOfIntersection + (n * 0.005f);    //??bump it out from the surface a bit? will this stop particles from sneaking through /the/ geometry??
+//        AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
+//        AllParticles[threadIndex]._vel = reflectedVelVector;
+//    
+//        // it should only collide with 1 piece of geometry, so if the particle has already 
+//        // bounced off something, then this thread is done
+//        break;
+//    }
 }
 

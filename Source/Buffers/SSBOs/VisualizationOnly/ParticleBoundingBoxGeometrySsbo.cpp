@@ -20,9 +20,14 @@ Returns:    None
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
 ParticleBoundingBoxGeometrySsbo::ParticleBoundingBoxGeometrySsbo(unsigned int numParticles) :
-    VertexSsboBase()  // generate buffers and configure VAO
+    VertexSsboBase(),  // generate buffers and configure VAO
+    _numBoxes(0)
 {
-    std::vector<Box2D> v(numParticles);
+    // for n leaves, the BVH has n-1 internal nodes
+    unsigned int numLeafNodes = numParticles;
+    unsigned int numInternalNodes = numParticles - 1;
+    std::vector<Box2D> v(numLeafNodes + numInternalNodes);
+    _numBoxes = numParticles;
     _numVertices = (v.size() * sizeof(Box2D)) / sizeof(MyVertex);
 
     // now bind this new buffer to the dedicated buffer binding location
@@ -52,4 +57,17 @@ void ParticleBoundingBoxGeometrySsbo::ConfigureConstantUniforms(unsigned int com
     glUseProgram(computeProgramId);
     glUniform1ui(bufferSizeUnifLoc, _numVertices);
     glUseProgram(0);
+}
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Determined on creation.
+Parameters: None
+Returns:    
+    See Description.
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+unsigned int ParticleBoundingBoxGeometrySsbo::NumBoxes() const
+{
+    return _numBoxes;
 }

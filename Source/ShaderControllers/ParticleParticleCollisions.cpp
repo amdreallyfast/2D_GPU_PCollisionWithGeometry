@@ -79,6 +79,7 @@ namespace ShaderControllers
         AssembleSortingShaders();
         AssembleBvhShaders();
         AssembleCollisionShaders();
+        AssembleGeometryCreationShaders();
 
         // load the buffer size uniforms where the SSBOs will be used
         particleSsbo->ConfigureConstantUniforms(_programIdCopyParticlesToCopyBuffer);
@@ -87,12 +88,12 @@ namespace ShaderControllers
         particleSsbo->ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
         particleSsbo->ConfigureConstantUniforms(_programIdDetectCollisions);
         particleSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
-        //particleSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
-        //particleSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
+        particleSsbo->ConfigureConstantUniforms(_programIdGenerateParticleBoundingBoxGeometry);
+        particleSsbo->ConfigureConstantUniforms(_programIdGenerateParticleVelocityVectorGeometry);
 
         particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
         particlePropertiesSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
-        //particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
+        particlePropertiesSsbo->ConfigureConstantUniforms(_programIdGenerateParticleBoundingBoxGeometry);
 
         _sortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
         _sortingDataSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
@@ -114,9 +115,9 @@ namespace ShaderControllers
         _potentialCollisionsSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
         _potentialCollisionsSsbo.ConfigureConstantUniforms(_programIdResolveCollisions);
 
-        //_velocityVectorGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleVelocityVectors);
+        _velocityVectorGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateParticleVelocityVectorGeometry);
 
-        //_boundingBoxGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateVerticesParticleBoundingBoxes);
+        _boundingBoxGeometrySsbo.ConfigureConstantUniforms(_programIdGenerateParticleBoundingBoxGeometry);
 
 
         //unsigned int startingIndexBytes = 0;
@@ -254,7 +255,7 @@ namespace ShaderControllers
         if (generateGeometry)
         {
             // visualize the results
-            //GenerateGeometry(numWorkGroupsX);
+            GenerateGeometry(numWorkGroupsX);
         }
     }
 
@@ -267,7 +268,7 @@ namespace ShaderControllers
         A const reference to the particle velocity vector geometry SSBO.
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    const VertexSsboBase &ParticleParticleCollisions::ParticleVelocityVectorSsbo() const
+    const VertexSsboBase &ParticleParticleCollisions::GetParticleVelocityVectorSsbo() const
     {
         return _velocityVectorGeometrySsbo;
     }
@@ -282,7 +283,7 @@ namespace ShaderControllers
         A const reference to the particle bounding box geometry SSBO.
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    const VertexSsboBase &ParticleParticleCollisions::ParticleBoundingBoxSsbo() const
+    const VertexSsboBase &ParticleParticleCollisions::GetParticleBoundingBoxSsbo() const
     {
         return _boundingBoxGeometrySsbo;
     }
@@ -427,6 +428,37 @@ namespace ShaderControllers
         shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _programIdResolveCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Primarily serves to clean up the constructor.
+
+        Assembles headers, buffers, and functional .comp files for the shaders that generate 
+        renderable geometry out of non-renderable stuff.
+    Parameters: None
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleParticleCollisions::AssembleGeometryCreationShaders()
+    {
+        ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+        std::string shaderKey;
+        std::string filePath;
+
+        shaderKey = "generate particle BVH geometry";
+        filePath = "Shaders/Compute/Visualization/GenerateParticleBoundingBoxGeometry.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdGenerateParticleBoundingBoxGeometry = shaderStorageRef.GetShaderProgram(shaderKey);
+
+        shaderKey = "generate particle velocity vector geometry";
+        filePath = "Shaders/Compute/Visualization/GenerateParticleVelocityVectorGeometry.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdGenerateParticleVelocityVectorGeometry = shaderStorageRef.GetShaderProgram(shaderKey);
     }
     
     /*--------------------------------------------------------------------------------------------
@@ -1073,36 +1105,36 @@ namespace ShaderControllers
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
 
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    Generates 2x vertices per particle for a start-end pair.  
-    //Parameters: 
-    //    numWorkGroupsX      Expected to be number of particles divided by work group size.
-    //Returns:    None
-    //Creator:    John Cox, 6/2017
-    //--------------------------------------------------------------------------------------------*/
-    //void ParticleParticleCollisions::GenerateGeometry(unsigned int numWorkGroupsX) const
-    //{
-    //    glUseProgram(_programIdGenerateVerticesParticleVelocityVectors);
-    //    glDispatchCompute(numWorkGroupsX, 1, 1);
-    //    glUseProgram(_programIdGenerateVerticesParticleBoundingBoxes);
-    //    glDispatchCompute(numWorkGroupsX, 1, 1);
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Generates vertices for each particle's velocity vector and for its BVH node bounding box.
+    Parameters: 
+        numWorkGroupsX      Expected to be number of particles divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 6/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleParticleCollisions::GenerateGeometry(unsigned int numWorkGroupsX) const
+    {
+        glUseProgram(_programIdGenerateParticleVelocityVectorGeometry);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glUseProgram(_programIdGenerateParticleBoundingBoxGeometry);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
 
-    //    // this geometry buffer will not be used in any shader storage, but it will be used for 
-    //    // rendering
-    //    //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_SHADER_BIT);
-    //    glMemoryBarrier(GL_VERTEX_SHADER_BIT);
+        // this geometry buffer will not be used in any shader storage, but it will be used for 
+        // rendering
+        //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_SHADER_BIT);
+        glMemoryBarrier(GL_VERTEX_SHADER_BIT);
 
-    //    //// in case of debugging
-    //    //WaitForComputeToFinish();
-    //    //unsigned int startingIndexBytes = 0;
-    //    //std::vector<MyVertex> checkResultantGeometry(_velocityVectorGeometrySsbo.NumVertices());
-    //    //unsigned int bufferSizeBytes = checkResultantGeometry.size() * sizeof(MyVertex);
-    //    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _velocityVectorGeometrySsbo.BufferId());
-    //    //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-    //    //memcpy(checkResultantGeometry.data(), bufferPtr, bufferSizeBytes);
-    //    //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    //    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    //}
+        //// in case of debugging
+        //WaitForComputeToFinish();
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<MyVertex> checkResultantGeometry(_velocityVectorGeometrySsbo.NumVertices());
+        //unsigned int bufferSizeBytes = checkResultantGeometry.size() * sizeof(MyVertex);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _velocityVectorGeometrySsbo.BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkResultantGeometry.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
 
 }

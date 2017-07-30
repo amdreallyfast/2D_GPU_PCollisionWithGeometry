@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/ParticleVisualization/ParticleVelocityVectorGeometryBuffer.comp
+// REQUIRES Shaders/Compute/Visualization/ParticleVelocityVectorGeometryBuffer.comp
 // REQUIRES Shaders/Compute/ParticleBuffer.comp
 // REQUIRES Shaders/Compute/QuickNormalize.comp
 

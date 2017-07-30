@@ -440,9 +440,6 @@
     <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\GenerateLeafNodeBoundingBoxes.comp">
       <Filter>Shaders\Compute\Collisions\ParticleParticle\BvhGeneration</Filter>
     </None>
-    <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\GenerateVerticesParticleBoundingBoxes.comp">
-      <Filter>Shaders\Compute\Collisions\ParticleParticle\BvhGeneration</Filter>
-    </None>
     <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\GuaranteeSortingDataUniqueness.comp">
       <Filter>Shaders\Compute\Collisions\ParticleParticle\BvhGeneration</Filter>
     </None>
@@ -524,9 +521,6 @@
     <None Include="Shaders\Compute\Visualization\CollidablePolygonSurfaceNormalGeometryBuffer.comp">
       <Filter>Shaders\Compute\Visualization</Filter>
     </None>
-    <None Include="Shaders\Compute\Visualization\GenerateVerticesParticleVelocityVectors.comp">
-      <Filter>Shaders\Compute\Visualization</Filter>
-    </None>
     <None Include="Shaders\Compute\Visualization\ParticleBoundingBoxGeometryBuffer.comp">
       <Filter>Shaders\Compute\Visualization</Filter>
     </None>
@@ -543,6 +537,12 @@
       <Filter>Shaders\Compute\Collisions</Filter>
     </None>
     <None Include="Shaders\Compute\Visualization\GenerateCollidablePolygonBoundingBoxGeometry.comp">
+      <Filter>Shaders\Compute\Visualization</Filter>
+    </None>
+    <None Include="Shaders\Compute\Visualization\GenerateParticleBoundingBoxGeometry.comp">
+      <Filter>Shaders\Compute\Visualization</Filter>
+    </None>
+    <None Include="Shaders\Compute\Visualization\GenerateParticleVelocityVectorGeometry.comp">
       <Filter>Shaders\Compute\Visualization</Filter>
     </None>
   </ItemGroup>

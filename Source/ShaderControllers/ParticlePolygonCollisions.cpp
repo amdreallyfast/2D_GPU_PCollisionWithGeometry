@@ -71,6 +71,7 @@ namespace ShaderControllers
         _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdSortGeometry);
         _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
         _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
+        _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdResolveCollisions);
 
         _sortingDataSsbo.ConfigureConstantUniforms(_programIdGenerateSortingData);
         _sortingDataSsbo.ConfigureConstantUniforms(_programIdPrefixScanStage1);
@@ -90,10 +91,12 @@ namespace ShaderControllers
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGeneratePolygonBoundingBoxGeometry);
 
         _potentialCollisionsSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
+        _potentialCollisionsSsbo.ConfigureConstantUniforms(_programIdResolveCollisions);
 
         _boundingBoxGeometrySsbo.ConfigureConstantUniforms(_programIdGeneratePolygonBoundingBoxGeometry);
 
         particleSsbo->ConfigureConstantUniforms(_programIdDetectCollisions);
+        particleSsbo->ConfigureConstantUniforms(_programIdResolveCollisions);
 
 
         // geometry doesn't move, so its BVH will be static through the life of the program
@@ -178,7 +181,7 @@ namespace ShaderControllers
             durationDetectCollisions = duration_cast<microseconds>(end - start).count();
 
             start = high_resolution_clock::now();
-            //ResolveCollisions(numWorkGroupsX);
+            ResolveCollisions(numWorkGroupsX);
             WaitForComputeToFinish();
             end = high_resolution_clock::now();
             durationResolveCollisions = duration_cast<microseconds>(end - start).count();
@@ -389,12 +392,12 @@ namespace ShaderControllers
         shaderStorageRef.LinkShader(shaderKey);
         _programIdDetectCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
 
-        //shaderKey = "resolve particle-polygon collisions";
-        //filePath = "Shaders/Compute/Collisions/ParticlePolygon/ResolveParticlePolygonCollisions.comp";
-        //shaderStorageRef.NewShader(shaderKey);
-        //shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
-        //shaderStorageRef.LinkShader(shaderKey);
-        //_programIdResolveCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
+        shaderKey = "resolve particle-polygon collisions";
+        filePath = "Shaders/Compute/Collisions/ParticlePolygon/ResolveParticlePolygonCollisions.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdResolveCollisions = shaderStorageRef.GetShaderProgram(shaderKey);
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -525,37 +528,25 @@ namespace ShaderControllers
         glDispatchCompute(numWorkGroupsX, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+        //// for verifying/debugging
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<PotentialParticleCollisions> checkPotentialCollisions(_potentialCollisionsSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkPotentialCollisions.size() * sizeof(SortingData);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _potentialCollisionsSsbo.BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkPotentialCollisions.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+        //for (size_t i = 0; i < checkPotentialCollisions.size(); i++)
         //{
-        //    unsigned int startingIndexBytes = 0;
-        //    std::vector<BvhNode> checkParticleBvhNodes(_originalParticleSsbo->NumParticles());
-        //    unsigned int bufferSizeBytes = checkParticleBvhNodes.size() * sizeof(BvhNode);
-        //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 5);
-        //    void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-        //    memcpy(checkParticleBvhNodes.data(), bufferPtr, bufferSizeBytes);
-        //    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        //    const PotentialParticleCollisions &potentialCollisions = checkPotentialCollisions[i];
+        //    if (potentialCollisions._numPotentialCollisions != 0)
+        //    {
+        //        printf("");
+        //    }
         //}
-
-
-        // for verifying/debugging
-        unsigned int startingIndexBytes = 0;
-        std::vector<PotentialParticleCollisions> checkPotentialCollisions(_potentialCollisionsSsbo.NumItems());
-        unsigned int bufferSizeBytes = checkPotentialCollisions.size() * sizeof(SortingData);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _potentialCollisionsSsbo.BufferId());
-        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-        memcpy(checkPotentialCollisions.data(), bufferPtr, bufferSizeBytes);
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-        for (size_t i = 0; i < checkPotentialCollisions.size(); i++)
-        {
-            const PotentialParticleCollisions &potentialCollisions = checkPotentialCollisions[i];
-            if (potentialCollisions._numPotentialCollisions != 0)
-            {
-                printf("");
-            }
-        }
-        printf("");
+        //printf("");
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -593,7 +584,8 @@ namespace ShaderControllers
 
         glUseProgram(_programIdGeneratePolygonBoundingBoxGeometry);
         glDispatchCompute(numWorkGroupsX, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_SHADER_BIT);
+        glMemoryBarrier(GL_VERTEX_SHADER_BIT);
 
         //// for verifying/debugging
         //unsigned int startingIndexBytes = 0;

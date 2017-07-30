@@ -39,13 +39,12 @@ void main()
         return;
     }
 
+    // make local copies for easier access
     Particle p1 = AllParticles[threadIndex];
     ParticleProperties p1Properties = AllParticleProperties[p1._particleTypeIndex];
+    PotentialParticleCollisions collisionCandidates = AllPotentialParticleParticleCollisions[threadIndex];
 
     vec4 p1NetDeltaVelocity = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-
-    // make a local copy for easier access
-    PotentialParticleCollisions collisionCandidates = AllPotentialParticleParticleCollisions[threadIndex];
 
     int actualCollisionCount = 0;
 

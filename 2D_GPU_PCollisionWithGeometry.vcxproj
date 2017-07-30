@@ -235,7 +235,6 @@
     <None Include="Shaders\Compute\Collisions\ParticleParticle\Buffers\PotentialParticleParticleCollisionsBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\GenerateBinaryRadixTree.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\GenerateLeafNodeBoundingBoxes.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\GenerateVerticesParticleBoundingBoxes.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\GuaranteeSortingDataUniqueness.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\MergeBoundingVolumes.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleParticle\DetectParticleParticleCollisions.comp" />
@@ -281,7 +280,8 @@
     <None Include="Shaders\Compute\Visualization\CollidablePolygonBoundingBoxGeometryBuffer.comp" />
     <None Include="Shaders\Compute\Visualization\CollidablePolygonSurfaceNormalGeometryBuffer.comp" />
     <None Include="Shaders\Compute\Visualization\GenerateCollidablePolygonBoundingBoxGeometry.comp" />
-    <None Include="Shaders\Compute\Visualization\GenerateVerticesParticleVelocityVectors.comp" />
+    <None Include="Shaders\Compute\Visualization\GenerateParticleBoundingBoxGeometry.comp" />
+    <None Include="Shaders\Compute\Visualization\GenerateParticleVelocityVectorGeometry.comp" />
     <None Include="Shaders\Compute\Visualization\ParticleBoundingBoxGeometryBuffer.comp" />
     <None Include="Shaders\Compute\Visualization\ParticleVelocityVectorGeometryBuffer.comp" />
     <None Include="Shaders\Render\FreeType.frag" />

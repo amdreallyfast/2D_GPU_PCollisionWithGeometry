@@ -1,6 +1,6 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Geometry/MyVertex.comp
+// REQUIRES Shaders/Compute/GeometryStuff/MyVertex.comp
 
 
 // should be the number of particles * 2 (two vertices per line)

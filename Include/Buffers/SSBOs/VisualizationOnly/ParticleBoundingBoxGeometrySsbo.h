@@ -18,5 +18,9 @@ public:
     using SharedConstPtr = std::shared_ptr<const ParticleBoundingBoxGeometrySsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
+    unsigned int NumBoxes() const;
+
+private:
+    unsigned int _numBoxes;
 };
 

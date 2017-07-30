@@ -43,7 +43,7 @@ bool BoundingBoxesOverlap(BoundingBox otherNodeBoundingBox)
     float overlapBoxBottom = max(particleBoundingBox._bottom, otherNodeBoundingBox._bottom);
     float overlapBoxTop = min(particleBoundingBox._top, otherNodeBoundingBox._top);
 
-    bool horizontalIntersection = (overlapBoxRight - overlapBoxLeft) > 0.0f;
+    bool horizontalIntersection = true;//(overlapBoxRight - overlapBoxLeft) > 0.0f;
     bool verticalIntersection = (overlapBoxTop - overlapBoxBottom) > 0.0f;
     return horizontalIntersection && verticalIntersection;
 }
@@ -104,63 +104,62 @@ void main()
         return;
     }
 
-    AllPotentialParticlePolygonCollisions[0]._numPotentialCollisions = 13;
+    AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 1;
 
-    // there is an 
-    do
-    {
-        // check for overlap with node on the left
-        // Note: Unlike the particle BVH, all nodes in the collidable polygon BVH are available 
-        // (that is, non are null).
-        int leftChildIndex = AllCollidablePolygonBvhNodes[currentPolygonNodeIndex]._leftChildIndex;
-        BvhNode leftChild = AllCollidablePolygonBvhNodes[leftChildIndex];
-        bool leftChildIsLeaf = (leftChild._isLeaf == 1);
-        bool leftOverlap = BoundingBoxesOverlap(leftChild._boundingBox);
-        if (leftChildIsLeaf && leftOverlap)
-        {
-            // if there are too many collisions, run over the last entry
-            numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
-            collidablePolygonIndexes[numPotentialCollisions++] = leftChildIndex;
-        }
-
-        // repeat for the right branch
-        int rightChildIndex = AllCollidablePolygonBvhNodes[currentPolygonNodeIndex]._rightChildIndex;
-        BvhNode rightChild = AllCollidablePolygonBvhNodes[rightChildIndex];
-        bool rightChildIsLeaf = (rightChild._isLeaf == 1);
-        bool rightOverlap = BoundingBoxesOverlap(rightChild._boundingBox);
-        if (rightChildIsLeaf && rightOverlap )
-        {
-            // if there are too many collisions, run over the last entry
-            numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
-            collidablePolygonIndexes[numPotentialCollisions++] = rightChildIndex;
-        }
-
-        // next node
-        bool traverseLeft = (leftOverlap && !leftChildIsLeaf);
-        bool traverseRight = (rightOverlap && !rightChildIsLeaf);
-        if (!traverseLeft && !traverseRight)
-        {
-            // both children children must be leaves, non-overlapping, or both, so pop the top 
-            // of the stack
-            currentPolygonNodeIndex = nodeStack[--topOfStackIndex];
-        }
-        else 
-        {
-            // at least one of the nodes is not a leaf (internal node) and there is an overlap 
-            // with its bounding box
-            currentPolygonNodeIndex = traverseLeft ? leftChildIndex : rightChildIndex;
-            if (traverseLeft && traverseRight)
-            {
-                // neither is a leaf and there is an overlap with both; already traversing left, 
-                // so push the right index
-                nodeStack[topOfStackIndex++] = rightChildIndex;
-            }
-        }
-    } while (currentPolygonNodeIndex != -1 && topOfStackIndex < MAX_STACK_SIZE);
-
-    // copy the local version to global memory
-    // Note: GLSL is nice to treat arrays as objects.  It makes copying easier.
-    AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 13;//numPotentialCollisions;
-    AllPotentialParticlePolygonCollisions[threadIndex]._objectIndexes = collidablePolygonIndexes;
+//    do
+//    {
+//        // check for overlap with node on the left
+//        // Note: Unlike the particle BVH, all nodes in the collidable polygon BVH are available 
+//        // (that is, non are null).
+//        int leftChildIndex = AllCollidablePolygonBvhNodes[currentPolygonNodeIndex]._leftChildIndex;
+//        BvhNode leftChild = AllCollidablePolygonBvhNodes[leftChildIndex];
+//        bool leftChildIsLeaf = (leftChild._isLeaf == 1);
+//        bool leftOverlap = BoundingBoxesOverlap(leftChild._boundingBox);
+//        if (leftChildIsLeaf && leftOverlap)
+//        {
+//            // if there are too many collisions, run over the last entry
+//            numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
+//            collidablePolygonIndexes[numPotentialCollisions++] = leftChildIndex;
+//        }
+//
+//        // repeat for the right branch
+//        int rightChildIndex = AllCollidablePolygonBvhNodes[currentPolygonNodeIndex]._rightChildIndex;
+//        BvhNode rightChild = AllCollidablePolygonBvhNodes[rightChildIndex];
+//        bool rightChildIsLeaf = (rightChild._isLeaf == 1);
+//        bool rightOverlap = BoundingBoxesOverlap(rightChild._boundingBox);
+//        if (rightChildIsLeaf && rightOverlap )
+//        {
+//            // if there are too many collisions, run over the last entry
+//            numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
+//            collidablePolygonIndexes[numPotentialCollisions++] = rightChildIndex;
+//        }
+//
+//        // next node
+//        bool traverseLeft = (leftOverlap && !leftChildIsLeaf);
+//        bool traverseRight = (rightOverlap && !rightChildIsLeaf);
+//        if (!traverseLeft && !traverseRight)
+//        {
+//            // both children children must be leaves, non-overlapping, or both, so pop the top 
+//            // of the stack
+//            currentPolygonNodeIndex = nodeStack[--topOfStackIndex];
+//        }
+//        else 
+//        {
+//            // at least one of the nodes is not a leaf (internal node) and there is an overlap 
+//            // with its bounding box
+//            currentPolygonNodeIndex = traverseLeft ? leftChildIndex : rightChildIndex;
+//            if (traverseLeft && traverseRight)
+//            {
+//                // neither is a leaf and there is an overlap with both; already traversing left, 
+//                // so push the right index
+//                nodeStack[topOfStackIndex++] = rightChildIndex;
+//            }
+//        }
+//    } while (currentPolygonNodeIndex != -1 && topOfStackIndex < MAX_STACK_SIZE);
+//
+//    // copy the local version to global memory
+//    // Note: GLSL is nice to treat arrays as objects.  It makes copying easier.
+//    AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = numPotentialCollisions;
+//    AllPotentialParticlePolygonCollisions[threadIndex]._objectIndexes = collidablePolygonIndexes;
 }
 

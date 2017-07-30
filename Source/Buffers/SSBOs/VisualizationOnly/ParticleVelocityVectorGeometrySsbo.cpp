@@ -32,7 +32,6 @@ ParticleVelocityVectorGeometrySsbo::ParticleVelocityVectorGeometrySsbo(unsigned 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
     glBufferData(GL_SHADER_STORAGE_BUFFER, v.size() * sizeof(MyVertex), v.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
 }
 
 /*------------------------------------------------------------------------------------------------

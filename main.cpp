@@ -254,7 +254,7 @@ void UpdateAllTheThings()
     particleUpdater->Update(deltaTimeSec);
 
     bool withProfiling = false;
-    bool generateGeometry = false;
+    bool generateGeometry = true;
     particleCollisions->DetectAndResolve(withProfiling, generateGeometry);
     particleGeometryCollisions->DetectAndResolve(true);
 
@@ -303,9 +303,9 @@ void Display()
 
     particleRenderer->Render(particleBuffer);
     //geometryRenderer->Render(particleCollisions->ParticleVelocityVectorSsbo());
-    //geometryRenderer->Render(particleCollisions->ParticleBoundingBoxSsbo());
+    geometryRenderer->Render(particleCollisions->GetParticleBoundingBoxSsbo());
     geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometrySsbo());
-    geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometryBoundingBoxesSsbo());
+    //geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometryBoundingBoxesSsbo());
 
     // draw the frame rate once per second in the lower left corner
     glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));

@@ -3,8 +3,8 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/ParticleBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/ParticlePropertiesBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/ParticleBoundingBoxGeometryBuffer.comp
+// REQUIRES Shaders/Compute/ParticlePropertiesBuffer.comp
+// REQUIRES Shaders/Compute/Visualization/ParticleBoundingBoxGeometryBuffer.comp
 
 
 // Y and Z work group sizes default to 1
@@ -29,7 +29,7 @@ void main()
     }
     else if (AllParticles[threadIndex]._isActive == 0)
     {
-        BoundingBox nullBb;
+        Box2D nullBb;
         AllParticleBoundingBoxes[threadIndex] = nullBb;
         return;
     }
@@ -58,7 +58,7 @@ void main()
     bottomFace._start._pos = vec4(left, bottom, 0.0f, 1.0f);
     bottomFace._end._pos = vec4(right, bottom, 0.0f, 1.0f);
 
-    BoundingBox bb;
+    Box2D bb;
     bb._left = leftFace;
     bb._right = rightFace;
     bb._top = topFace;
