@@ -280,6 +280,7 @@
     <None Include="Shaders\Compute\QuickNormalize.comp" />
     <None Include="Shaders\Compute\Visualization\CollidablePolygonBoundingBoxGeometryBuffer.comp" />
     <None Include="Shaders\Compute\Visualization\CollidablePolygonSurfaceNormalGeometryBuffer.comp" />
+    <None Include="Shaders\Compute\Visualization\GenerateCollidablePolygonBoundingBoxGeometry.comp" />
     <None Include="Shaders\Compute\Visualization\GenerateVerticesParticleVelocityVectors.comp" />
     <None Include="Shaders\Compute\Visualization\ParticleBoundingBoxGeometryBuffer.comp" />
     <None Include="Shaders\Compute\Visualization\ParticleVelocityVectorGeometryBuffer.comp" />

@@ -13,6 +13,7 @@
 #include "Include/Buffers/Particle.h"
 #include "Include/Buffers/BvhNode.h"
 #include "Include/Buffers/PotentialParticleCollisions.h"
+#include "Include/Geometry/Box2D.h"
 #include "Include/Geometry/PolygonFace.h"
 
 #include <chrono>
@@ -48,6 +49,7 @@ namespace ShaderControllers
         _programIdMergeBoundingVolumes(0),
         _programIdDetectCollisions(0),
         _programIdResolveCollisions(0),
+        _programIdGeneratePolygonBoundingBoxGeometry(0),
 
         _collideablePolygonSsbo(blenderObjFilePath),
         _sortingDataSsbo(_collideablePolygonSsbo.NumPolygons()),
@@ -61,6 +63,7 @@ namespace ShaderControllers
         AssembleSortingShaders();
         AssembleBvhShaders();
         AssembleCollisionShaders();
+        AssembleGeometryCreationShaders();
 
         // load the buffer size uniforms where the SSBOs will be used
         _collideablePolygonSsbo.ConfigureConstantUniforms(_programIdCopyGeometryToCopyBuffer);
@@ -84,13 +87,18 @@ namespace ShaderControllers
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateLeafNodeBoundingBoxes);
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdMergeBoundingVolumes);
+        _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGeneratePolygonBoundingBoxGeometry);
 
         _potentialCollisionsSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
 
+        _boundingBoxGeometrySsbo.ConfigureConstantUniforms(_programIdGeneratePolygonBoundingBoxGeometry);
+
         particleSsbo->ConfigureConstantUniforms(_programIdDetectCollisions);
 
+
         // geometry doesn't move, so its BVH will be static through the life of the program
-        GenerateCollidableGeometryBvh();
+        GenerateCollidablePolygonBvh();
+        GenerateBoundingBoxGeometry();
 
 
         printf("");
@@ -391,6 +399,30 @@ namespace ShaderControllers
 
     /*--------------------------------------------------------------------------------------------
     Description:
+        Primarily serves to clean up the constructor.
+
+        Assembles headers, buffers, and functional .comp files for the shaders that generate 
+        renderable geometry out of non-renderable stuff.
+    Parameters: None
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticlePolygonCollisions::AssembleGeometryCreationShaders()
+    {
+        ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
+        std::string shaderKey;
+        std::string filePath;
+
+        shaderKey = "generate collidable polygon BVH geometry";
+        filePath = "Shaders/Compute/Visualization/GenerateCollidablePolygonBoundingBoxGeometry.comp";
+        shaderStorageRef.NewShader(shaderKey);
+        shaderStorageRef.AddAndCompileShaderFile(shaderKey, filePath, GL_COMPUTE_SHADER);
+        shaderStorageRef.LinkShader(shaderKey);
+        _programIdGeneratePolygonBoundingBoxGeometry = shaderStorageRef.GetShaderProgram(shaderKey);
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
         This method governs the dispatches of many compute shaders that will eventually result 
         in a bounding volume hierarchy (BVH).  Geometry doesn't move in htis program, so this 
         BVH will not change after its first creation.
@@ -404,7 +436,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 7/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticlePolygonCollisions::GenerateCollidableGeometryBvh() const
+    void ParticlePolygonCollisions::GenerateCollidablePolygonBvh() const
     {
         int numWorkGroupsX = _collideablePolygonSsbo.NumPolygons() / WORK_GROUP_SIZE_X;
         int remainder = _collideablePolygonSsbo.NumPolygons() % WORK_GROUP_SIZE_X;
@@ -418,7 +450,7 @@ namespace ShaderControllers
         remainder = numItemsInPrefixScanBuffer % (WORK_GROUP_SIZE_X * 2);
         numWorkGroupsXForPrefixSum += (remainder == 0) ? 0 : 1;
 
-        SortCollidableGeometry(numWorkGroupsX, numWorkGroupsXForPrefixSum);
+        SortCollidablePolygons(numWorkGroupsX, numWorkGroupsXForPrefixSum);
         GenerateBvh(numWorkGroupsX);
         printf("");
     }
@@ -433,7 +465,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 6/2017
     --------------------------------------------------------------------------------------------*/
-    void ParticlePolygonCollisions::SortCollidableGeometry(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const
+    void ParticlePolygonCollisions::SortCollidablePolygons(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const
     {
         PrepareToSortGeometry(numWorkGroupsX);
         
@@ -531,6 +563,35 @@ namespace ShaderControllers
         glUseProgram(_programIdResolveCollisions);
         glDispatchCompute(numWorkGroupsX, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        This method governs the shader dispatches that generates geometry out of the polygon bounding boxes
+    Parameters: 
+        numWorkGroupsX  Expected to be the total polygon count divided by work group size.
+    Returns:    None
+    Creator:    John Cox, 7/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticlePolygonCollisions::GenerateBoundingBoxGeometry() const
+    {
+        int numWorkGroupsX = _collideablePolygonSsbo.NumPolygons() / WORK_GROUP_SIZE_X;
+        int remainder = _collideablePolygonSsbo.NumPolygons() % WORK_GROUP_SIZE_X;
+        numWorkGroupsX += (remainder == 0) ? 0 : 1;
+
+        glUseProgram(_programIdGeneratePolygonBoundingBoxGeometry);
+        glDispatchCompute(numWorkGroupsX, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        //// for verifying/debugging
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<Box2D> checkGeometryData(_boundingBoxGeometrySsbo.NumBoxes());
+        //unsigned int bufferSizeBytes = checkGeometryData.size() * sizeof(Box2D);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _boundingBoxGeometrySsbo.BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkGeometryData.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 
     /*--------------------------------------------------------------------------------------------

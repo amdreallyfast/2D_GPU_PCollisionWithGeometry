@@ -57,8 +57,8 @@ namespace ShaderControllers
         unsigned int _programIdResolveCollisions;
 
         // for drawing pretty things
-        unsigned int _programIdGenerateVerticesParticleVelocityVectors;
-        unsigned int _programIdGenerateVerticesParticleBoundingBoxes;
+        unsigned int _programIdGenerateParticleVelocityVectorGeometry;
+        unsigned int _programIdGenerateParticleBoundingBoxGeometry;
 
         void SortParticlesWithoutProfiling(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const;
         void SortParticlesWithProfiling(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const;

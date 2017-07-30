@@ -55,14 +55,16 @@ namespace ShaderControllers
         unsigned int _programIdDetectCollisions;
         unsigned int _programIdResolveCollisions;
 
-        void GenerateCollidableGeometryBvh() const;
-        void SortCollidableGeometry(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const;
+        // for drawing pretty things
+        void AssembleGeometryCreationShaders();
+        unsigned int _programIdGeneratePolygonBoundingBoxGeometry;
+
+        void GenerateCollidablePolygonBvh() const;
+        void SortCollidablePolygons(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const;
         void GenerateBvh(unsigned int numWorkGroupsX) const;
         void DetectCollisions(unsigned int numWorkGroupsX) const;
         void ResolveCollisions(unsigned int numWorkGroupsX) const;
-
-        //void ResolveCollisionsWithoutProfiling(unsigned int numWorkGroupsX) const;
-        //void ResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const;
+        void GenerateBoundingBoxGeometry() const;
 
         void PrepareToSortGeometry(unsigned int numWorkGroupsX) const;
         void PrefixScan(unsigned int numWorkGroupsX, unsigned int bitNumber, unsigned int sortingDataReadOffset) const;
@@ -72,10 +74,6 @@ namespace ShaderControllers
         void PrepareForBinaryTree(unsigned int numWorkGroupsX) const;
         void GenerateBinaryRadixTree(unsigned int numWorkGroupsX) const;
         void MergeNodesIntoBvh(unsigned int numWorkGroupsX) const;
-
-
-        //// TODO: split into "detect" and "resolve", with "detect" checking for bounding box overlaps and putting PolygonFace indexes into the PotentialParticleParticleCollisionsBuffer (move buffer out of the ParticleParticleCollisions/Buffers/ folder and up to a folder that both particle collisions and particle-geometry collisions can access) and with "resolve" checking for boundary crossings and resolving per-particle
-        //void DetectAndResolveCollisions(unsigned int numWorkGroupsX) const;
 
         // buffers for all that jazz
         CollidablePolygonSsbo _collideablePolygonSsbo;

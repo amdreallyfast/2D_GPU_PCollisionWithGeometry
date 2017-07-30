@@ -20,9 +20,11 @@ Returns:    None
 Creator:    John Cox, 7/2017
 ------------------------------------------------------------------------------------------------*/
 CollidablePolygonBoundingBoxGeometrySsbo::CollidablePolygonBoundingBoxGeometrySsbo(unsigned int numPolygons) :
-    VertexSsboBase()  // generate buffers and configure VAO
+    VertexSsboBase(),  // generate buffers and configure VAO
+    _numBoxes(0)
 {
     std::vector<Box2D> v(numPolygons);
+    _numBoxes = numPolygons;
     _numVertices = (v.size() * sizeof(Box2D)) / sizeof(MyVertex);
 
     // now bind this new buffer to the dedicated buffer binding location
@@ -53,3 +55,17 @@ void CollidablePolygonBoundingBoxGeometrySsbo::ConfigureConstantUniforms(unsigne
     glUniform1ui(bufferSizeUnifLoc, _numVertices);
     glUseProgram(0);
 }
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Determined on creation.
+Parameters: None
+Returns:    
+    See Description.
+Creator:    John Cox, 7/2017
+------------------------------------------------------------------------------------------------*/
+unsigned int CollidablePolygonBoundingBoxGeometrySsbo::NumBoxes() const
+{
+    return _numBoxes;
+}
+

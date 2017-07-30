@@ -56,8 +56,8 @@ namespace ShaderControllers
         _programIdMergeBoundingVolumes(0),
         _programIdDetectCollisions(0),
         _programIdResolveCollisions(0),
-        _programIdGenerateVerticesParticleVelocityVectors(0),
-        _programIdGenerateVerticesParticleBoundingBoxes(0),
+        _programIdGenerateParticleVelocityVectorGeometry(0),
+        _programIdGenerateParticleBoundingBoxGeometry(0),
 
         // generate buffers
         _sortingDataSsbo(particleSsbo->NumParticles()),
@@ -164,8 +164,8 @@ namespace ShaderControllers
         glDeleteProgram(_programIdMergeBoundingVolumes);
         glDeleteProgram(_programIdDetectCollisions);
         glDeleteProgram(_programIdResolveCollisions);
-        glDeleteProgram(_programIdGenerateVerticesParticleVelocityVectors);
-        glDeleteProgram(_programIdGenerateVerticesParticleBoundingBoxes);
+        glDeleteProgram(_programIdGenerateParticleVelocityVectorGeometry);
+        glDeleteProgram(_programIdGenerateParticleBoundingBoxGeometry);
     }
 
     /*--------------------------------------------------------------------------------------------
