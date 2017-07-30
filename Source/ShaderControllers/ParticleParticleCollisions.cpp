@@ -10,7 +10,7 @@
 #include "Include/ShaderControllers/ProfilingWaitToFinish.h"
 #include "Include/Buffers/SortingData.h"
 #include "Include/Buffers/BvhNode.h"
-#include "Include/Buffers/ParticlePotentialCollisions.h"
+#include "Include/Buffers/PotentialParticleCollisions.h"
 #include "Include/Buffers/Particle.h"
 #include "Include/Geometry/MyVertex.h"
 #include "Include/Buffers/ParticleProperties.h"
@@ -525,7 +525,7 @@ namespace ShaderControllers
         // report results
         // Note: Write the results to a tab-delimited text file so that I can dump them into an 
         // Excel spreadsheet.
-        std::ofstream outFile("ParticleParallelSortDurations.txt");
+        std::ofstream outFile("/ProfilingDurations/ParticleParallelSort.txt");
         if (outFile.is_open())
         {
             cout << "total sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
@@ -602,7 +602,7 @@ namespace ShaderControllers
         // report results
         // Note: Write the results to a tab-delimited text file so that I can dump them into an 
         // Excel spreadsheet.
-        std::ofstream outFile("GenerateBvhDurations.txt");
+        std::ofstream outFile("/ProfilingDurations/GenerateParticleBvh.txt");
         if (outFile.is_open())
         {
             long long totalSortingTime = durationPrepData + durationGenerateTree + durationMergeBoundingBoxes;
@@ -678,8 +678,8 @@ namespace ShaderControllers
         durationResolveCollisions = duration_cast<microseconds>(end - start).count();
 
         //unsigned int startingIndexBytes = 0;
-        //std::vector<ParticlePotentialCollisions> checkPotentialCollisions(_particlePotentialCollisionsSsbo.NumItems());
-        //unsigned int bufferSizeBytes = checkPotentialCollisions.size() * sizeof(ParticlePotentialCollisions);
+        //std::vector<PotentialParticleCollisions> checkPotentialCollisions(_particlePotentialCollisionsSsbo.NumItems());
+        //unsigned int bufferSizeBytes = checkPotentialCollisions.size() * sizeof(PotentialParticleCollisions);
         //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particlePotentialCollisionsSsbo.BufferId());
         //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
         //memcpy(checkPotentialCollisions.data(), bufferPtr, bufferSizeBytes);
@@ -706,7 +706,7 @@ namespace ShaderControllers
         // nothing to verify, so just report the results
         // Note: Write the results to a tab-delimited text file so that I can dump them into an 
         // Excel spreadsheet.
-        std::ofstream outFile("DetectAndResolveCollisionsDurations.txt");
+        std::ofstream outFile("ProfilingDurations/DetectAndResolveParticleParticleCollisions.txt");
         if (outFile.is_open())
         {
             long long totalSortingTime = durationDetectCollisions + durationResolveCollisions;
@@ -1044,7 +1044,7 @@ namespace ShaderControllers
 
     /*--------------------------------------------------------------------------------------------
     Description:
-        Populates the PotentialParticleCollisionsBuffer.
+        Populates the PotentialParticleParticleCollisionsBuffer.
     Parameters: 
         numWorkGroupsX      Expected to be number of particles divided by work group size.
     Returns:    None
@@ -1059,7 +1059,7 @@ namespace ShaderControllers
 
     /*--------------------------------------------------------------------------------------------
     Description:
-        Reads the PotentialParticleCollisionsBuffer and gives particles new velocity vectors if 
+        Reads the PotentialParticleParticleCollisionsBuffer and gives particles new velocity vectors if 
         they collide.
     Parameters: 
         numWorkGroupsX      Expected to be number of particles divided by work group size.

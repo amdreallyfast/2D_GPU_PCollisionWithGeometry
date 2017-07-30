@@ -2,7 +2,7 @@
 // REQUIRES Shaders/ShaderHeaders/ComputeShaderWorkGroupSizes.comp
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/PotentialParticleCollisionsBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/PotentialParticleParticleCollisionsBuffer.comp
 // REQUIRES Shaders/Compute/ParticlePropertiesBuffer.comp
 // REQUIRES Shaders/Compute/ParticleBuffer.comp
 
@@ -45,7 +45,7 @@ void main()
     vec4 p1NetDeltaVelocity = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
     // make a local copy for easier access
-    ParticlePotentialCollisions collisionCandidates = AllParticlePotentialCollisions[threadIndex];
+    PotentialParticleCollisions collisionCandidates = AllPotentialParticleParticleCollisions[threadIndex];
 
     int actualCollisionCount = 0;
 

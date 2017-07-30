@@ -7,7 +7,7 @@
 #include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonBvhNodeSsbo.h"
 #include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonSortingDataSsbo.h"
 #include "Include/Buffers/SSBOs/ParticlePolygonCollisions/CollidablePolygonPrefixSumSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticlePotentialCollisionsSsbo.h"
+#include "Include/Buffers/SSBOs/ParticlePolygonCollisions/PotentialParticlePolygonCollisionsSsbo.h"
 #include "Include/Buffers/SSBOs/VisualizationOnly/CollidablePolygonBoundingBoxGeometrySsbo.h"
 #include "Include/Buffers/SSBOs/VisualizationOnly/CollidablePolygonSurfaceNormalGeometrySsbo.h"
 
@@ -51,10 +51,15 @@ namespace ShaderControllers
         unsigned int _programIdMergeBoundingVolumes;
 
         // all that for the coup de grace
+        void AssembleCollisionShaders();
+        unsigned int _programIdDetectCollisions;
+        unsigned int _programIdResolveCollisions;
 
         void GenerateCollidableGeometryBvh() const;
         void SortCollidableGeometry(unsigned int numWorkGroupsX, unsigned int numWorkGroupsXPrefixScan) const;
         void GenerateBvh(unsigned int numWorkGroupsX) const;
+        void DetectCollisions(unsigned int numWorkGroupsX) const;
+        void ResolveCollisions(unsigned int numWorkGroupsX) const;
 
         //void ResolveCollisionsWithoutProfiling(unsigned int numWorkGroupsX) const;
         //void ResolveCollisionsWithProfiling(unsigned int numWorkGroupsX) const;
@@ -69,7 +74,7 @@ namespace ShaderControllers
         void MergeNodesIntoBvh(unsigned int numWorkGroupsX) const;
 
 
-        //// TODO: split into "detect" and "resolve", with "detect" checking for bounding box overlaps and putting PolygonFace indexes into the PotentialParticleCollisionsBuffer (move buffer out of the ParticleParticleCollisions/Buffers/ folder and up to a folder that both particle collisions and particle-geometry collisions can access) and with "resolve" checking for boundary crossings and resolving per-particle
+        //// TODO: split into "detect" and "resolve", with "detect" checking for bounding box overlaps and putting PolygonFace indexes into the PotentialParticleParticleCollisionsBuffer (move buffer out of the ParticleParticleCollisions/Buffers/ folder and up to a folder that both particle collisions and particle-geometry collisions can access) and with "resolve" checking for boundary crossings and resolving per-particle
         //void DetectAndResolveCollisions(unsigned int numWorkGroupsX) const;
 
         // buffers for all that jazz
@@ -77,7 +82,7 @@ namespace ShaderControllers
         CollidablePolygonSortingDataSsbo _sortingDataSsbo;
         CollidablePolygonPrefixSumSsbo _prefixSumSsbo;
         CollidablePolygonBvhNodeSsbo _bvhNodeSsbo;
-        ParticlePotentialCollisionsSsbo _potentialCollisionsSsbo;
+        PotentialParticlePolygonCollisionsSsbo _potentialCollisionsSsbo;
 
         // for visualization only
         CollidablePolygonBoundingBoxGeometrySsbo _boundingBoxGeometrySsbo;

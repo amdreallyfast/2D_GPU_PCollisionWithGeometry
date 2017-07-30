@@ -3,7 +3,7 @@
 // REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
 // REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
 // REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/ParticleBvhNodeBuffer.comp
-// REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/PotentialParticleCollisionsBuffer.comp
+// REQUIRES Shaders/Compute/Collisions/ParticleParticle/Buffers/PotentialParticleParticleCollisionsBuffer.comp
 // REQUIRES Shaders/Compute/ParticleBuffer.comp
 
 // Y and Z work group sizes default to 1
@@ -45,7 +45,7 @@ bool BoundingBoxesOverlap(BoundingBox otherNodeBoundingBox)
 Description:
     Navigates the Bounding Volume Hierarchy (BVH) and finds overlapping collision boxes.  When 
     there are thousands of particles on-screen at a time, there may be many bounding box 
-    overlaps for any one particle.  These are dumped into the PotentialParticleCollisionsBuffer.
+    overlaps for any one particle.  These are dumped into the PotentialParticleParticleCollisionsBuffer.
 
     Influence for the tree traversal comes from here, specifically the section entitled
     "Minimizing Divergence":
@@ -68,7 +68,7 @@ Creator:    John Cox, 4/2017
 ------------------------------------------------------------------------------------------------*/
 void main()
 {
-    // Note: Alternate max thread count uPotentialParticleCollisionsBufferSize.  Both are the 
+    // Note: Alternate max thread count uPotentialParticleParticleCollisionsBufferSize.  Both are the 
     // equivalent of the number of particles.
     uint threadIndex = gl_GlobalInvocationID.x;
     if (threadIndex >= uParticleBvhNumberLeaves)
@@ -85,7 +85,7 @@ void main()
     thisThreadNodeBoundingBox = AllParticleBvhNodes[threadIndex]._boundingBox;
 
     // work with a local copy (fast memory), then write that to the 
-    // PotentialParticleCollisionsBuffer when finished
+    // PotentialParticleParticleCollisionsBuffer when finished
     int numPotentialCollisions = 0;
     int particleIndexes[MAX_NUM_POTENTIAL_COLLISIONS] = int[MAX_NUM_POTENTIAL_COLLISIONS](-1);
 
@@ -160,8 +160,8 @@ void main()
 
     // copy the local version to global memory
     // Note: GLSL is nice to treat arrays as objects.  It makes copying easier.
-    AllParticlePotentialCollisions[threadIndex]._numPotentialCollisions = numPotentialCollisions;
-    AllParticlePotentialCollisions[threadIndex]._particleIndexes = particleIndexes;
+    AllPotentialParticleParticleCollisions[threadIndex]._numPotentialCollisions = numPotentialCollisions;
+    AllPotentialParticleParticleCollisions[threadIndex]._particleIndexes = particleIndexes;
 
     // for color
     AllParticles[threadIndex]._numNearbyParticles = numPotentialCollisions;

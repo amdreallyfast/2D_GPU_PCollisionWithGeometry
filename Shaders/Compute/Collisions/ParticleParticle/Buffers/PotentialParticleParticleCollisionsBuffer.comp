@@ -1,0 +1,19 @@
+// REQUIRES Shaders/ShaderHeaders/SsboBufferBindings.comp
+// REQUIRES Shaders/ShaderHeaders/CrossShaderUniformLocations.comp
+// REQUIRES Shaders/Compute/Collisions/PotentialParticleCollisions.comp
+
+
+// should be 1 for each particle
+uniform uint uPotentialParticleParticleCollisionsBufferSize;
+
+/*-----------------------------------------------------------------------------------------------
+Description:
+    Nothing special to say about this.  It's the buffer.
+Creator:    John Cox, 6/2017
+-----------------------------------------------------------------------------------------------*/
+layout (std430, binding = POTENTIAL_PARTICLE_PARTICLE_COLLISIONS_BUFFER_BINDING) buffer PotentialParticleParticleCollisionsBuffer
+{
+    PotentialParticleCollisions AllPotentialParticleParticleCollisions[];
+};
+
+

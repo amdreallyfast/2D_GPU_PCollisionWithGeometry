@@ -41,6 +41,9 @@ void RecursivelyAddFileDependencies(std::ifstream &newFileStream, std::string &p
     std::string req("// REQUIRES ");
     while (!fileContentStream.eof())
     {
+        // Note: For some reason, std::getline(...) on 1-line empty files will never trigger 
+        // EOF.  Weird.  
+        // John Cox, 7-29-2017
         std::getline(fileContentStream, line);
         if (line.find(req) == std::string::npos)
         {

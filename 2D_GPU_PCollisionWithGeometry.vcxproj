@@ -150,14 +150,15 @@
     <ClCompile Include="Shaders\ShaderStorage.cpp" />
     <ClCompile Include="Source\Buffers\PersistentAtomicCounterBuffer.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleParticleCollisions\ParticleBvhNodeSsbo.cpp" />
-    <ClCompile Include="Source\Buffers\SSBOs\ParticleParticleCollisions\ParticlePotentialCollisionsSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleParticleCollisions\ParticlePrefixSumSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleParticleCollisions\ParticlePropertiesSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleParticleCollisions\ParticleSortingDataSsbo.cpp" />
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleParticleCollisions\PotentialParticleParticleCollisionsSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticlePolygonCollisions\CollidablePolygonBvhNodeSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticlePolygonCollisions\CollidablePolygonPrefixSumSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticlePolygonCollisions\CollidablePolygonSortingDataSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticlePolygonCollisions\CollidablePolygonSsbo.cpp" />
+    <ClCompile Include="Source\Buffers\SSBOs\ParticlePolygonCollisions\PotentialParticlePolygonCollisionsSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\SsboBase.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\VertexSsboBase.cpp" />
@@ -183,19 +184,20 @@
   <ItemGroup>
     <ClInclude Include="Include\Buffers\BvhNode.h" />
     <ClInclude Include="Include\Buffers\Particle.h" />
-    <ClInclude Include="Include\Buffers\ParticlePotentialCollisions.h" />
     <ClInclude Include="Include\Buffers\ParticleProperties.h" />
     <ClInclude Include="Include\Buffers\PersistentAtomicCounterBuffer.h" />
+    <ClInclude Include="Include\Buffers\PotentialParticleCollisions.h" />
     <ClInclude Include="Include\Buffers\SortingData.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleParticleCollisions\ParticleBvhNodeSsbo.h" />
-    <ClInclude Include="Include\Buffers\SSBOs\ParticleParticleCollisions\ParticlePotentialCollisionsSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleParticleCollisions\ParticlePrefixSumSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleParticleCollisions\ParticlePropertiesSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleParticleCollisions\ParticleSortingDataSsbo.h" />
+    <ClInclude Include="Include\Buffers\SSBOs\ParticleParticleCollisions\PotentialParticleParticleCollisionsSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticlePolygonCollisions\CollidablePolygonBvhNodeSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticlePolygonCollisions\CollidablePolygonPrefixSumSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticlePolygonCollisions\CollidablePolygonSortingDataSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticlePolygonCollisions\CollidablePolygonSsbo.h" />
+    <ClInclude Include="Include\Buffers\SSBOs\ParticlePolygonCollisions\PotentialParticlePolygonCollisionsSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\SsboBase.h" />
     <ClInclude Include="Include\Buffers\SSBOs\VertexSsboBase.h" />
@@ -230,7 +232,7 @@
     <None Include="Shaders\Compute\Collisions\ParticleParticle\Buffers\ParticleBvhNodeBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleParticle\Buffers\ParticlePrefixScanBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleParticle\Buffers\ParticleSortingDataBuffer.comp" />
-    <None Include="Shaders\Compute\Collisions\ParticleParticle\Buffers\PotentialParticleCollisionsBuffer.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticleParticle\Buffers\PotentialParticleParticleCollisionsBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\GenerateBinaryRadixTree.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\GenerateLeafNodeBoundingBoxes.comp" />
     <None Include="Shaders\Compute\Collisions\ParticleParticle\BvhGeneration\GenerateVerticesParticleBoundingBoxes.comp" />
@@ -248,6 +250,7 @@
     <None Include="Shaders\Compute\Collisions\ParticlePolygon\Buffers\CollidablePolygonBvhNodeBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticlePolygon\Buffers\CollidablePolygonPrefixScanBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticlePolygon\Buffers\CollidablePolygonSortingDataBuffer.comp" />
+    <None Include="Shaders\Compute\Collisions\ParticlePolygon\Buffers\PotentialParticlePolygonCollisionsBuffer.comp" />
     <None Include="Shaders\Compute\Collisions\ParticlePolygon\BvhGeneration\GenerateBinaryRadixTree.comp" />
     <None Include="Shaders\Compute\Collisions\ParticlePolygon\BvhGeneration\GenerateLeafNodeBoundingBoxes.comp" />
     <None Include="Shaders\Compute\Collisions\ParticlePolygon\BvhGeneration\GuaranteeSortingDataUniqueness.comp" />
@@ -262,6 +265,7 @@
     <None Include="Shaders\Compute\Collisions\ParticlePolygon\Sorting\SortCollidablePolygons.comp" />
     <None Include="Shaders\Compute\Collisions\ParticlePolygon\Sorting\SortSortingDataWithPrefixSums.comp" />
     <None Include="Shaders\Compute\Collisions\PositionToMortonCode.comp" />
+    <None Include="Shaders\Compute\Collisions\PotentialParticleCollisions.comp" />
     <None Include="Shaders\Compute\Collisions\SortingData.comp" />
     <None Include="Shaders\Compute\GeometryStuff\Box2D.comp" />
     <None Include="Shaders\Compute\GeometryStuff\MyVertex.comp" />

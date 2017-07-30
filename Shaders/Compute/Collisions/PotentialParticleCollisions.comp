@@ -1,0 +1,14 @@
+// REQUIRES Shaders/Compute/Collisions/MaxNumPotentialCollisions.comp
+
+/*------------------------------------------------------------------------------------------------
+Description:   
+    Stores enough space for a single particle to have its own record about how many other 
+    particles' bounding boxes overlapped with its own or how many collidable polygons it 
+    overlapped.
+Creator:    John Cox, 6/2017
+------------------------------------------------------------------------------------------------*/
+struct PotentialParticleCollisions
+{
+    int _numPotentialCollisions;
+    int _particleIndexes[MAX_NUM_POTENTIAL_COLLISIONS];
+};

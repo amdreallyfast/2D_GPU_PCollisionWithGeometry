@@ -5,17 +5,17 @@
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    This generates and maintains an array of ParticlePotentialCollisionsSsbo structures in a GPU 
+    This generates and maintains an array of PotentialParticleCollision structures in a GPU 
     buffer.
 Creator:    John Cox, 6/2017
 ------------------------------------------------------------------------------------------------*/
-class ParticlePotentialCollisionsSsbo : public SsboBase
+class PotentialParticlePolygonCollisionsSsbo : public SsboBase
 {
 public:
-    ParticlePotentialCollisionsSsbo(unsigned int numParticles);
-    ~ParticlePotentialCollisionsSsbo() = default;
-    using SharedPtr = std::shared_ptr<ParticlePotentialCollisionsSsbo>;
-    using SharedConstPtr = std::shared_ptr<const ParticlePotentialCollisionsSsbo>;
+    PotentialParticlePolygonCollisionsSsbo(unsigned int numParticles);
+    ~PotentialParticlePolygonCollisionsSsbo() = default;
+    using SharedPtr = std::shared_ptr<PotentialParticlePolygonCollisionsSsbo>;
+    using SharedConstPtr = std::shared_ptr<const PotentialParticlePolygonCollisionsSsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
     unsigned int NumItems() const;

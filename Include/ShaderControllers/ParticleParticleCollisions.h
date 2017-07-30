@@ -8,7 +8,7 @@
 #include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticlePropertiesSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticleSortingDataSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticlePrefixSumSsbo.h"
-#include "Include/Buffers/SSBOs/ParticleParticleCollisions/ParticlePotentialCollisionsSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleParticleCollisions/PotentialParticleParticleCollisionsSsbo.h"
 #include "Include/Buffers/SSBOs/VisualizationOnly/ParticleVelocityVectorGeometrySsbo.h"
 #include "Include/Buffers/SSBOs/VisualizationOnly/ParticleBoundingBoxGeometrySsbo.h"
 
@@ -88,7 +88,7 @@ namespace ShaderControllers
         ParticleSortingDataSsbo _sortingDataSsbo;
         ParticlePrefixSumSsbo _prefixSumSsbo;
         ParticleBvhNodeSsbo _bvhNodeSsbo;
-        ParticlePotentialCollisionsSsbo _potentialCollisionsSsbo;
+        PotentialParticleParticleCollisionsSsbo _potentialCollisionsSsbo;
         ParticleVelocityVectorGeometrySsbo _velocityVectorGeometrySsbo;
         ParticleBoundingBoxGeometrySsbo _boundingBoxGeometrySsbo;
         //BvhGeometrySsbo _bvhGeometrySsbo;
