@@ -250,7 +250,7 @@ void UpdateAllTheThings()
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
 
-    particleResetter->ResetParticles(10);
+    particleResetter->ResetParticles(2);
     particleUpdater->Update(deltaTimeSec);
 
     bool withProfiling = false;
@@ -306,6 +306,7 @@ void Display()
     //geometryRenderer->Render(particleCollisions->GetParticleBoundingBoxSsbo());
     geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometrySsbo());
     //geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometryBoundingBoxesSsbo());
+    //geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometryNormals());
 
     // draw the frame rate once per second in the lower left corner
     glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));

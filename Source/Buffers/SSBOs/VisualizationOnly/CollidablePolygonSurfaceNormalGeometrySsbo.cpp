@@ -47,9 +47,15 @@ CollidablePolygonSurfaceNormalGeometrySsbo::CollidablePolygonSurfaceNormalGeomet
             // combination of position and normal.  This geometry is for the normals, so it will 
             // have a null normal (all zeros).
             glm::vec4 nullNormal;
+
+            // shrink the surface normal 
+            // Note: This demo is clamped to the OpenGL range [-1,+1] on X and Y, so a normal of 
+            // length 1.0f is the size of the screen.
+            glm::vec4 surfaceNormalStart = polygonCenter;
+            glm::vec4 surfaceNormalEnd = (polygonCenter + (polyItr->_start._normal * 0.2f));
             v.push_back(PolygonFace(
-                MyVertex(polygonCenter, nullNormal),
-                MyVertex(polygonCenter + polyItr->_start._normal, nullNormal)));
+                MyVertex(surfaceNormalStart, nullNormal),
+                MyVertex(surfaceNormalEnd, nullNormal)));
         }
     }
     _numPolygons = v.size();
