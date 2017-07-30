@@ -67,8 +67,8 @@ void main()
         return;
     }
 
-    //// at least clear the counter
-    //AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 0;
+    // at least clear the counter
+    AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 0;
 
     BvhNode particleLeafNode = AllParticleBvhNodes[threadIndex];
     if (particleLeafNode._isNull == 1)
@@ -102,7 +102,6 @@ void main()
     if (!BoundingBoxesOverlap(root))
     {
         // nothing else to do
-        //AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 0;
         return;
     }
 
