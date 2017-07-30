@@ -67,8 +67,8 @@ void main()
         return;
     }
 
-    // at least clear the counter
-    AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 0;
+    //// at least clear the counter
+    //AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 0;
 
     BvhNode particleLeafNode = AllParticleBvhNodes[threadIndex];
     if (particleLeafNode._isNull == 1)
