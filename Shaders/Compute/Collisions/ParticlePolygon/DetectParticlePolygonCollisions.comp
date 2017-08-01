@@ -46,6 +46,15 @@ bool BoundingBoxesOverlap(BoundingBox otherNodeBoundingBox)
     bool horizontalIntersection = (overlapBoxRight - overlapBoxLeft) > 0.0f;
     bool verticalIntersection = (overlapBoxTop - overlapBoxBottom) > 0.0f;
     return horizontalIntersection && verticalIntersection;
+    
+    //return (overlapBoxRight > -0.219);
+    
+    //return (particleBoundingBox._left > 0.5);
+
+    //return (otherNodeBoundingBox._left > -0.238f);
+    //return (otherNodeBoundingBox._right > 0);
+
+    //return uCollidablePolygonBvhNumberLeaves == 32;
 }
 
 /*------------------------------------------------------------------------------------------------
@@ -96,9 +105,12 @@ void main()
     // nodes that intersect with the bounding box for this thread's particle
     int currentPolygonNodeIndex = int(uCollidablePolygonBvhNumberLeaves);
     
+    AllParticles[threadIndex]._numNearbyParticles = 0;
+
     // Note: Unlike the particle-particle collision detection, the collidable polygon BVH is not 
     // the same size as the particle BVH, so it can't skip the root node check.
     BoundingBox root = AllCollidablePolygonBvhNodes[currentPolygonNodeIndex]._boundingBox;
+    //BoundingBox root = AllCollidablePolygonBvhNodes[32]._boundingBox;
     if (!BoundingBoxesOverlap(root))
     {
         // nothing else to do
@@ -107,6 +119,9 @@ void main()
 
     //AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = 1;
     //return;
+
+    //AllParticles[threadIndex]._numNearbyParticles = 8;
+
 
     do
     {
@@ -158,6 +173,11 @@ void main()
             }
         }
     } while (currentPolygonNodeIndex != -1 && topOfStackIndex < MAX_STACK_SIZE);
+
+    if (numPotentialCollisions > 0)
+    {
+        AllParticles[threadIndex]._numNearbyParticles = 8;
+    }
 
     // copy the local version to global memory
     // Note: GLSL is nice to treat arrays as objects.  It makes copying easier.

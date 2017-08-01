@@ -89,6 +89,7 @@ namespace ShaderControllers
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGenerateBinaryRadixTree);
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdMergeBoundingVolumes);
         _bvhNodeSsbo.ConfigureConstantUniforms(_programIdGeneratePolygonBoundingBoxGeometry);
+        _bvhNodeSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
 
         _potentialCollisionsSsbo.ConfigureConstantUniforms(_programIdDetectCollisions);
         _potentialCollisionsSsbo.ConfigureConstantUniforms(_programIdResolveCollisions);

@@ -131,8 +131,8 @@ void GenerateParticleEmitters()
     // two thick bars emitting at each other
 
     // bar on the left and emitting right
-    glm::vec2 bar1P1(-0.8f, -0.8f);
-    glm::vec2 bar1P2(-0.8f, +0.8f);
+    glm::vec2 bar1P1(-0.8f, -0.2f);
+    glm::vec2 bar1P2(-0.8f, +0.2f);
     glm::vec2 emitDir1(+1.0f, +0.0f);
     ParticleEmitterBar::SHARED_PTR barEmitter1 = std::make_shared<ParticleEmitterBar>(bar1P1, bar1P2, emitDir1, particleMinVel, particleMaxVel);
     barEmitter1->SetTransform(windowSpaceTransform);
@@ -250,7 +250,7 @@ void UpdateAllTheThings()
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
 
-    particleResetter->ResetParticles(2);
+    particleResetter->ResetParticles(10);
     particleUpdater->Update(deltaTimeSec);
 
     bool withProfiling = false;
@@ -304,7 +304,7 @@ void Display()
     particleRenderer->Render(particleBuffer);
     //geometryRenderer->Render(particleCollisions->GetParticleVelocityVectorSsbo());
     //geometryRenderer->Render(particleCollisions->GetParticleBoundingBoxSsbo());
-    geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometrySsbo());
+    //geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometrySsbo());
     //geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometryBoundingBoxesSsbo());
     //geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometryNormals());
 

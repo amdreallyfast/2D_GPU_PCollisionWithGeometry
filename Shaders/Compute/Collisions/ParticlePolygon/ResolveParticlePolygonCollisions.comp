@@ -83,9 +83,13 @@ void main()
         return;
     }
     
+    return;
+
+
     // make local copies for easier access
     Particle p = AllParticles[threadIndex];
     PotentialParticleCollisions collisionCandidates = AllPotentialParticlePolygonCollisions[threadIndex];
+
 
 //    if (collisionCandidates._numPotentialCollisions > 0)
 //    {

@@ -20,7 +20,8 @@ Creator:    John Cox, 7/2017
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex >= uCollidablePolygonBvhNodeBufferSize)
+    //if (threadIndex >= uCollidablePolygonBvhNodeBufferSize)
+    if (threadIndex != 32)
     {
         return;
     }
