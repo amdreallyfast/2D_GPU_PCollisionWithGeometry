@@ -20,8 +20,13 @@ Creator:    John Cox, 7/2017
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
+
+    // to create bounding for:
+    // - only the root, select the first of the internal nodes
+    // - only the leaves, don't allow threads greater than the number of leaves
+    // - everyone, let all threads through that are less than the buffer size
     //if (threadIndex >= uCollidablePolygonBvhNodeBufferSize)
-    if (threadIndex != 32)
+    if (threadIndex != uCollidablePolygonBvhNumberLeaves)
     {
         return;
     }

@@ -156,12 +156,6 @@ void main()
         }
     } while (currentPolygonNodeIndex != -1 && topOfStackIndex < MAX_STACK_SIZE);
 
-    //AllParticles[threadIndex]._numNearbyParticles = 0;
-    if (numPotentialCollisions > 0)
-    {
-        //AllParticles[threadIndex]._numNearbyParticles = 8;
-    }
-
     // copy the local version to global memory
     // Note: GLSL is nice to treat arrays as objects.  It makes copying easier.
     AllPotentialParticlePolygonCollisions[threadIndex]._numPotentialCollisions = numPotentialCollisions;

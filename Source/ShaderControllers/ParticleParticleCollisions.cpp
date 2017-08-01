@@ -249,7 +249,7 @@ namespace ShaderControllers
         {
             SortParticlesWithoutProfiling(numWorkGroupsX, numWorkGroupsXForPrefixSum);
             GenerateBvhWithoutProfiling(numWorkGroupsX);
-            //DetectAndResolveCollisionsWithoutProfiling(numWorkGroupsX);
+            DetectAndResolveCollisionsWithoutProfiling(numWorkGroupsX);
         }
 
         if (generateGeometry)
