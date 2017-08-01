@@ -100,19 +100,68 @@ void main()
 
 
 
-//    // go through all the collision candidates, and if necessary calculate collision results
-//    for (int polygonIndexCounter = 0; 
-//        polygonIndexCounter < collisionCandidates._numPotentialCollisions; 
-//        polygonIndexCounter++)
+    // go through all the collision candidates, and if necessary calculate collision results
+    for (int polygonIndexCounter = 0; 
+        polygonIndexCounter < collisionCandidates._numPotentialCollisions; 
+        polygonIndexCounter++)
+    {
+        //PolygonFace polyFace = AllCollidablePolygons[polygonIndexCounter];
+        int polyIndex = collisionCandidates._objectIndexes[polygonIndexCounter];
+        PolygonFace polyFace = AllCollidablePolygons[polyIndex];
+
+        // figure out where it crossed the line
+        // Note: In this function, "a" will be the particle travel vector and "b" will be the 
+        // line along the polygon face.
+        vec4 a = (p._currPos - p._prevPos);
+        vec4 b = (polyFace._end._pos - polyFace._start._pos);
+        vec4 c = (p._prevPos - polyFace._start._pos);
+        float s = PerpDot(a, c) / PerpDot(a, b);
+        float t = PerpDot(b, c) / PerpDot(a, b);
+
+        bool sIsBad = s < 0.0f || s > 1.0f || isinf(s) || isnan(s);
+        bool tIsBad = t < 0.0f || t > 1.0f || isinf(t) || isnan(t);
+        if (sIsBad || tIsBad)
+        {
+            // no intersection
+            // Note: No intersection can happen a few ways:
+            // - inf -> parallel
+            // - t < 0 or t > 0 -> no intersection
+            // - nan -> ??can this happen??
+            continue;
+        }
+
+        AllParticles[threadIndex]._numNearbyParticles = 8;
+        continue;
+
+        //vec4 prevPos = AllParticles[threadIndex]._prevPos;
+        //AllParticles[threadIndex]._prevPos = AllParticles[threadIndex]._currPos;
+        //AllParticles[threadIndex]._currPos = prevPos;
+        //AllParticles[threadIndex]._vel = AllParticles[threadIndex]._vel * (-1.0f);
+        //continue;
+
+
+        vec4 pointOfIntersection = p._prevPos + (t * a);
+        vec4 posIncidentVector = p._currPos - pointOfIntersection;
+        vec4 n = polyFace._start._normal;
+        
+        vec4 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
+        vec4 reflectedVelVector = p._vel - ((2 * dot(p._vel, n)) * n);
+        
+        AllParticles[threadIndex]._prevPos = pointOfIntersection + (n * 0.005f);
+        AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
+        AllParticles[threadIndex]._vel = reflectedVelVector;
+    
+        break;
+
+    }
+
+//    for(uint polyCounter = 0; polyCounter < uMaxCollidablePolygons; polyCounter++)
 //    {
-//        PolygonFace polyFace = AllCollidablePolygons[polygonIndexCounter];
+//        PolygonFace polyFace = AllCollidablePolygons[polyCounter];
 //
-//        // figure out where it crossed the line
-//        // Note: In this function, "a" will be the particle travel vector and "b" will be the 
-//        // line along the polygon face.
 //        vec4 a = (p._currPos - p._prevPos);
 //        vec4 b = (polyFace._end._pos - polyFace._start._pos);
-//        vec4 c = (p._prevPos - polyFace._start._pos);
+//        vec4 c = (p._prevPos - polyFace._start._pos);   
 //        float s = PerpDot(a, c) / PerpDot(a, b);
 //        float t = PerpDot(b, c) / PerpDot(a, b);
 //
@@ -120,22 +169,12 @@ void main()
 //        bool tIsBad = t < 0.0f || t > 1.0f || isinf(t) || isnan(t);
 //        if (sIsBad || tIsBad)
 //        {
-//            // no intersection
-//            // Note: No intersection can happen a few ways:
-//            // - inf -> parallel
-//            // - t < 0 or t > 0 -> no intersection
-//            // - nan -> ??can this happen??
 //            continue;
 //        }
 //
+//
 //        AllParticles[threadIndex]._numNearbyParticles = 8;
 //        continue;
-//
-//        //vec4 prevPos = AllParticles[threadIndex]._prevPos;
-//        //AllParticles[threadIndex]._prevPos = AllParticles[threadIndex]._currPos;
-//        //AllParticles[threadIndex]._currPos = prevPos;
-//        //AllParticles[threadIndex]._vel = AllParticles[threadIndex]._vel * (-1.0f);
-//        //continue;
 //
 //
 //        //vec4 pointOfIntersection = p._prevPos + (t * a);
@@ -150,43 +189,6 @@ void main()
 //        //AllParticles[threadIndex]._vel = reflectedVelVector;
 //    
 //        break;
-//
 //    }
-
-    for(uint polyCounter = 0; polyCounter < uMaxCollidablePolygons; polyCounter++)
-    {
-        PolygonFace polyFace = AllCollidablePolygons[polyCounter];
-
-        vec4 a = (p._currPos - p._prevPos);
-        vec4 b = (polyFace._end._pos - polyFace._start._pos);
-        vec4 c = (p._prevPos - polyFace._start._pos);   
-        float s = PerpDot(a, c) / PerpDot(a, b);
-        float t = PerpDot(b, c) / PerpDot(a, b);
-
-        bool sIsBad = s < 0.0f || s > 1.0f || isinf(s) || isnan(s);
-        bool tIsBad = t < 0.0f || t > 1.0f || isinf(t) || isnan(t);
-        if (sIsBad || tIsBad)
-        {
-            continue;
-        }
-
-
-        AllParticles[threadIndex]._numNearbyParticles = 8;
-        continue;
-
-
-        //vec4 pointOfIntersection = p._prevPos + (t * a);
-        //vec4 posIncidentVector = p._currPos - pointOfIntersection;
-        //vec4 n = polyFace._start._normal;
-        //
-        //vec4 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
-        //vec4 reflectedVelVector = p._vel - ((2 * dot(p._vel, n)) * n);
-        //
-        //AllParticles[threadIndex]._prevPos = pointOfIntersection + (n * 0.005f);
-        //AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
-        //AllParticles[threadIndex]._vel = reflectedVelVector;
-    
-        break;
-    }
 }
 

@@ -35,15 +35,16 @@ void main()
     }
     
     // create the bounding box for the bounding volume hierarchy
-    vec4 pos = AllParticles[threadIndex]._currPos;
+    vec4 currPos = AllParticles[threadIndex]._currPos;
+    vec4 prevPos = AllParticles[threadIndex]._prevPos;
     int particleTypeIndex = AllParticles[threadIndex]._particleTypeIndex;
     float r = AllParticleProperties[particleTypeIndex]._collisionRadius;
 
     BoundingBox bb;
-    bb._left = pos.x - r;
-    bb._right = pos.x + r;
-    bb._bottom = pos.y - r;
-    bb._top = pos.y + r;
+    bb._left = min(currPos.x - r, prevPos.x - r);
+    bb._right = max(currPos.x + r, prevPos.x + r);
+    bb._bottom = min(currPos.y - r, prevPos.y - r);
+    bb._top = max(currPos.y + r, prevPos.y + r);
     AllParticleBvhNodes[threadIndex]._boundingBox = bb;
 }
     
