@@ -130,13 +130,13 @@ void main()
         
         // Note: The velocity vector is just a direction, so it doesn't need to be altered at 
         // the point of intersection like position does.  Just reflect it as is.
-        vec4 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
+//        vec4 reflectedPosVector = posIncidentVector - ((2 * dot(posIncidentVector, n)) * n);
         vec4 reflectedVelVector = p._vel - ((2 * dot(p._vel, n)) * n);
         
         // bump the new "previous" position out from the polygon so that there is no risk of 
         // intersection next frame due to floating-point variations on the line itself.
         AllParticles[threadIndex]._prevPos = pointOfIntersection + (n * 0.005f);
-        AllParticles[threadIndex]._currPos = pointOfIntersection + reflectedPosVector;
+        AllParticles[threadIndex]._currPos = pointOfIntersection + (n * 0.010f);// + reflectedPosVector;
         AllParticles[threadIndex]._vel = reflectedVelVector;
 
         // a particle can only cross one polygon at a time (??you sure??)

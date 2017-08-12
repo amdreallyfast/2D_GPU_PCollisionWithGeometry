@@ -95,7 +95,7 @@ void GenerateParticleEmitters()
     glm::mat4 windowSpaceTransform = glm::rotate(glm::mat4(), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
     windowSpaceTransform *= glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, 0.0f));
 
-    float particleMinVel = 0.1f;
+    float particleMinVel = 0.5f;
     float particleMaxVel = 0.8f;
 
     //// bar on the left and emitting up and right
