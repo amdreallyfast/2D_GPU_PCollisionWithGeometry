@@ -73,7 +73,7 @@ std::shared_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 std::shared_ptr<ShaderControllers::RenderGeometry> geometryRenderer = nullptr;
 std::shared_ptr<ShaderControllers::ParticlePolygonCollisions> particleGeometryCollisions = nullptr;
 
-const unsigned int MAX_PARTICLE_COUNT = 10000;
+const unsigned int MAX_PARTICLE_COUNT = 20000;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -250,7 +250,7 @@ void UpdateAllTheThings()
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
 
-    particleResetter->ResetParticles(25);
+    particleResetter->ResetParticles(50);
     particleUpdater->Update(deltaTimeSec);
 
     bool withProfiling = false;

@@ -229,7 +229,7 @@ BlenderLoad::BlenderLoad(const std::string &filePath)
             float z;
             std::string subStr = line.substr(lineHeaderVertexPosition.length());
             const char *readBuffer = subStr.c_str();
-            scanf(readBuffer, "%f %f %f", &x, &y, &z);
+            sscanf(readBuffer, "%f %f %f", &x, &y, &z);
             allVertexPositions.push_back(glm::vec4(x, y, z, 1.0f));
         }
         else if (line.substr(0, lineHeaderVertexNormal.length()) == lineHeaderVertexNormal)
@@ -239,7 +239,7 @@ BlenderLoad::BlenderLoad(const std::string &filePath)
             float z;
             std::string subStr = line.substr(lineHeaderVertexPosition.length());
             const char *readBuffer = subStr.c_str();
-            scanf(readBuffer, "%f %f %f", &x, &y, &z);
+            sscanf(readBuffer, "%f %f %f", &x, &y, &z);
             allVertexNormals.push_back(glm::vec4(x, y, z, 0.0f));
         }
         else if (line.substr(0, lineHeaderLine.length()) == lineHeaderLine)
@@ -255,7 +255,7 @@ BlenderLoad::BlenderLoad(const std::string &filePath)
             // Note: http://www.cprogramming.com/tutorial/printf-format-strings.html
             std::string subStr = line.substr(lineHeaderLine.length());
             const char *readBuffer = subStr.c_str();
-            scanf(readBuffer, "%hd %hd", &p1Index, &p2Index);
+            sscanf(readBuffer, "%hd %hd", &p1Index, &p2Index);
 
             // -1 because Blender3D indexes start at 1, not 0
             rawNumbersMap[currentObjectName]._lineVertices.push_back(
@@ -279,7 +279,7 @@ BlenderLoad::BlenderLoad(const std::string &filePath)
             // Note: http://www.cprogramming.com/tutorial/printf-format-strings.html
             std::string subStr = line.substr(lineHeaderFace.length());
             const char *readBuffer = subStr.c_str();
-            scanf(readBuffer, "%hd/%hd/%hd %hd/%hd/%hd %hd/%hd/%hd %hd/%hd/%hd",
+            sscanf(readBuffer, "%hd/%hd/%hd %hd/%hd/%hd %hd/%hd/%hd %hd/%hd/%hd",
                 &p1Index, &t1Index, &n1Index,
                 &p2Index, &t2Index, &n2Index,
                 &p3Index, &t3Index, &n3Index,
@@ -291,7 +291,7 @@ BlenderLoad::BlenderLoad(const std::string &filePath)
             if (t1Index == 0 || t2Index == 0 || t3Index == 0 || t4Index == 0)
             {
                 // no texture coordinates, so run the parse again
-                scanf(readBuffer, "%hd//%hd %hd//%hd %hd//%hd %hd//%hd",
+                sscanf(readBuffer, "%hd//%hd %hd//%hd %hd//%hd %hd//%hd",
                     &p1Index, &n1Index,
                     &p2Index, &n2Index,
                     &p3Index, &n3Index,
