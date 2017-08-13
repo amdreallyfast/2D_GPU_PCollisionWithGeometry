@@ -222,7 +222,14 @@ void Init()
     // - particle BVH generation will operate over "num current items" only
     // - ditto for collidable polygon BVH generation
 
-
+    //int workGroupSizes[3] = { 0 };
+    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &workGroupSizes[0]);
+    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &workGroupSizes[1]);
+    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &workGroupSizes[2]);
+    //int workGroupCounts[3] = { 0 };
+    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &workGroupCounts[0]);
+    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &workGroupCounts[1]);
+    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &workGroupCounts[2]);
 
 
     // Note: Compute headers with #define'd buffer binding locations makes it easy for the 
