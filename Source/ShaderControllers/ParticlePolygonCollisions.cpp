@@ -195,14 +195,14 @@ namespace ShaderControllers
             {
                 long long totalSortingTime = durationDetectCollisions + durationResolveCollisions;
 
-                cout << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
-                outFile << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
-
-                cout << "detect collisions: " << durationDetectCollisions << "\tmicroseconds" << endl;
-                outFile << "detect collisions: " << durationDetectCollisions << "\tmicroseconds" << endl;
-
-                cout << "resolve collisions: " << durationResolveCollisions << "\tmicroseconds" << endl;
-                outFile << "resolve collisions: " << durationResolveCollisions << "\tmicroseconds" << endl;
+                cout << "particle-polygon collision handling time:" << endl <<
+                    "\ttotal: " << totalSortingTime << endl <<
+                    "\tdetect collisions: " << durationDetectCollisions << endl <<
+                    "\tresolve collisions: " << durationResolveCollisions << endl;
+                outFile << "particle-polygon collision handling time:" << endl <<
+                    "\ttotal: " << totalSortingTime << endl <<
+                    "\tdetect collisions: " << durationDetectCollisions << endl <<
+                    "\tresolve collisions: " << durationResolveCollisions << endl;
             }
             outFile.close();
         }

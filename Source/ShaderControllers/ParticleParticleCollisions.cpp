@@ -557,11 +557,11 @@ namespace ShaderControllers
         // report results
         // Note: Write the results to a tab-delimited text file so that I can dump them into an 
         // Excel spreadsheet.
-        std::ofstream outFile("/ProfilingDurations/ParticleParallelSort.txt");
+        std::ofstream outFile("ProfilingDurations/ParticleParallelSort.txt");
         if (outFile.is_open())
         {
-            cout << "total sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
-            outFile << "total sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
+            cout << "total particle sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
+            outFile << "total particle sorting time: " << totalSortingTime << "\tmicroseconds" << endl;
         }
         outFile.close();
 
@@ -634,22 +634,21 @@ namespace ShaderControllers
         // report results
         // Note: Write the results to a tab-delimited text file so that I can dump them into an 
         // Excel spreadsheet.
-        std::ofstream outFile("/ProfilingDurations/GenerateParticleBvh.txt");
+        std::ofstream outFile("ProfilingDurations/GenerateParticleBvh.txt");
         if (outFile.is_open())
         {
-            long long totalSortingTime = durationPrepData + durationGenerateTree + durationMergeBoundingBoxes;
+            long long totalBvhGenerationTime = durationPrepData + durationGenerateTree + durationMergeBoundingBoxes;
 
-            cout << "total BVH generation time: " << totalSortingTime << "\tmicroseconds" << endl;
-            outFile << "total BVH generation time: " << totalSortingTime << "\tmicroseconds" << endl;
-
-            cout << "prep data: " << durationPrepData << "\tmicroseconds" << endl;
-            outFile << "prep data: " << durationPrepData << "\tmicroseconds" << endl;
-
-            cout << "generate tree: " << durationGenerateTree << "\tmicroseconds" << endl;
-            outFile << "generate tree: " << durationGenerateTree << "\tmicroseconds" << endl;
-
-            cout << "merge bounding boxes: " << durationMergeBoundingBoxes << "\tmicroseconds" << endl;
-            outFile << "merge bounding boxes: " << durationMergeBoundingBoxes << "\tmicroseconds" << endl;
+            cout << "particle BVH generation: " << endl <<
+                "\ttotal: " << totalBvhGenerationTime << "ms" << endl <<
+                "\tprep data: " << durationPrepData << "ms" << endl <<
+                "\tgenerate tree: " << durationGenerateTree << "ms" << endl <<
+                "\tmerge bounding boxes: " << durationMergeBoundingBoxes << "ms" << endl;
+            outFile << "particle BVH generation: " << endl <<
+                "\ttotal: " << totalBvhGenerationTime << "ms" << endl <<
+                "\tprep data: " << durationPrepData << "ms" << endl <<
+                "\tgenerate tree: " << durationGenerateTree << "ms" << endl <<
+                "\tmerge bounding boxes: " << durationMergeBoundingBoxes << "ms" << endl;
         }
         outFile.close();
     }
@@ -743,14 +742,14 @@ namespace ShaderControllers
         {
             long long totalSortingTime = durationDetectCollisions + durationResolveCollisions;
 
-            cout << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
-            outFile << "total collision handling time: " << totalSortingTime << "\tmicroseconds" << endl;
-
-            cout << "detect collisions: " << durationDetectCollisions << "\tmicroseconds" << endl;
-            outFile << "detect collisions: " << durationDetectCollisions << "\tmicroseconds" << endl;
-
-            cout << "resolve collisions: " << durationResolveCollisions << "\tmicroseconds" << endl;
-            outFile << "resolve collisions: " << durationResolveCollisions << "\tmicroseconds" << endl;
+            cout << "particle-particle collision handling time:" << endl <<
+                "\ttotal: " << totalSortingTime << endl <<
+                "\tdetect collisions: " << durationDetectCollisions << endl <<
+                "\tresolve collisions: " << durationResolveCollisions << endl;
+            outFile << "particle-particle collision handling time:" << endl <<
+                "\ttotal: " << totalSortingTime << endl <<
+                "\tdetect collisions: " << durationDetectCollisions << endl <<
+                "\tresolve collisions: " << durationResolveCollisions << endl;
         }
         outFile.close();
     }

@@ -35,7 +35,7 @@ PersistentAtomicCounterBuffer::PersistentAtomicCounterBuffer() :
     // Calling glBufferStorage(...), which will set up the buffer with immutable storage, while 
     // glBufferData(...) sets up the buffer with mutable storage.  I experimented with using 
     // both of these functions and checked out the messages spit out by OpenGL's debug message 
-    // callback (debugging must have been difficult prior to OpenGL 4.3).  I glBufferData(...) 
+    // callback (debugging must have been difficult prior to OpenGL 4.3).  If glBufferData(...) 
     // is called first, then glBufferStorage(...), then the OpenGL debug message callback 
     // reports the following (the buffer object numbers are unique to my application):
     // Following glBufferData(...):

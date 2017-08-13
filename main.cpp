@@ -198,6 +198,33 @@ void Init()
     GLuint freeTypeProgramId = shaderStorageRef.GetShaderProgram(freeTypeShaderKey);
     gTextAtlases.Init("ThirdParty/freetype-2.6.1/FreeSans.ttf", freeTypeProgramId);
 
+
+
+    // TODO:
+    // - changes to SSBOs:
+    //      - create an "SSBO storage" object (many of the SSBOs are based off the number of particles or the number of collidable polygons, and several are used in multiple shader controllers, and they reside on the GPU anyway, not in system memory (that is, "owned" by the GPU instead of by the code that uses it), so it could be useful to have them all stored in a single object
+    //      - all SSBOs shall have a debug getter that binds a map to system memory, copies the data into a std::vector<...>, and returns a const reference to that data; rather than have the shader controllers do this, it will be better for individual SSBOs be capable of gathering this info so that the shader controller does not need to concern itself with the matter
+    //      - all buffers shall have "num current items" variables in the buffer
+    //      - all "num items" uniforms shall be changed to "buffer size"
+    //      - Note: Let the atomic counter remain a singleton; it's not an SSBO, so it iis the odd man out and I feel okay leaving it as is
+    // - new shader controllers
+    //      - generate particle BVH (uses particle prefix scan SSBO, particle sorting data SSBO, particle BVH node SSBO)
+    //      - generate collidable polygon BVH (uses polygon prefix scan SSBO, polygon sorting data SSBO, polygon BVH node SSBO)
+    //      - particle-particle collisions (uses particle BVH SSBO, potential particle-particle collisions SSBO)
+    //      - particle-polygon collisions (uses particle BVH SSBO, collidable polygon BVH SSBO, potential particle-polygon collisions SSBO)
+    // - new "collidable polygon" structure has vertex positions and a single normal for the polygon (generating polygon geometry will still use MyVertex structures)
+    // - the new "SSBO Storage" will be able to launch a compute shader that will set all the "num current items" variables to 0
+    // - particle updating will still count how many particles are active with the atomic counter, but will also increment the "num active particles" for compute-only purposes
+    // - particle prefix scan and particle sorting will still operate over all data so that newly active and newly inactive particles will be put in their proper place
+    // - "guarantee sorting data uniqueness" 
+    //      - will still run so that two particles with the same Morton Code don't cause trouble
+    //      - will also atomically increment "num current items" if the sorting data is not maximum integer
+    // - particle BVH generation will operate over "num current items" only
+    // - ditto for collidable polygon BVH generation
+
+
+
+
     // Note: Compute headers with #define'd buffer binding locations makes it easy for the 
     // ParallelSort compute controller's shaders to access originalData's data without 
     // needing to pass the SSBO into it.  GPU computing in multiple steps creates coupling 
@@ -253,10 +280,10 @@ void UpdateAllTheThings()
     particleResetter->ResetParticles(50);
     particleUpdater->Update(deltaTimeSec);
 
-    bool withProfiling = false;
-    bool generateGeometry = true;
+    bool withProfiling = true;
+    bool generateGeometry = false;
     particleCollisions->DetectAndResolve(withProfiling, generateGeometry);
-    particleGeometryCollisions->DetectAndResolve(true);
+    particleGeometryCollisions->DetectAndResolve(withProfiling);
 
 
     ShaderControllers::WaitOnQueuedSynchronization();

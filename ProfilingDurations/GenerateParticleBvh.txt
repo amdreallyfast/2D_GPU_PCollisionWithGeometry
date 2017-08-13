@@ -1,0 +1,5 @@
+particle BVH generation: 
+	total: 35250ms
+	prep data: 4408ms
+	generate tree: 30477ms
+	merge bounding boxes: 365ms

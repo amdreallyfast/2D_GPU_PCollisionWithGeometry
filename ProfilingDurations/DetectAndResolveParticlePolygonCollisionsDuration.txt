@@ -1,3 +1,4 @@
-total collision handling time: 5552	microseconds
-detect collisions: 4897	microseconds
-resolve collisions: 655	microseconds
+particle-polygon collision handling time:
+	total: 1267
+	detect collisions: 435
+	resolve collisions: 832
