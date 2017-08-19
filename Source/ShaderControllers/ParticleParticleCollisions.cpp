@@ -1003,57 +1003,57 @@ namespace ShaderControllers
         glDispatchCompute(numWorkGroupsX, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        // verify that the binary tree is valid by checking that all parent-child relationships 
-        // are reciprocated 
-        // Note: By virtue of being a binary tree, every node except the root has a parent, and 
-        // that parent also specifies that node as a child exactly once.
-        unsigned int startingIndexBytes = 0;
-        std::vector<BvhNode> checkBinaryTree(_bvhNodeSsbo.NumTotalNodes());
-        unsigned int bufferSizeBytes = checkBinaryTree.size() * sizeof(BvhNode);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bvhNodeSsbo.BufferId());
-        void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
-        memcpy(checkBinaryTree.data(), bufferPtr, bufferSizeBytes);
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        //// verify that the binary tree is valid by checking that all parent-child relationships 
+        //// are reciprocated 
+        //// Note: By virtue of being a binary tree, every node except the root has a parent, and 
+        //// that parent also specifies that node as a child exactly once.
+        //unsigned int startingIndexBytes = 0;
+        //std::vector<BvhNode> checkBinaryTree(_bvhNodeSsbo.NumTotalNodes());
+        //unsigned int bufferSizeBytes = checkBinaryTree.size() * sizeof(BvhNode);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bvhNodeSsbo.BufferId());
+        //void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndexBytes, bufferSizeBytes, GL_MAP_READ_BIT);
+        //memcpy(checkBinaryTree.data(), bufferPtr, bufferSizeBytes);
+        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-        // check the root node (no parent, only children)
-        int rootnodeindex = _bvhNodeSsbo.NumLeafNodes();
-        const BvhNode &rootnode = checkBinaryTree[rootnodeindex];
-        if ((rootnodeindex != checkBinaryTree[rootnode._leftChildIndex]._parentIndex) &&
-            (rootnodeindex != checkBinaryTree[rootnode._rightChildIndex]._parentIndex))
-        {
-            // root-child relationship not reciprocated
-            printf("");
-        }
+        //// check the root node (no parent, only children)
+        //int rootnodeindex = _bvhNodeSsbo.NumLeafNodes();
+        //const BvhNode &rootnode = checkBinaryTree[rootnodeindex];
+        //if ((rootnodeindex != checkBinaryTree[rootnode._leftChildIndex]._parentIndex) &&
+        //    (rootnodeindex != checkBinaryTree[rootnode._rightChildIndex]._parentIndex))
+        //{
+        //    // root-child relationship not reciprocated
+        //    printf("");
+        //}
 
-        // check all the other nodes (have parents, leaves don't have children)
-        for (size_t thisNodeIndex = 0; thisNodeIndex < checkBinaryTree.size(); thisNodeIndex++)
-        {
-            const BvhNode &thisNode = checkBinaryTree[thisNodeIndex];
+        //// check all the other nodes (have parents, leaves don't have children)
+        //for (size_t thisNodeIndex = 0; thisNodeIndex < checkBinaryTree.size(); thisNodeIndex++)
+        //{
+        //    const BvhNode &thisNode = checkBinaryTree[thisNodeIndex];
 
-            if (thisNode._parentIndex == -1)
-            {
-                // skip if it is the root; everyone else should have a parent
-                if (thisNodeIndex != _bvhNodeSsbo.NumLeafNodes())
-                {
-                    // bad: non-root node has a -1 parent
-                    printf("");
-                }
-            }
-            else
-            {
-                // this node is only one of the parent's childre, so the parent-child 
-                // relationship is only a problem if neither of the parent's child are this one
-                if ((thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._leftChildIndex) &&
-                    (thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._rightChildIndex))
-                {
-                    // parent-child relationship not reciprocated
-                    printf("");
-                }
-            }
-        }
+        //    if (thisNode._parentIndex == -1)
+        //    {
+        //        // skip if it is the root; everyone else should have a parent
+        //        if (thisNodeIndex != _bvhNodeSsbo.NumLeafNodes())
+        //        {
+        //            // bad: non-root node has a -1 parent
+        //            printf("");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // this node is only one of the parent's childre, so the parent-child 
+        //        // relationship is only a problem if neither of the parent's child are this one
+        //        if ((thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._leftChildIndex) &&
+        //            (thisNodeIndex != checkBinaryTree[thisNode._parentIndex]._rightChildIndex))
+        //        {
+        //            // parent-child relationship not reciprocated
+        //            printf("");
+        //        }
+        //    }
+        //}
 
-        printf("");
+        //printf("");
     }
 
     /*--------------------------------------------------------------------------------------------

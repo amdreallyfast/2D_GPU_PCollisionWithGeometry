@@ -1,1 +1,1 @@
-total particle sorting time: 183	microseconds
+total particle sorting time: 190	microseconds
