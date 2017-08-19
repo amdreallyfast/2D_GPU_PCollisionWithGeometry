@@ -31,6 +31,7 @@ static void GenerateParticleProperties(std::vector<ParticleProperties> &initThis
     // generic
     pp._mass = 0.05f;
     pp._collisionRadius = 0.0015f;
+    //pp._collisionRadius = 0.003f;
     initThis[ParticleProperties::ParticleType::GENERIC] = pp;
 }
 

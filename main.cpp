@@ -73,7 +73,7 @@ std::shared_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 std::shared_ptr<ShaderControllers::RenderGeometry> geometryRenderer = nullptr;
 std::shared_ptr<ShaderControllers::ParticlePolygonCollisions> particleGeometryCollisions = nullptr;
 
-const unsigned int MAX_PARTICLE_COUNT = 20000;
+const unsigned int MAX_PARTICLE_COUNT = 10000;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -95,8 +95,8 @@ void GenerateParticleEmitters()
     glm::mat4 windowSpaceTransform = glm::rotate(glm::mat4(), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
     windowSpaceTransform *= glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, 0.0f));
 
-    float particleMinVel = 0.5f;
-    float particleMaxVel = 0.8f;
+    float particleMinVel = 0.8f;
+    float particleMaxVel = 1.5f;
 
     //// bar on the left and emitting up and right
     //glm::vec2 bar1P1(-0.8f, -0.8f);
@@ -207,11 +207,17 @@ void Init()
     //      - all buffers shall have "num current items" variables in the buffer
     //      - all "num items" uniforms shall be changed to "buffer size"
     //      - Note: Let the atomic counter remain a singleton; it's not an SSBO, so it iis the odd man out and I feel okay leaving it as is
-    // - new shader controllers
-    //      - generate particle BVH (uses particle prefix scan SSBO, particle sorting data SSBO, particle BVH node SSBO)
-    //      - generate collidable polygon BVH (uses polygon prefix scan SSBO, polygon sorting data SSBO, polygon BVH node SSBO)
-    //      - particle-particle collisions (uses particle BVH SSBO, potential particle-particle collisions SSBO)
-    //      - particle-polygon collisions (uses particle BVH SSBO, collidable polygon BVH SSBO, potential particle-polygon collisions SSBO)
+    // - changes to shader controllers
+    //      - create a single "ShaderControllers" object that governs creation of, retrieval of, and disposal of shader controllers
+    //      - takes the "SSBO storage" object as an argument
+    //      - this will further cleanup main.cpp
+    //      - remove "particle-particle collisions" and "particle-polygon collisions" 
+    //      - new shader controllers
+    //          - generate particle BVH (uses particle prefix scan SSBO, particle sorting data SSBO, particle BVH node SSBO)
+    //          - generate collidable polygon BVH (uses polygon prefix scan SSBO, polygon sorting data SSBO, polygon BVH node SSBO)
+    //          - particle-particle collisions (uses particle BVH SSBO, potential particle-particle collisions SSBO)
+    //          - particle-polygon collisions (uses particle BVH SSBO, collidable polygon BVH SSBO, potential particle-polygon collisions SSBO)
+    //          - Change "FreeTypeEncapsulated" into a shader controller called "TextRendering"
     // - new "collidable polygon" structure has vertex positions and a single normal for the polygon (generating polygon geometry will still use MyVertex structures)
     // - the new "SSBO Storage" will be able to launch a compute shader that will set all the "num current items" variables to 0
     // - particle updating will still count how many particles are active with the atomic counter, but will also increment the "num active particles" for compute-only purposes
@@ -222,14 +228,14 @@ void Init()
     // - particle BVH generation will operate over "num current items" only
     // - ditto for collidable polygon BVH generation
 
-    //int workGroupSizes[3] = { 0 };
-    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &workGroupSizes[0]);
-    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &workGroupSizes[1]);
-    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &workGroupSizes[2]);
-    //int workGroupCounts[3] = { 0 };
-    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &workGroupCounts[0]);
-    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &workGroupCounts[1]);
-    //glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &workGroupCounts[2]);
+    int workGroupSizes[3] = { 0 };
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &workGroupSizes[0]);
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &workGroupSizes[1]);
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &workGroupSizes[2]);
+    int workGroupCounts[3] = { 0 };
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &workGroupCounts[0]);
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &workGroupCounts[1]);
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &workGroupCounts[2]);
 
 
     // Note: Compute headers with #define'd buffer binding locations makes it easy for the 
@@ -287,8 +293,8 @@ void UpdateAllTheThings()
     particleResetter->ResetParticles(50);
     particleUpdater->Update(deltaTimeSec);
 
-    bool withProfiling = true;
-    bool generateGeometry = false;
+    bool withProfiling = false;
+    bool generateGeometry = true;
     particleCollisions->DetectAndResolve(withProfiling, generateGeometry);
     particleGeometryCollisions->DetectAndResolve(withProfiling);
 
@@ -337,7 +343,7 @@ void Display()
 
     particleRenderer->Render(particleBuffer);
     //geometryRenderer->Render(particleCollisions->GetParticleVelocityVectorSsbo());
-    //geometryRenderer->Render(particleCollisions->GetParticleBoundingBoxSsbo());
+    geometryRenderer->Render(particleCollisions->GetParticleBoundingBoxSsbo());
     geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometrySsbo());
     //geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometryBoundingBoxesSsbo());
     //geometryRenderer->Render(particleGeometryCollisions->GetCollidableGeometryNormals());
