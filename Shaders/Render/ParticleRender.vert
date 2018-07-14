@@ -49,7 +49,8 @@ void main()
         float max = MAX_NUM_POTENTIAL_COLLISIONS;
 
         vec4 lowPressureColor = white;
-        vec4 midPressureColor = blue;
+        //vec4 midPressureColor = blue;
+        vec4 midPressureColor = green;
         vec4 highPressureColor = red;
 
         //if (numNearbyParticles == 0)

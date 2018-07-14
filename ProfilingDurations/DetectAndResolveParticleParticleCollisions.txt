@@ -1,4 +1,4 @@
 particle-particle collision handling time:
-	total: 2212
-	detect collisions: 2068
-	resolve collisions: 144
+	total: 32238
+	detect collisions: 31554
+	resolve collisions: 684

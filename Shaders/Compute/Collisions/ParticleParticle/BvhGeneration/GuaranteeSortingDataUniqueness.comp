@@ -58,12 +58,13 @@ void main()
         return;
     }
 
-    if (AllParticles[threadIndex]._isActive == 1)
-    {
-        AllParticleSortingData[threadIndex]._sortingData += threadIndex;
-    }
-    else
-    {
-        AllParticleSortingData[threadIndex]._sortingData -= (uMaxNumParticleSortingData - threadIndex);
-    }
+    AllParticleSortingData[threadIndex]._sortingData += threadIndex;
+//    if (AllParticles[threadIndex]._isActive == 1)
+//    {
+//        AllParticleSortingData[threadIndex]._sortingData += threadIndex;
+//    }
+//    else
+//    {
+//        AllParticleSortingData[threadIndex]._sortingData -= (uMaxNumParticleSortingData - threadIndex);
+//    }
 }

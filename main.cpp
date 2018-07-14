@@ -73,7 +73,7 @@ std::shared_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 std::shared_ptr<ShaderControllers::RenderGeometry> geometryRenderer = nullptr;
 std::shared_ptr<ShaderControllers::ParticlePolygonCollisions> particleGeometryCollisions = nullptr;
 
-const unsigned int MAX_PARTICLE_COUNT = 10000;
+const unsigned int MAX_PARTICLE_COUNT = 15000;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -95,8 +95,10 @@ void GenerateParticleEmitters()
     glm::mat4 windowSpaceTransform = glm::rotate(glm::mat4(), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
     windowSpaceTransform *= glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, 0.0f));
 
-    float particleMinVel = 0.8f;
-    float particleMaxVel = 1.5f;
+    //float particleMinVel = 0.4f;
+    //float particleMaxVel = 1.0f;
+    float particleMinVel = 0.2f;
+    float particleMaxVel = 0.7f;
 
     //// bar on the left and emitting up and right
     //glm::vec2 bar1P1(-0.8f, -0.8f);
@@ -290,11 +292,11 @@ void UpdateAllTheThings()
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
 
-    particleResetter->ResetParticles(50);
+    particleResetter->ResetParticles(40);
     particleUpdater->Update(deltaTimeSec);
 
     bool withProfiling = false;
-    bool generateGeometry = true;
+    bool generateGeometry = false;
     particleCollisions->DetectAndResolve(withProfiling, generateGeometry);
     particleGeometryCollisions->DetectAndResolve(withProfiling);
 

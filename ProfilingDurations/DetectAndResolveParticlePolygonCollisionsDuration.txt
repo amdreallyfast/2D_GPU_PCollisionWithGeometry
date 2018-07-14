@@ -1,4 +1,4 @@
 particle-polygon collision handling time:
-	total: 513
-	detect collisions: 380
-	resolve collisions: 133
+	total: 718
+	detect collisions: 467
+	resolve collisions: 251

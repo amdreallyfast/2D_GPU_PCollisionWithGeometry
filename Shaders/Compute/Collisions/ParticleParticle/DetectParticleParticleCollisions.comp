@@ -75,10 +75,11 @@ void main()
     {
         return;
     }
-    else if (AllParticleBvhNodes[threadIndex]._isNull == 1)
+    
+    // even if this is a thread for an inactive particle, at least clear the collision counter
+    AllPotentialParticleParticleCollisions[threadIndex]._numPotentialCollisions = 0;
+    if (AllParticleBvhNodes[threadIndex]._isNull == 1)
     {
-        // this is a node for an inactive particle, but at least clear the counter
-        AllPotentialParticleParticleCollisions[threadIndex]._numPotentialCollisions = 0;
         return;
     }
 
@@ -113,10 +114,10 @@ void main()
         int leftChildIndex = AllParticleBvhNodes[currentParticleNodeIndex]._leftChildIndex;
         BvhNode leftChild = AllParticleBvhNodes[leftChildIndex];
         bool leftIsNotNull = (leftChild._isNull == 0);
-        bool leftChildIsNotSelf = (leftChildIndex != thisLeafNodeIndex);
-        bool leftChildIsLeaf = (leftChild._isLeaf == 1);
+        bool leftIsNotSelf = (leftChildIndex != thisLeafNodeIndex);
+        bool leftIsLeaf = (leftChild._isLeaf == 1);
         bool leftOverlap = BoundingBoxesOverlap(leftChild._boundingBox);
-        if (leftIsNotNull && leftChildIsNotSelf && leftChildIsLeaf && leftOverlap)
+        if (leftIsNotNull && leftIsNotSelf && leftIsLeaf && leftOverlap)
         {
             // if there are too many collisions, run over the last entry
             numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
@@ -127,19 +128,25 @@ void main()
         int rightChildIndex = AllParticleBvhNodes[currentParticleNodeIndex]._rightChildIndex;
         BvhNode rightChild = AllParticleBvhNodes[rightChildIndex];
         bool rightIsNotNull = (rightChild._isNull == 0);
-        bool rightChildIsNotSelf = (rightChildIndex != thisLeafNodeIndex);
-        bool rightChildIsLeaf = (rightChild._isLeaf == 1);
+        bool rightIsNotSelf = (rightChildIndex != thisLeafNodeIndex);
+        bool rightIsLeaf = (rightChild._isLeaf == 1);
         bool rightOverlap = BoundingBoxesOverlap(rightChild._boundingBox);
-        if (rightIsNotNull && rightChildIsNotSelf && rightChildIsLeaf && rightOverlap )
+        if (rightIsNotNull && rightIsNotSelf && rightIsLeaf && rightOverlap )
         {
             // if there are too many collisions, run over the last entry
             numPotentialCollisions -= (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS) ? 1 : 0;
             particleIndexes[numPotentialCollisions++] = rightChildIndex;
         }
 
+        //if (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS)
+        //{
+        //    // stop looking
+        //    break;
+        //}
+
         // next node
-        bool traverseLeft = (leftIsNotNull && leftOverlap && !leftChildIsLeaf);
-        bool traverseRight = (rightIsNotNull && rightOverlap && !rightChildIsLeaf);
+        bool traverseLeft = (leftIsNotNull && leftOverlap && !leftIsLeaf);
+        bool traverseRight = (rightIsNotNull && rightOverlap && !rightIsLeaf);
         if (!traverseLeft && !traverseRight)
         {
             // both children children must be leaves, non-overlapping, or both, so pop the top 
