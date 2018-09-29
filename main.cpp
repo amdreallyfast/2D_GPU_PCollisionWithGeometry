@@ -73,7 +73,7 @@ std::shared_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 std::shared_ptr<ShaderControllers::RenderGeometry> geometryRenderer = nullptr;
 std::shared_ptr<ShaderControllers::ParticlePolygonCollisions> particleGeometryCollisions = nullptr;
 
-const unsigned int MAX_PARTICLE_COUNT = 15000;
+const unsigned int MAX_PARTICLE_COUNT = 10000;
 
 
 /*------------------------------------------------------------------------------------------------

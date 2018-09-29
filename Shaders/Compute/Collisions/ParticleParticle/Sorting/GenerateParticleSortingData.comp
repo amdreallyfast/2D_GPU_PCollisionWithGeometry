@@ -26,11 +26,11 @@ void main()
     }
 
     uint mortonCode = PositionToMortonCode(AllParticles[threadIndex]._currPos);
-//    if (AllParticles[threadIndex]._isActive == 0)
-//    {
-//        // sort inactive particles to the back by giving them a large sorting value
-//        mortonCode = 0xffffffff;
-//    }
+    if (AllParticles[threadIndex]._isActive == 0)
+    {
+        // sort inactive particles to the back by giving them a large sorting value
+        mortonCode = 0xffffffff;
+    }
 
     AllParticleSortingData[threadIndex]._sortingData = mortonCode;
     AllParticleSortingData[threadIndex]._preSortedIndex = int(threadIndex);

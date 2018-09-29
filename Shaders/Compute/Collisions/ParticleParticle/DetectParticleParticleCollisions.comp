@@ -138,11 +138,11 @@ void main()
             particleIndexes[numPotentialCollisions++] = rightChildIndex;
         }
 
-        //if (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS)
-        //{
-        //    // stop looking
-        //    break;
-        //}
+        if (numPotentialCollisions == MAX_NUM_POTENTIAL_COLLISIONS)
+        {
+            // stop looking
+            break;
+        }
 
         // next node
         bool traverseLeft = (leftIsNotNull && leftOverlap && !leftIsLeaf);
